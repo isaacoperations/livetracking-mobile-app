@@ -1,0 +1,48 @@
+import {FONT} from './fonts';
+
+export const THEME = {
+  GRAY_COLOR: '#EDF0F3',
+  CHAR_COLOR: '#666',
+  DARK_COLOR: '#000',
+  PRIMARY_COLOR: '#0A71CE',
+  PRIMARY_COLOR_HOVER: 'rgba(10, 113, 206, 0.5)',
+  PRIMARY_COLOR_DARK: '#004485',
+  TEXT_COLOR: '#151C26',
+  DANGER_COLOR: '#E31C53',
+  DANGER_COLOR_DARK: '#AF0534',
+  WHITE_COLOR: 'white',
+  SUCCESS_COLOR: '#1F9D00',
+  WARNING_COLOR: '#FEC600',
+  ERROR_COLOR: '#E00000',
+  ASH_COLOR: '#BBB',
+  PEW_COLOR: '#999',
+  GREEN_COLOR: '#7CBEA6',
+  TRANSPARENT_COLOR: 'transparent',
+  BUTTON_PRIMARY_BIG: {
+    width: '100%',
+    height: 63,
+    marginBottom: 30,
+    borderRadius: 4,
+    borderWidth: 1,
+    padding: 20,
+  },
+  BUTTON_PRIMARY_SMALL: {
+    width: '100%',
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+    borderRadius: 4,
+    borderWidth: 1,
+    padding: 0,
+  },
+  TEXT: {
+    fontFamily: FONT.SemiBold,
+    fontSize: 14,
+  },
+  ERROR_TEXT: {
+    color: 'red',
+    marginTop: -20,
+    marginBottom: 20,
+  },
+};

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "470072842195",
+    "project_id": "formidable-card-291708",
+    "storage_bucket": "formidable-card-291708.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470072842195:android:399b1a69664ba8da6d4126",
+        "android_client_info": {
+          "package_name": "com.lmaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470072842195-t9or0bfpk6kmbqrvbnoctfg16hm9ca4n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXcGaFdZpgSW_9izA3pxi_lxuNlgo10eY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470072842195-t9or0bfpk6kmbqrvbnoctfg16hm9ca4n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
