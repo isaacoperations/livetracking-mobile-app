@@ -20,6 +20,7 @@
 		2DCD954D1E0B4F2C00145EB5 /* LMAappTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* LMAappTests.m */; };
 		328394550B2F46AAAAB63518 /* SFProDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 18EE1B0ACC2E4A5AAFDD704E /* SFProDisplay-Medium.otf */; };
 		3F173B2E25A3858900740468 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F173B2D25A3858900740468 /* ExternalAccessory.framework */; };
+		3F38CCD625BB3DC7001E28D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F38CCD525BB3DC7001E28D6 /* GoogleService-Info.plist */; };
 		3F64C794F6AC16F0E7D08936 /* libPods-LMAapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 990C50523F39E66282B9409D /* libPods-LMAapp.a */; };
 		4A8396CEB4914136A6232F7B /* SFProDisplay-LightItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = CBA63B6A4CD5419C95CED580 /* SFProDisplay-LightItalic.otf */; };
 		6E5E5F3F38A948238E4719F8 /* SFProDisplay-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AAE6F01A54774410A3606D10 /* SFProDisplay-Semibold.otf */; };
@@ -96,6 +97,7 @@
 		3F1739A125A33D4D00740468 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F173B2C25A3858900740468 /* LMAapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = LMAapp.entitlements; path = LMAapp/LMAapp.entitlements; sourceTree = "<group>"; };
 		3F173B2D25A3858900740468 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
+		3F38CCD525BB3DC7001E28D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Documents/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3FF1EE1A259CCBA200579D68 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		3FF1EE1B259CCBA200579D68 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		3FF1EE1C259CCBA200579D68 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 		13B07FAE1A68108700A75B9A /* LMAapp */ = {
 			isa = PBXGroup;
 			children = (
+				3F38CCD525BB3DC7001E28D6 /* GoogleService-Info.plist */,
 				3F173B2C25A3858900740468 /* LMAapp.entitlements */,
 				3FF1EE19259CCB3E00579D68 /* Fonts */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -433,7 +436,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 66S6R3Z76X;
+						DevelopmentTeam = 2SF3W8G6X7;
 						LastSwiftMigration = 1120;
 						ProvisioningStyle = Automatic;
 					};
@@ -501,6 +504,7 @@
 				96DF56F44CFC4244B9F7E57A /* SFProDisplay-ThinItalic.otf in Resources */,
 				F3360CC1ADF042BFA1DAD6F1 /* SFProDisplay-Ultralight.otf in Resources */,
 				0BBA4887D7EF4F23A07E2204 /* SFProDisplay-UltralightItalic.otf in Resources */,
+				3F38CCD625BB3DC7001E28D6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -904,7 +908,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 66S6R3Z76X;
+				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = LMAapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
@@ -914,7 +918,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.livetracking.LMAapp;
 				PRODUCT_NAME = LMAapp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -934,7 +938,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 66S6R3Z76X;
+				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				INFOPLIST_FILE = LMAapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -943,7 +947,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.livetracking.LMAapp;
 				PRODUCT_NAME = LMAapp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

@@ -1,6 +1,7 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, Pressable, Alert} from 'react-native';
 import * as Animatable from 'react-native-animatable';
+import messaging from '@react-native-firebase/messaging';
 
 import {Btn} from '../../components/Button';
 import {THEME} from '../../constants/theme';
@@ -8,19 +9,35 @@ import {FONT} from '../../constants/fonts';
 import LogoNotification from '../../components/LogoNotification';
 
 export function EnableNotificationScreen({navigation}) {
-  const handleSubmit = () => {
-    Alert.alert(
-      '“LiveTracking” Would Like to Send You Notifications"',
-      'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.',
-      [
-        {
-          text: 'Don’t Allow',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {text: 'OK', onPress: () => navigation.navigate('Authentication')},
-      ],
-    );
+  const [isShow, setIsShow] = useState(true);
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+      setIsShow(false);
+    } else {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
+  const handleSubmit = async () => {
+    // Alert.alert(
+    //   '“LiveTracking” Would Like to Send You Notifications"',
+    //   'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.',
+    //   [
+    //     {
+    //       text: 'Don’t Allow',
+    //       onPress: () => console.log('Cancel Pressed'),
+    //       style: 'cancel',
+    //     },
+    //     {text: 'OK', onPress: () => navigation.navigate('Authentication')},
+    //   ],
+    // );
+    await requestUserPermission();
   };
 
   return (
@@ -38,45 +55,64 @@ export function EnableNotificationScreen({navigation}) {
           your subscribed notifications are triggered.
         </Text>
       </View>
-      <Pressable
-        onPress={handleSubmit}
-        style={({pressed}) => [
-          {
-            backgroundColor: pressed
-              ? THEME.PRIMARY_COLOR_DARK
-              : THEME.PRIMARY_COLOR,
-            borderColor: THEME.WHITE_COLOR,
-          },
-          THEME.BUTTON_PRIMARY_SMALL,
-        ]}>
-        {({pressed}) => (
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-              flexDirection: 'row',
-            }}>
-            <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-              Enable Notification
-            </Text>
-          </View>
-        )}
-      </Pressable>
-      <Btn
-        navigation={navigation}
-        title={'I’ll do it later'}
-        onPress={() => navigation.navigate('AuthInfo')}
-        borderColor={THEME.PRIMARY_COLOR}
-        backgroundColor={THEME.WHITE_COLOR}
-        backgroundColorHover={THEME.PRIMARY_COLOR}
-        textColor={THEME.PRIMARY_COLOR}
-        textColorHover={THEME.WHITE_COLOR}
-        icon={false}
-        iconColor={THEME.PRIMARY_COLOR}
-        iconColorHover={THEME.WHITE_COLOR}
-        size={THEME.BUTTON_PRIMARY_SMALL}
-      />
+      {isShow && isShow ? (
+        <>
+          <Pressable
+            onPress={handleSubmit}
+            style={({pressed}) => [
+              {
+                backgroundColor: pressed
+                  ? THEME.PRIMARY_COLOR_DARK
+                  : THEME.PRIMARY_COLOR,
+                borderColor: THEME.WHITE_COLOR,
+              },
+              THEME.BUTTON_PRIMARY_SMALL,
+            ]}>
+            {({pressed}) => (
+              <View
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  flexDirection: 'row',
+                }}>
+                <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                  Enable Notification
+                </Text>
+              </View>
+            )}
+          </Pressable>
+          <Btn
+            navigation={navigation}
+            title={'I’ll do it later'}
+            onPress={() => navigation.navigate('AuthInfo')}
+            borderColor={THEME.PRIMARY_COLOR}
+            backgroundColor={THEME.WHITE_COLOR}
+            backgroundColorHover={THEME.PRIMARY_COLOR}
+            textColor={THEME.PRIMARY_COLOR}
+            textColorHover={THEME.WHITE_COLOR}
+            icon={false}
+            iconColor={THEME.PRIMARY_COLOR}
+            iconColorHover={THEME.WHITE_COLOR}
+            size={THEME.BUTTON_PRIMARY_SMALL}
+          />
+        </>
+      ) : (
+        <Btn
+          navigation={navigation}
+          title={'Go to login page'}
+          onPress={() => navigation.navigate('Login')}
+          borderColor={THEME.PRIMARY_COLOR}
+          backgroundColor={THEME.WHITE_COLOR}
+          backgroundColorHover={THEME.PRIMARY_COLOR}
+          textColor={THEME.PRIMARY_COLOR}
+          textColorHover={THEME.WHITE_COLOR}
+          icon={false}
+          iconColor={THEME.PRIMARY_COLOR}
+          iconColorHover={THEME.WHITE_COLOR}
+          size={THEME.BUTTON_PRIMARY_SMALL}
+        />
+      )}
     </View>
   );
 }

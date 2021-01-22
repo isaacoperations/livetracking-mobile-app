@@ -1,5 +1,5 @@
 import {useReducer, useMemo, useEffect} from 'react';
-import SecureStorage from 'react-native-secure-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Auth0 from 'react-native-auth0';
 
 import {createAction} from '../utils/createAction';
@@ -31,13 +31,13 @@ export function useAuth() {
                   token: data.accessToken,
                   picture: user.picture,
                 };
-                await SecureStorage.setItem('user', JSON.stringify(userData));
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
                 dispatch(createAction('SET_USER', userData));
               });
           });
       },
       logout: async () => {
-        await SecureStorage.removeItem('user');
+        await AsyncStorage.removeItem('user');
         dispatch(createAction('REMOVE_USER'));
       },
     }),
@@ -45,7 +45,7 @@ export function useAuth() {
   );
   useEffect(() => {
     sleep(2000).then(async () => {
-      await SecureStorage.getItem('user').then((user) => {
+      await AsyncStorage.getItem('user').then((user) => {
         if (user) {
           dispatch(createAction('SET_USER', JSON.parse(user)));
         }

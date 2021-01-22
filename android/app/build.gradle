@@ -209,6 +209,12 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics'
 
+    implementation project(':react-native-push-notification')
+
+    implementation project(':react-native-secure-storage')
+
+    implementation project(':react-native-vector-icons')
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
