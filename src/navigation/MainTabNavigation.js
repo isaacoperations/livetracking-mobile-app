@@ -81,16 +81,16 @@ function ReportHeader({title, navigation}) {
 
 const HomeStackNavigator = ({route, navigation}) => {
   const routeName = getFocusedRouteNameFromRoute(route);
-  console.log('routeName', routeName);
+  console.log('routeName Home', routeName);
   return (
     <>
-      {routeName !== 'CardDetail' ? (
+      {routeName === 'CardDetail' ? (
+        <ReportHeader title={'Run report 2'} navigation={navigation} />
+      ) : (
         <CustomHeader
           title={'Test Factory Etobicoke South'}
           navigation={navigation}
         />
-      ) : (
-        <ReportHeader title={'Run report 2'} navigation={navigation} />
       )}
 
       <HomeStack.Navigator
@@ -103,10 +103,10 @@ const HomeStackNavigator = ({route, navigation}) => {
         <HomeStack.Screen
           name="CardDetail"
           component={CardDetailScreen}
-          options={({route}) => ({
-            // cardOverlayEnabled: true,
-            // ...TransitionPresets.ModalPresentationIOS,
-          })}
+          // options={({route}) => ({
+          //   // cardOverlayEnabled: true,
+          //   // ...TransitionPresets.ModalPresentationIOS,
+          // })}
         />
       </HomeStack.Navigator>
     </>
@@ -115,25 +115,24 @@ const HomeStackNavigator = ({route, navigation}) => {
 
 const ReportStackNavigator = ({route, navigation}) => {
   const routeName = getFocusedRouteNameFromRoute(route);
+  console.log('routeName', routeName);
   const Header = (routes) => {
-    if (routes === 'ReportScreen') {
-      return (
-        <CustomHeader
-          title={'Test Factory Etobicoke South'}
-          navigation={navigation}
-        />
-      );
-    } else if (routes === 'DownTime') {
-      return <ReportHeader title={'Downtime Detail'} navigation={navigation} />;
-    } else if (routes === 'RunLog') {
-      return (
-        <ReportHeader
-          title={'Test Factory Etobicoke South'}
-          navigation={navigation}
-        />
-      );
-    } else {
-      return <ReportHeader title={'Run report'} navigation={navigation} />;
+    switch (routes) {
+      case 'ReportScreen':
+        return (
+          <CustomHeader
+            title={'Test Factory Etobicoke South 2222'}
+            navigation={navigation}
+          />
+        );
+      case 'DownTime':
+        return (
+          <ReportHeader title={'Downtime Detail'} navigation={navigation} />
+        );
+      case 'RunLog':
+        return <ReportHeader title={'RunLog'} navigation={navigation} />;
+      default:
+        return <ReportHeader title={'Run report'} navigation={navigation} />;
     }
   };
   return (
@@ -164,7 +163,10 @@ const ReportStackNavigator = ({route, navigation}) => {
 const NotificationStackNavigator = ({navigation}) => {
   return (
     <>
-      <CustomHeader title="Test Factory Etobicoke South" navigation={navigation} />
+      <CustomHeader
+        title="Test Factory Etobicoke South"
+        navigation={navigation}
+      />
       <NotificationStack.Navigator
         screenOptions={{
           headerShown: false,

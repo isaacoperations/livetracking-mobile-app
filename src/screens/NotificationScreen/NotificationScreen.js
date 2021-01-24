@@ -6,11 +6,7 @@ import {
   Platform,
   Text,
   View,
-  Alert,
 } from 'react-native';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import PushNotification from 'react-native-push-notification';
-import messaging from '@react-native-firebase/messaging';
 
 import {NotificationComponent} from '../../components/NotificationComponent';
 import IconBox from '../../components/IconBox';
@@ -101,58 +97,9 @@ const data = [
 ];
 
 export function NotificationScreen() {
-  const [permissions, setPermissions] = useState({});
-
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
-    }
-  }
-
-  const getPushData = async (remoteMessage) => {
-    PushNotification.localNotification({
-      title: remoteMessage.notification.title, // (optional)
-      message: remoteMessage.notification.message, // (required)
-    });
-    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-  };
-
-  const getTokenFB = async () => {
-    const tokenFB = await messaging().getToken();
-    console.log('tokenFB', tokenFB);
-  };
-
-  useEffect(() => {
-    getTokenFB();
-    requestUserPermission();
-
-    messaging().onMessage(getPushData);
-    messaging().setBackgroundMessageHandler(getPushData);
-
-    PushNotificationIOS.addEventListener('notification', onRemoteNotification);
-  }, []);
-
-  const onRemoteNotification = (notification) => {
-    const actionIdentifier = notification.getActionIdentifier();
-
-    if (actionIdentifier === 'open') {
-      // Perform action based on open action
-      console.log('actionIdentifier', actionIdentifier);
-    }
-
-    if (actionIdentifier === 'text') {
-      // Text that of user input.
-      const userText = notification.getUserText();
-      // Perform action based on textinput action
-
-      console.log('actionIdentifier', userText);
-    }
-  };
+  // useEffect(() => {
+  //
+  // }, []);
 
   return (
     <SafeAreaView style={styles.container}>

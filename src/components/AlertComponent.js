@@ -1,6 +1,6 @@
 import {Alert} from 'react-native';
 
-export const alert = (title, message) => {
+export const AlertComponent = (title, message) => {
   Alert.alert(
     title,
     message,

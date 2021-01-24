@@ -25,7 +25,7 @@ import {CardComponent} from '../../components/CardComponent';
 import IconBox from '../../components/IconBox';
 import {Btn} from '../../components/Button';
 
-import {UserContext} from '../../context/context';
+import {UserContext, NotificationContext} from '../../context/context';
 
 const cardList = [
   {
@@ -119,6 +119,7 @@ export function HomeScreen({navigation}) {
   const WIDTH = Dimensions.get('window').width;
 
   const user = useContext(UserContext);
+  const notify = useContext(NotificationContext);
 
   useEffect(() => {
     (async () => {
@@ -128,6 +129,10 @@ export function HomeScreen({navigation}) {
     console.log('home user token', user?.token);
     console.log('home user email', user?.email);
     console.log('home user picture', user?.picture);
+    console.log('home notify notification', notify);
+    console.log('home notify data', notify);
+    console.log('home notify title', notify?.title);
+    console.log('home notify body', notify?.body);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkData]);
 

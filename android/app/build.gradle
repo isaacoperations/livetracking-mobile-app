@@ -210,8 +210,6 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics'
 
-    implementation project(':react-native-push-notification')
-
     implementation project(':react-native-vector-icons')
 
     implementation ('com.android.support:multidex:2.0.1')
