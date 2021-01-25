@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 import {NotificationComponent} from '../../components/NotificationComponent';
 import IconBox from '../../components/IconBox';
@@ -97,9 +98,16 @@ const data = [
 ];
 
 export function NotificationScreen() {
-  // useEffect(() => {
-  //
-  // }, []);
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      messaging()
+        .getIsHeadless()
+        .then((isHeadless) => {
+          // do sth with isHeadless
+          console.log('getIsHeadless isHeadless', isHeadless);
+        });
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

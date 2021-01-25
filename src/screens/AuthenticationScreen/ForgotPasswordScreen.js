@@ -10,10 +10,12 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {Formik, ErrorMessage} from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import Auth0 from 'react-native-auth0';
 
 import {API_URL_FORGOT_PASSWORD} from '../../config';
 import {THEME} from '../../constants/theme';
@@ -21,8 +23,13 @@ import {FONT} from '../../constants/fonts';
 import HeaderStatus from '../../components/HeaderStatus';
 import ErrorComponent from '../../components/ErrorComponent';
 
+import {credentials} from '../../config/auth0-configuration';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {createAction} from '../../utils/createAction';
+
 export function ForgotPasswordScreen({navigation}) {
   const [isError, setIsError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
       .min(3, 'Please enter more than 3 characters!')
@@ -30,6 +37,9 @@ export function ForgotPasswordScreen({navigation}) {
       .email('Invalid email')
       .required('Required'),
   });
+
+  const auth0 = new Auth0(credentials);
+  const formData = new FormData();
 
   return (
     <>
@@ -39,28 +49,44 @@ export function ForgotPasswordScreen({navigation}) {
         validationSchema={LoginSchema}
         onSubmit={async (values, actions) => {
           try {
-            const formData = new FormData();
-            formData.append('email_data', {
-              'esen.arykbaev@dteam.dev': {
-                username: 'esen',
-                email: 'esen.arykbaev@dteam.dev',
+            setIsLoading(true);
+            const emailData = values.email.toLowerCase();
+            const data = JSON.stringify({
+              [emailData]: {
+                username: emailData,
+                email: emailData,
               },
             });
-            console.log('asdasd', formData._parts[0]);
+            formData.append('email_data', data);
+            // await auth0.auth
+            //   .resetPassword({
+            //     email: values.email.toLowerCase(),
+            //     connection: 'Username-Password-Authentication',
+            //   })
+            //   .then(async (res) => {
+            //     console.log('data auth0', res);
             await axios({
               method: 'POST',
               url: API_URL_FORGOT_PASSWORD,
               headers: {
-                'Content-Type': 'multipart/form-data; boundary=--------------------------805119290776880596250158',
                 'x-api-key': 'sL5WYLqysS3N8g12LpnyL9dUUoDxoPDT7CW25dGr',
-                Host: 'p6ynxnvo9l.execute-api.eu-central-1.amazonaws.com',
+                'Content-Type': 'multipart/form-data;',
               },
               data: formData,
+            }).then((response) => {
+              setIsLoading(false);
+              setIsError('');
             });
+            // })
+            // .catch((err) => {
+            //   console.log('errr', err);
+            //   setIsError(err.message);
+            //   setIsLoading(false);
+            // });
             actions.resetForm();
           } catch (e) {
-            console.log('err', e.message);
             setIsError(e.message);
+            setIsLoading(false);
           }
         }}>
         {({
@@ -140,7 +166,11 @@ export function ForgotPasswordScreen({navigation}) {
                           }}>
                           <Text
                             style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-                            Reset Password
+                            {isLoading ? (
+                              <ActivityIndicator color={THEME.WHITE_COLOR} />
+                            ) : (
+                              'Reset Password'
+                            )}
                           </Text>
                         </View>
                       )}

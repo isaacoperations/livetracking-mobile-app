@@ -92,6 +92,17 @@ class LocalNotificationService {
     };
   };
 
+  getApplicationIconBadgeNumber = () => {
+    // Clear badge number at start
+    PushNotification.getApplicationIconBadgeNumber(function (number) {
+      console.log('getApplicationIconBadgeNumber', number);
+      if (number > 0) {
+        console.log('getApplicationIconBadgeNumberNUMBER', number);
+        //PushNotification.setApplicationIconBadgeNumber(0);
+      }
+    });
+  };
+
   cancelAllLocalNotifications = () => {
     if (Platform.OS === 'ios') {
       PushNotificationIOS.removeAllDeliveredNotifications();

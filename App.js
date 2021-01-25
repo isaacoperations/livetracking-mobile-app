@@ -22,7 +22,7 @@ const App = () => {
   const [notifyData, setNotifyData] = useState({});
 
   function onRegister(token) {
-    console.log('[Notification] Register: ', token);
+    console.log('[Notification] onRegister: ', token);
   }
 
   function onNotification(notify) {
@@ -43,10 +43,10 @@ const App = () => {
   }
 
   function onOpenNotification(notify) {
-    console.log('[Notification] onOpenNotification : ', notify);
+    console.log('[Notification] onOpenNotification  : ', notify);
 
     Alert.alert(
-      'Notification is opened',
+      'Notification alert',
       notify.body,
       [{text: 'OK', onPress: () => console.log('OK Pressed')}],
       {cancelable: false},
@@ -72,9 +72,10 @@ const App = () => {
   useEffect(() => {
     console.log('user state app', state?.user);
 
-    fcmService.registerAppWithFCM();
+    //fcmService.registerAppWithFCM();
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
+    localNotificationService.getApplicationIconBadgeNumber();
 
     //onPressSendNotification();
 
