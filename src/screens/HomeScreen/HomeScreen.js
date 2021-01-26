@@ -15,7 +15,10 @@ import {CommonActions} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import IconMaterialComIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import Clipboard from 'react-native-advanced-clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -124,17 +127,14 @@ export function HomeScreen({navigation}) {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
-      await IconMaterialComIcons.loadFont();
+      await MaterialCommunityIcons.loadFont();
     })();
     console.log('home user token', user?.token);
     console.log('home user email', user?.email);
     console.log('home user picture', user?.picture);
-    console.log('home notify notification', notify);
     console.log('home notify data', notify);
-    console.log('home notify title', notify?.title);
-    console.log('home notify body', notify?.body);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkData]);
+  }, []);
 
   const renderCard = ({item}) => (
     <CardComponent
@@ -160,10 +160,19 @@ export function HomeScreen({navigation}) {
     setIsVisible(false);
   };
 
+  const copyToClipboard = async () => {
+    const tokenDevice = await AsyncStorage.getItem('tokenDevice');
+    Clipboard.setString(tokenDevice);
+  };
+
   return (
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
+        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
+        {/*  <Text>Click here to copy to Token Device </Text>*/}
+        {/*</TouchableOpacity>*/}
+
         <View style={styles.tabContainer}>
           <SegmentedControlTab
             values={['All lines', 'My line']}
@@ -322,7 +331,7 @@ export function HomeScreen({navigation}) {
                             />
                           }
                           uncheckedIcon={
-                            <IconMaterialComIcons
+                            <MaterialCommunityIcons
                               name={'circle-outline'}
                               size={24}
                               style={{color: THEME.PRIMARY_COLOR}}
@@ -414,6 +423,6 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
     marginTop: 'auto',
-    marginBottom: 60,
+    marginBottom: Platform.OS === 'ios' ? 60 : 20,
   },
 });

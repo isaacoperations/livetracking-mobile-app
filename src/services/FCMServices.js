@@ -1,5 +1,5 @@
 import messaging from '@react-native-firebase/messaging';
-import {Platform} from 'react-native';
+import {Alert, Platform} from 'react-native';
 
 class FCMService {
   register = (onRegister, onNotification, onOpenNotification) => {
@@ -41,6 +41,12 @@ class FCMService {
       .then((fcmToken) => {
         if (fcmToken) {
           onRegister(fcmToken);
+          // Alert.alert(
+          //   'Notification Token Device',
+          //   fcmToken,
+          //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          //   {cancelable: false},
+          // );
         } else {
           console.log('[FCMService] User does not have a device token');
         }

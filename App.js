@@ -17,25 +17,30 @@ import AuthStackNavigator from './src/navigation/AuthStackNavigation';
 import {useAuth} from './src/hooks/useAuth';
 import {SplashScreenComponent} from './src/components/SplashScreen';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const App = () => {
+  //const navigation = useNavigation();
   const {auth, state} = useAuth();
   const [notifyData, setNotifyData] = useState({});
 
   function onRegister(token) {
+    AsyncStorage.setItem('tokenDevice', token);
     console.log('[Notification] onRegister: ', token);
   }
 
   function onNotification(notify) {
     console.log('[Notification] onNotification : ', notify);
+    const title = notify?.title || 'LiveTracking';
+    const message = notify?.body || notify?.message;
     const options = {
       soundName: 'default',
       playSound: true,
       vibrate: true,
     };
     localNotificationService.showNotification(
-      0,
-      notify.title,
-      notify.body,
+      title,
+      message,
       notify, //data
       options, //options
     );
@@ -44,28 +49,14 @@ const App = () => {
 
   function onOpenNotification(notify) {
     console.log('[Notification] onOpenNotification  : ', notify);
-
-    Alert.alert(
-      'Notification alert',
-      notify.body,
-      [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-      {cancelable: false},
-    );
   }
 
   const onPressSendNotification = () => {
     console.log('START onPressSendNotification');
-    const options = {
-      soundName: 'default',
-      playSound: true,
-      vibrate: true,
-    };
     localNotificationService.showNotification(
-      1,
       'App Notification',
       'local Notification',
       {}, //data
-      options, //options
     );
   };
 

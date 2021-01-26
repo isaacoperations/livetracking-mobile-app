@@ -3,6 +3,10 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {Platform} from 'react-native';
 
 class LocalNotificationService {
+  constructor() {
+    this.lastId = 0;
+  }
+
   configure = (onOpenNotification) => {
     PushNotification.configure({
       onRegister: function (token) {
@@ -10,6 +14,7 @@ class LocalNotificationService {
       },
       onNotification: function (notification) {
         console.log('[LocalNotificationService] onNotification:', notification);
+        console.log('[LocalNotificationService] test:', notification);
         if (!notification?.data) {
           return;
         }
@@ -50,27 +55,15 @@ class LocalNotificationService {
     PushNotification.unregister();
   };
 
-  showNotification = (id, title, message, data = {}, options = {}) => {
-    PushNotification.localNotification({
-      /* Android Only Properties */
-      ...this.buildAndroidNotification(id, title, message, data, options),
-      /* iOS and Android properties */
-      ...this.buildIOSNotification(id, title, message, data, options),
-      /* iOS and Android properties */
-      title: title || '',
-      message: message || '',
-      playSound: options.playSound || false,
-      soundName: options.soundName || 'default',
-      userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not
-    });
-  };
-
   buildAndroidNotification = (id, title, message, data = {}, options = {}) => {
     return {
       id: id,
+      //channelId: options.soundName ? 'sound-channel-id' : 'default-channel-id',
+      ticker: options.ticker || 'My Notification Ticker',
+      color: options.color || 'red',
       autoCancel: true,
       largeIcon: options.largeIcon || 'ic_launcher',
-      smallIcon: options.smallIcon || 'ic_notification',
+      smallIcon: options.smallIcon || 'ic_launcher',
       bigText: message || '',
       subText: title || '',
       vibrate: options.vibrate || true,
@@ -78,6 +71,8 @@ class LocalNotificationService {
       priority: options.priority || 'high',
       importance: options.importance || 'high', // (optional) set notification importance, default: high,
       data: data,
+      invokeApp: true,
+      sound: true,
     };
   };
 
@@ -92,6 +87,22 @@ class LocalNotificationService {
     };
   };
 
+  showNotification = (title, message, data = {}, options = {}) => {
+    this.lastId++;
+    PushNotification.localNotification({
+      /* Android Only Properties */
+      ...this.buildAndroidNotification(this.lastId, title, message, data, options),
+      /* iOS and Android properties */
+      ...this.buildIOSNotification(this.lastId, title, message, data, options),
+      /* iOS and Android properties */
+      title: title || '',
+      message: message || '',
+      playSound: options.playSound || true,
+      soundName: options.soundName || 'default',
+      userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not
+    });
+  };
+
   getApplicationIconBadgeNumber = () => {
     // Clear badge number at start
     PushNotification.getApplicationIconBadgeNumber(function (number) {
@@ -102,6 +113,15 @@ class LocalNotificationService {
       }
     });
   };
+
+  popInitialNotification() {
+    PushNotification.popInitialNotification((notification) =>
+      console.log(
+        '[LocalNotificationService] InitialNotication:',
+        notification,
+      ),
+    );
+  }
 
   cancelAllLocalNotifications = () => {
     if (Platform.OS === 'ios') {

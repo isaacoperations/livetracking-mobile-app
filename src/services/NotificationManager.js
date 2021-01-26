@@ -14,7 +14,7 @@ class NotificationManager {
         console.log('NOTIFICATION:', notification);
 
         if (Platform.OS === 'ios') {
-          if (notification.data.openedInForeground) {
+          if (notification.data.foreground) {
             notification.userInteraction = true;
           }
         } else {
@@ -29,7 +29,7 @@ class NotificationManager {
 
         // Only call callback if not from foreground
         if (Platform.OS === 'ios') {
-          if (!notification.data.openedInForeground) {
+          if (!notification.data.foreground) {
             notification.finish('backgroundFetchResultNoData');
           }
 
