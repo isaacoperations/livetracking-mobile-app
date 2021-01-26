@@ -31,6 +31,7 @@ const App = () => {
 
   function onNotification(notify) {
     console.log('[Notification] onNotification : ', notify);
+    console.log('[Notification] onNotification message: ', notify?.message);
     const title = notify?.title || 'LiveTracking';
     const message = notify?.body || notify?.message;
     const options = {
@@ -49,6 +50,15 @@ const App = () => {
 
   function onOpenNotification(notify) {
     console.log('[Notification] onOpenNotification  : ', notify);
+    // if (notify.message) {
+    //   const title = notify?.title || 'LiveTracking';
+    //   const message = notify?.body || notify?.message;
+    //   localNotificationService.showNotification(
+    //     title,
+    //     message,
+    //     notify, //data
+    //   );
+    // }
   }
 
   const onPressSendNotification = () => {
@@ -66,7 +76,6 @@ const App = () => {
     //fcmService.registerAppWithFCM();
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
-    localNotificationService.getApplicationIconBadgeNumber();
 
     //onPressSendNotification();
 
