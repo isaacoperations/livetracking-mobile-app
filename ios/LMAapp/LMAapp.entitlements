@@ -6,7 +6,6 @@
 	<string>development</string>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)org.reactjs.native.example.LMAapp</string>
 		<string>$(AppIdentifierPrefix)com.livetracking.LMAapp</string>
 	</array>
 </dict>

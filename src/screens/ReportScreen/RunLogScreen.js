@@ -265,9 +265,7 @@ export function RunLogScreen({navigation}) {
               <Fragment key={item.id}>
                 <Divider style={styles.divider} />
                 <Pressable
-                  onPress={() => {
-                    navigation.navigate('CardDetailReport');
-                  }}>
+                  onPress={() => navigation.navigate('CardDetailReport')}>
                   {({pressed}) => (
                     <View style={[styles.block, {backgroundColor: pressed ? THEME.PRIMARY_COLOR_DARK : THEME.WHITE_COLOR}]}>
                       <Text style={[styles.title, {flex: 1, color: pressed ? THEME.WHITE_COLOR : THEME.DARK_COLOR}]}>
@@ -295,7 +293,6 @@ export function RunLogScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 30 : 20,
     backgroundColor: '#fff',
     height: '100%',
   },

@@ -144,11 +144,7 @@ export function HomeScreen({navigation}) {
       description={item.description}
       status={item.status}
       progress={item.progress}
-      onPress={() =>
-        navigation.dispatch({
-          ...CommonActions.navigate('CardDetail'),
-        })
-      }
+      onPress={() => navigation.navigate('CardDetail')}
     />
   );
 
@@ -189,7 +185,7 @@ export function HomeScreen({navigation}) {
         {selectedIndex === 0 ? (
           <FlatList
             contentContainerStyle={{
-              paddingBottom: 100,
+              paddingBottom: 20,
               paddingLeft: 10,
               paddingRight: 10,
             }}
@@ -224,7 +220,6 @@ export function HomeScreen({navigation}) {
                     {
                       paddingLeft: 10,
                       paddingRight: 10,
-                      marginTop: Platform.OS === 'ios' ? -88 : -50,
                     },
                   ]}>
                   <View
@@ -366,7 +361,6 @@ export function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: Platform.OS === 'ios' ? 88 : 50,
     backgroundColor: '#E5E5E5',
     height: '100%',
   },
@@ -423,6 +417,6 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
     marginTop: 'auto',
-    marginBottom: Platform.OS === 'ios' ? 60 : 20,
+    marginBottom: 0,
   },
 });

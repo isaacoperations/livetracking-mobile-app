@@ -33,28 +33,28 @@ export function ReportHeaderFilter({navigation}) {
             }
             title="2"
             activeOpacity={0.8}
-            onPress={() => console.log('filterButton')}
+            onPress={() => navigation.navigate('ModalFilter')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Sep 1, 2020 - Sep 2, 2020"
             activeOpacity={0.8}
-            onPress={() => console.log('filterButton')}
+            onPress={() => navigation.navigate('ModalFilter')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Ippolito DXM Node 1"
             activeOpacity={0.8}
-            onPress={() => console.log('filterButton')}
+            onPress={() => navigation.navigate('ModalFilter')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Ippolito DXM Node 2"
             activeOpacity={0.8}
-            onPress={() => console.log('filterButton')}
+            onPress={() => navigation.navigate('ModalFilter')}
           />
         </View>
       </ScrollView>
@@ -65,7 +65,6 @@ export function ReportHeaderFilter({navigation}) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: THEME.PRIMARY_COLOR,
-    marginTop: Platform.OS === 'ios' ? 40 : 28,
     marginBottom: 0,
     height: 60,
     padding: 0,

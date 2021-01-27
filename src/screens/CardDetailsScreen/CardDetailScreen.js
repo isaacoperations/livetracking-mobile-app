@@ -431,7 +431,6 @@ export function CardDetailScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 30 : 20,
     backgroundColor: '#E5E5E5',
     height: '100%',
   },

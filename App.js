@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import SplashScreen from 'react-native-splash-screen';
 import {NavigationContainer} from '@react-navigation/native';
-import {Alert} from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   AuthContext,
@@ -105,7 +105,9 @@ const App = () => {
         {state.user?.token ? (
           <UserContext.Provider value={state?.user}>
             <NotificationContext.Provider value={notifyData}>
-              <MainTabNavigation />
+              <SafeAreaProvider>
+                <MainTabNavigation />
+              </SafeAreaProvider>
             </NotificationContext.Provider>
           </UserContext.Provider>
         ) : (

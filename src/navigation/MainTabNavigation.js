@@ -1,6 +1,5 @@
 import React, {useContext, useEffect} from 'react';
 import {
-  View,
   Text,
   TouchableOpacity,
   StyleSheet,
@@ -9,171 +8,209 @@ import {
 } from 'react-native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  CommonActions,
-  getFocusedRouteNameFromRoute,
-} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {HomeScreen} from '../screens/HomeScreen/HomeScreen';
 
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
+import {AuthContext} from '../context/context';
 import IconLive from '../components/IconLive';
 import IconReport from '../components/IconReport';
 import IconNotification from '../components/IconNotification';
 import LogoMini from '../components/LogoMini';
-import {AuthContext} from '../context/context';
 import {CardDetailScreen} from '../screens/CardDetailsScreen/CardDetailScreen';
 import {ReportScreen} from '../screens/ReportScreen/ReportScreen';
 import {DownTimeScreen} from '../screens/ReportScreen/DownTimeScreen';
-import {CardDetailScreenReport} from '../screens/CardDetailsScreen/CardDetailScreenReport';
 import {RunLogScreen} from '../screens/ReportScreen/RunLogScreen';
 import {NotificationScreen} from '../screens/NotificationScreen/NotificationScreen';
+import {ModalFilterScreen} from '../screens/ReportScreen/ModalFilterScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ReportStack = createStackNavigator();
 const NotificationStack = createStackNavigator();
 
-function CustomHeader({title, navigation}) {
-  const {logout} = useContext(AuthContext);
-  return (
-    <View style={styles.image}>
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <TouchableOpacity onPress={() => logout()} style={styles.menu}>
-          <LogoMini />
-        </TouchableOpacity>
-      </View>
-      <View style={{flex: 3, justifyContent: 'center'}}>
-        <Text style={styles.headerTitle}>{title}</Text>
-      </View>
-      <View style={{flex: 1}} />
-    </View>
-  );
-}
+// function CustomHeader({title, navigation}) {
+//   return (
+//     <View style={styles.image}>
+//       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+//         <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+//           <LogoMini />
+//         </TouchableOpacity>
+//       </View>
+//       <View style={{flex: 3, justifyContent: 'center'}}>
+//         <Text style={styles.headerTitle}>{title}</Text>
+//       </View>
+//       <View style={{flex: 1}} />
+//     </View>
+//   );
+// }
 
-function ReportHeader({title, navigation}) {
+const HomeStackNavigator = () => {
+  const {logout} = useContext(AuthContext);
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
     })();
   }, []);
   return (
-    <View style={styles.image}>
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <TouchableOpacity
-          onPress={() => navigation.dispatch(CommonActions.goBack())}>
-          <MaterialIcons
-            name="keyboard-arrow-left"
-            size={34}
-            style={{color: 'white'}}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={{flex: 3, justifyContent: 'center'}}>
-        <Text style={styles.headerTitle}>{title}</Text>
-      </View>
-      <View style={{flex: 1}} />
-    </View>
-  );
-}
-
-const HomeStackNavigator = ({route, navigation}) => {
-  const routeName = getFocusedRouteNameFromRoute(route);
-  console.log('routeName Home', routeName);
-  return (
     <>
-      {routeName === 'CardDetail' ? (
-        <ReportHeader title={'Run report 2'} navigation={navigation} />
-      ) : (
-        <CustomHeader
-          title={'Test Factory Etobicoke South'}
-          navigation={navigation}
-        />
-      )}
-
       <HomeStack.Navigator
         screenOptions={{
-          headerShown: false,
-          // cardOverlayEnabled: true,
-          // ...TransitionPresets.ModalPresentationIOS,
+          headerStyle: styles.headerStyle,
+          headerLeftContainerStyle: styles.headerLeftContainerStyle,
+          headerTitleStyle: styles.headerTitle,
+          headerBackImage: () => (
+            <MaterialIcons
+              size={15}
+              color={THEME.WHITE_COLOR}
+              name={'arrow-back-ios'}
+            />
+          ),
         }}>
-        <HomeStack.Screen name="Main" component={HomeScreen} />
+        <HomeStack.Screen
+          name="Main"
+          component={HomeScreen}
+          options={() => ({
+            title: 'Test Factory Etobicoke South',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+                <LogoMini />
+              </TouchableOpacity>
+            ),
+            headerRight: () => <Text> </Text>,
+          })}
+        />
         <HomeStack.Screen
           name="CardDetail"
           component={CardDetailScreen}
-          // options={({route}) => ({
-          //   // cardOverlayEnabled: true,
-          //   // ...TransitionPresets.ModalPresentationIOS,
-          // })}
+          options={() => ({
+            title: 'Run report 2',
+            headerRight: () => <Text> </Text>,
+          })}
         />
       </HomeStack.Navigator>
     </>
   );
 };
 
-const ReportStackNavigator = ({route, navigation}) => {
-  const routeName = getFocusedRouteNameFromRoute(route);
-  console.log('routeName', routeName);
-  const Header = (routes) => {
-    switch (routes) {
-      case 'ReportScreen':
-        return (
-          <CustomHeader
-            title={'Test Factory Etobicoke South 2222'}
-            navigation={navigation}
-          />
-        );
-      case 'DownTime':
-        return (
-          <ReportHeader title={'Downtime Detail'} navigation={navigation} />
-        );
-      case 'RunLog':
-        return <ReportHeader title={'RunLog'} navigation={navigation} />;
-      default:
-        return <ReportHeader title={'Run report'} navigation={navigation} />;
-    }
-  };
+const ReportStackNavigator = () => {
+  const {logout} = useContext(AuthContext);
+  useEffect(() => {
+    (async () => {
+      await MaterialIcons.loadFont();
+    })();
+  }, []);
   return (
     <>
-      {Header(routeName)}
       <ReportStack.Navigator
         screenOptions={{
-          headerShown: false,
-        }}>
-        <ReportStack.Screen name="ReportScreen" component={ReportScreen} />
+          headerStyle: styles.headerStyle,
+          headerLeftContainerStyle: styles.headerLeftContainerStyle,
+          headerTitleStyle: styles.headerTitle,
+          cardOverlayEnabled: true,
+          ...TransitionPresets.DefaultTransition,
+          headerBackImage: () => (
+            <MaterialIcons
+              size={15}
+              color={THEME.WHITE_COLOR}
+              name={'arrow-back-ios'}
+            />
+          ),
+        }}
+        mode="modal">
+        <ReportStack.Screen
+          name="ReportScreen"
+          component={ReportScreen}
+          options={() => ({
+            title: 'Test Factory Etobicoke South',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+                <LogoMini />
+              </TouchableOpacity>
+            ),
+            headerRight: () => <Text> </Text>,
+          })}
+        />
         <ReportStack.Screen
           name="CardDetailReport"
-          component={CardDetailScreenReport}
-          options={
-            {
-              // cardOverlayEnabled: true,
-              // ...TransitionPresets.ModalPresentationIOS,
-            }
-          }
+          component={CardDetailScreen}
+          options={() => ({
+            title: 'Run report',
+            headerRight: () => <Text> </Text>,
+          })}
         />
-        <ReportStack.Screen name="DownTime" component={DownTimeScreen} />
-        <ReportStack.Screen name="RunLog" component={RunLogScreen} />
+        <ReportStack.Screen
+          name="DownTime"
+          component={DownTimeScreen}
+          options={() => ({
+            title: 'Downtime Detail',
+            headerRight: () => <Text> </Text>,
+          })}
+        />
+        <ReportStack.Screen
+          name="RunLog"
+          component={RunLogScreen}
+          options={() => ({
+            title: 'Test Factory Etobicoke South',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+                <LogoMini />
+              </TouchableOpacity>
+            ),
+            headerRight: () => <Text> </Text>,
+          })}
+        />
+        <ReportStack.Screen
+          name="ModalFilter"
+          component={ModalFilterScreen}
+          options={() => ({
+            title: 'Filters',
+            headerRight: () => <Text> </Text>,
+            headerShown: false,
+            ...TransitionPresets.ModalPresentationIOS,
+          })}
+        />
       </ReportStack.Navigator>
     </>
   );
 };
 
-const NotificationStackNavigator = ({navigation}) => {
+const NotificationStackNavigator = () => {
+  const {logout} = useContext(AuthContext);
+  useEffect(() => {
+    (async () => {
+      await MaterialIcons.loadFont();
+    })();
+  }, []);
   return (
     <>
-      <CustomHeader
-        title="Test Factory Etobicoke South"
-        navigation={navigation}
-      />
       <NotificationStack.Navigator
         screenOptions={{
-          headerShown: false,
+          headerStyle: styles.headerStyle,
+          headerLeftContainerStyle: styles.headerLeftContainerStyle,
+          headerTitleStyle: styles.headerTitle,
+          headerBackImage: () => (
+            <MaterialIcons
+              size={15}
+              color={THEME.WHITE_COLOR}
+              name={'arrow-back-ios'}
+            />
+          ),
         }}>
         <NotificationStack.Screen
           name="Notification"
           component={NotificationScreen}
+          options={() => ({
+            title: 'Test Factory Etobicoke South',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+                <LogoMini />
+              </TouchableOpacity>
+            ),
+            headerRight: () => <Text> </Text>,
+          })}
         />
       </NotificationStack.Navigator>
     </>
@@ -182,82 +219,71 @@ const NotificationStackNavigator = ({navigation}) => {
 
 function MainTabNavigation() {
   return (
-    <>
-      <Tab.Navigator
-        screenOptions={({route}) => ({
-          tabBarIcon: ({focused}) => {
-            let iconName;
-            if (route.name === 'Liveview') {
-              iconName = (
-                <IconLive
-                  color={
-                    focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
-                  }
-                />
-              );
-            } else if (route.name === 'Report') {
-              iconName = (
-                <IconReport
-                  color={
-                    focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
-                  }
-                />
-              );
-            } else if (route.name === 'Notification') {
-              iconName = (
-                <IconNotification
-                  color={
-                    focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
-                  }
-                />
-              );
-            }
-            return iconName;
-          },
-        })}
-        tabBarOptions={{
-          activeTintColor: THEME.PRIMARY_COLOR,
-          inactiveTintColor: THEME.PRIMARY_COLOR_HOVER,
-          labelStyle: {
-            fontFamily: FONT.Medium,
-            fontSize: 12,
-          },
-          tabStyle: {
-            paddingTop: 7,
-          },
-        }}>
-        <Tab.Screen
-          name="Liveview"
-          component={HomeStackNavigator}
-          options={{
-            title: 'Liveview',
-          }}
-        />
-        <Tab.Screen
-          name="Report"
-          component={ReportStackNavigator}
-          options={{title: 'Report'}}
-        />
-        <Tab.Screen
-          name="Notification"
-          component={NotificationStackNavigator}
-          options={{
-            title: 'Notification',
-            tabBarBadgeStyle: {
-              backgroundColor: 'red',
-              top: Platform.OS === 'ios' ? 3 : 0,
-              left: 2,
-              borderWidth: 1,
-              borderColor: 'red',
-              maxWidth: 7,
-              height: 10,
-              borderRadius: 10 / PixelRatio.get(0),
-            },
-            tabBarBadge: '',
-          }}
-        />
-      </Tab.Navigator>
-    </>
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused}) => {
+          let iconName;
+          if (route.name === 'Liveview') {
+            iconName = (
+              <IconLive
+                color={
+                  focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
+                }
+              />
+            );
+          } else if (route.name === 'Report') {
+            iconName = (
+              <IconReport
+                color={
+                  focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
+                }
+              />
+            );
+          } else if (route.name === 'Notification') {
+            iconName = (
+              <IconNotification
+                color={
+                  focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
+                }
+              />
+            );
+          }
+          return iconName;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: THEME.PRIMARY_COLOR,
+        inactiveTintColor: THEME.PRIMARY_COLOR_HOVER,
+        labelStyle: {
+          fontFamily: FONT.Medium,
+          fontSize: 12,
+        },
+        tabStyle: {
+          paddingTop: 7,
+        },
+      }}>
+      <Tab.Screen
+        name="Liveview"
+        component={HomeStackNavigator}
+        options={{
+          title: 'Liveview',
+        }}
+      />
+      <Tab.Screen
+        name="Report"
+        component={ReportStackNavigator}
+        options={{title: 'Report'}}
+      />
+      <Tab.Screen
+        name="Notification"
+        component={NotificationStackNavigator}
+        options={{
+          title: 'Notification',
+          tabBarBadgeStyle: styles.tabBarBadgeStyle,
+          tabBarBadge: '',
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
@@ -269,6 +295,19 @@ export const styles = StyleSheet.create({
     fontFamily: FONT.SemiBold,
     fontSize: 14,
     color: THEME.WHITE_COLOR,
+  },
+  headerStyle: {
+    backgroundColor: THEME.PRIMARY_COLOR,
+    shadowColor: THEME.TRANSPARENT_COLOR,
+    shadowRadius: 0,
+    shadowOffset: {
+      height: 0,
+    },
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  headerLeftContainerStyle: {
+    paddingLeft: 20,
   },
   tabNavigator: {
     paddingTop: 10,
@@ -283,5 +322,15 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 2,
+  },
+  tabBarBadgeStyle: {
+    backgroundColor: 'red',
+    top: Platform.OS === 'ios' ? 3 : 0,
+    left: 2,
+    borderWidth: 1,
+    borderColor: 'red',
+    maxWidth: 7,
+    height: 10,
+    borderRadius: 10 / PixelRatio.get(0),
   },
 });

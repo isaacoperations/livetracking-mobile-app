@@ -140,6 +140,7 @@ export function ReportScreen({navigation}) {
       await MaterialCommunityIcons.loadFont();
       await Entypo.loadFont();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleProgress = (id) => {
@@ -332,7 +333,6 @@ export function ReportScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 30 : 20,
     backgroundColor: '#E5E5E5',
     height: '100%',
   },
