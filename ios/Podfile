@@ -8,11 +8,8 @@ target 'LMAapp' do
 
   use_react_native!(:path => config["reactNativePath"])
 
-
-  # Add the Firebase pod for Google Analytics
-  pod 'Firebase/Analytics'
-
-
+    pod 'Firebase/Analytics'
+    pod 'Firebase/Messaging'
 
   target 'LMAappTests' do
     inherit! :complete
@@ -36,4 +33,8 @@ target 'LMAapp-tvOS' do
     inherit! :search_paths
     # Pods for testing
   end
+end
+
+target 'ImageNotification' do
+  pod 'Firebase/Messaging'
 end

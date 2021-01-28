@@ -1,5 +1,5 @@
 import messaging from '@react-native-firebase/messaging';
-import {Alert, Platform} from 'react-native';
+import {Platform} from 'react-native';
 
 class FCMService {
   register = (onRegister, onNotification, onOpenNotification) => {
@@ -41,6 +41,22 @@ class FCMService {
       .then((fcmToken) => {
         if (fcmToken) {
           onRegister(fcmToken);
+        } else {
+          console.log('[FCMService] User does not have a device token');
+        }
+      })
+      .catch((error) => {
+        console.log('[FCMService] getToken rejected ', error);
+      });
+  };
+
+  getAPNsToken = (onRegister) => {
+    messaging()
+      .getAPNSToken()
+      .then((fcmToken) => {
+        if (fcmToken) {
+          console.log('[FCMService] getAPNSToken ', fcmToken);
+          onRegister(fcmToken);
           // Alert.alert(
           //   'Notification Token Device',
           //   fcmToken,
@@ -58,7 +74,9 @@ class FCMService {
 
   requestPermission = (onRegister) => {
     messaging()
-      .requestPermission()
+      .requestPermission({
+        announcement: true,
+      })
       .then(() => {
         this.getToken(onRegister);
       })

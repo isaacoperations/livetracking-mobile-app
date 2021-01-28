@@ -10,15 +10,15 @@ import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import {HomeScreen} from '../screens/HomeScreen/HomeScreen';
-
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
 import {AuthContext} from '../context/context';
+
 import IconLive from '../components/IconLive';
 import IconReport from '../components/IconReport';
 import IconNotification from '../components/IconNotification';
 import LogoMini from '../components/LogoMini';
+import {HomeScreen} from '../screens/HomeScreen/HomeScreen';
 import {CardDetailScreen} from '../screens/CardDetailsScreen/CardDetailScreen';
 import {ReportScreen} from '../screens/ReportScreen/ReportScreen';
 import {DownTimeScreen} from '../screens/ReportScreen/DownTimeScreen';
@@ -170,6 +170,10 @@ const ReportStackNavigator = () => {
             headerRight: () => <Text> </Text>,
             headerShown: false,
             ...TransitionPresets.ModalPresentationIOS,
+            cardStyle: {
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            },
           })}
         />
       </ReportStack.Navigator>
