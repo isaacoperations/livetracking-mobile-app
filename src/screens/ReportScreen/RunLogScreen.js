@@ -5,9 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Platform,
   Pressable,
-  TouchableOpacity,
 } from 'react-native';
 import {Divider, SearchBar} from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -86,8 +84,6 @@ export function RunLogScreen({navigation}) {
       return data;
     }
   });
-
-  //console.log('itemstemsitems', items);
 
   const sortAscDescDate = (bool) => {
     bool
@@ -177,88 +173,8 @@ export function RunLogScreen({navigation}) {
                   )}
                 </Pressable>
               </View>
-              <View style={{flex: 2, paddingLeft: 20}}>
-                <Pressable
-                  onPress={() => {
-                    handleSortShowLine('Line');
-                  }}>
-                  {({pressed}) => (
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={[
-                          styles.title,
-                          styles.uppercase,
-                          {
-                            color: pressed
-                              ? THEME.PRIMARY_COLOR
-                              : THEME.DARK_COLOR,
-                            marginRight: 5,
-                          },
-                        ]}>
-                        Line
-                      </Text>
-                      {sortShownLine ? (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-ascending'}
-                        />
-                      ) : (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-descending'}
-                        />
-                      )}
-                    </View>
-                  )}
-                </Pressable>
-              </View>
-              <View style={{flex: 2}}>
-                <Pressable
-                  onPress={() => {
-                    handleSortShowSku('sku');
-                  }}>
-                  {({pressed}) => (
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={[
-                          styles.title,
-                          styles.uppercase,
-                          {
-                            color: pressed
-                              ? THEME.PRIMARY_COLOR
-                              : THEME.DARK_COLOR,
-                            marginRight: 5,
-                          },
-                        ]}>
-                        Sku
-                      </Text>
-                      {sortShownSku ? (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-ascending'}
-                        />
-                      ) : (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-descending'}
-                        />
-                      )}
-                    </View>
-                  )}
-                </Pressable>
-              </View>
+              <View style={{flex: 2, paddingLeft: 20}} />
+              <View style={{flex: 2}} />
             </View>
 
             {items?.map((item) => (

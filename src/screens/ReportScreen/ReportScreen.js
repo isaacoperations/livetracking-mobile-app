@@ -11,7 +11,6 @@ import {
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -22,6 +21,7 @@ import {UserContext} from '../../context/context';
 import {ProgressLine} from '../../components/ProgressLine';
 import {ReportHeaderInfo} from '../../components/ReportHeaderInfo';
 import {ReportHeaderFilter} from '../../components/ReportHeaderFilter';
+import IconArrow from '../../components/IconArrow';
 
 const progressList = [
   {
@@ -138,7 +138,6 @@ export function ReportScreen({navigation}) {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
-      await Entypo.loadFont();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -190,24 +189,25 @@ export function ReportScreen({navigation}) {
                         }}>
                         51%
                       </Text>
-                      <Entypo
-                        name={'triangle-down'}
-                        size={20}
-                        color={THEME.DANGER_COLOR}
+                      <IconArrow
+                        height={10}
+                        width={10}
+                        fill={THEME.DANGER_COLOR}
                         style={{
-                          marginTop: Platform.OS === 'ios' ? 0 : -13,
+                          marginTop: Platform.OS === 'ios' ? 1 : -8,
                         }}
                       />
                     </View>
                   </View>
                   <View style={styles.cardProgressLineMiddle}>
                     <View style={styles.cardProgressLineMiddleText}>
-                      <Entypo
-                        name={'triangle-up'}
-                        size={20}
-                        color={'rgba(0, 68, 132, 0.4)'}
+                      <IconArrow
+                        height={10}
+                        width={10}
+                        fill={'rgba(0, 68, 132, 0.4)'}
                         style={{
-                          marginBottom: Platform.OS === 'ios' ? 0 : -7,
+                          marginTop: Platform.OS === 'ios' ? 0 : -7,
+                          transform: [{rotate: '180deg'}],
                         }}
                       />
                       <Text
@@ -382,14 +382,14 @@ const styles = StyleSheet.create({
   cardProgressLineHeadText: {
     position: 'absolute',
     top: -65,
-    right: -20,
+    right: -22,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardProgressLineMiddleText: {
     position: 'absolute',
     bottom: -65,
-    right: -25,
+    right: -28,
     justifyContent: 'center',
     alignItems: 'center',
   },

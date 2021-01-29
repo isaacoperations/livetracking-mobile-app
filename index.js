@@ -11,9 +11,8 @@ import {localNotificationService} from './src/services/LocalNotificationServices
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
-  const {data} = remoteMessage;
-  const title = data?.twi_title || data?.title || 'LiveTracking';
-  const message = data?.twi_body || data?.body || 'LiveTracking about';
+  const title = remoteMessage?.twi_title || remoteMessage?.data?.twi_title || remoteMessage?.title;
+  const message = remoteMessage?.twi_body || remoteMessage?.data?.twi_body || remoteMessage?.body;
   const options = {
     soundName: 'default',
     playSound: true,

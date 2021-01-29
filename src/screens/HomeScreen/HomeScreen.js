@@ -11,7 +11,6 @@ import {
   Dimensions,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
-import {CommonActions} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';

@@ -31,22 +31,6 @@ const HomeStack = createStackNavigator();
 const ReportStack = createStackNavigator();
 const NotificationStack = createStackNavigator();
 
-// function CustomHeader({title, navigation}) {
-//   return (
-//     <View style={styles.image}>
-//       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-//         <TouchableOpacity onPress={() => logout()} style={styles.menu}>
-//           <LogoMini />
-//         </TouchableOpacity>
-//       </View>
-//       <View style={{flex: 3, justifyContent: 'center'}}>
-//         <Text style={styles.headerTitle}>{title}</Text>
-//       </View>
-//       <View style={{flex: 1}} />
-//     </View>
-//   );
-// }
-
 const HomeStackNavigator = () => {
   const {logout} = useContext(AuthContext);
   useEffect(() => {
@@ -56,19 +40,7 @@ const HomeStackNavigator = () => {
   }, []);
   return (
     <>
-      <HomeStack.Navigator
-        screenOptions={{
-          headerStyle: styles.headerStyle,
-          headerLeftContainerStyle: styles.headerLeftContainerStyle,
-          headerTitleStyle: styles.headerTitle,
-          headerBackImage: () => (
-            <MaterialIcons
-              size={15}
-              color={THEME.WHITE_COLOR}
-              name={'arrow-back-ios'}
-            />
-          ),
-        }}>
+      <HomeStack.Navigator screenOptions={screenOptions}>
         <HomeStack.Screen
           name="Main"
           component={HomeScreen}
@@ -95,7 +67,7 @@ const HomeStackNavigator = () => {
   );
 };
 
-const ReportStackNavigator = () => {
+const ReportStackNavigator = ({navigation, route}) => {
   const {logout} = useContext(AuthContext);
   useEffect(() => {
     (async () => {
@@ -109,6 +81,7 @@ const ReportStackNavigator = () => {
           headerStyle: styles.headerStyle,
           headerLeftContainerStyle: styles.headerLeftContainerStyle,
           headerTitleStyle: styles.headerTitle,
+          headerBackTitleStyle: styles.headerBackTitleStyle,
           cardOverlayEnabled: true,
           ...TransitionPresets.DefaultTransition,
           headerBackImage: () => (
@@ -190,19 +163,7 @@ const NotificationStackNavigator = () => {
   }, []);
   return (
     <>
-      <NotificationStack.Navigator
-        screenOptions={{
-          headerStyle: styles.headerStyle,
-          headerLeftContainerStyle: styles.headerLeftContainerStyle,
-          headerTitleStyle: styles.headerTitle,
-          headerBackImage: () => (
-            <MaterialIcons
-              size={15}
-              color={THEME.WHITE_COLOR}
-              name={'arrow-back-ios'}
-            />
-          ),
-        }}>
+      <NotificationStack.Navigator screenOptions={screenOptions}>
         <NotificationStack.Screen
           name="Notification"
           component={NotificationScreen}
@@ -221,10 +182,18 @@ const NotificationStackNavigator = () => {
   );
 };
 
-function MainTabNavigation() {
+// ReportStackNavigator.navigationOptions = ({navigation}) => {
+//     return {
+//         tabBarLabel: 'SlowStack',
+//     };
+// };
+
+function MainTabNavigation({navigation}) {
+    console.log('MainTabNavigation', navigation);
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
+        tabBarVisible: true,
         tabBarIcon: ({focused}) => {
           let iconName;
           if (route.name === 'Liveview') {
@@ -313,6 +282,9 @@ export const styles = StyleSheet.create({
   headerLeftContainerStyle: {
     paddingLeft: 20,
   },
+  headerBackTitleStyle: {
+    color: THEME.PRIMARY_COLOR,
+  },
   tabNavigator: {
     paddingTop: 10,
   },
@@ -338,3 +310,17 @@ export const styles = StyleSheet.create({
     borderRadius: 10 / PixelRatio.get(0),
   },
 });
+
+export const screenOptions = {
+  headerStyle: styles.headerStyle,
+  headerLeftContainerStyle: styles.headerLeftContainerStyle,
+  headerTitleStyle: styles.headerTitle,
+  headerBackTitleStyle: styles.headerBackTitleStyle,
+  headerBackImage: () => (
+    <MaterialIcons
+      size={15}
+      color={THEME.WHITE_COLOR}
+      name={'arrow-back-ios'}
+    />
+  ),
+};

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Divider, BottomSheet} from 'react-native-elements';
+
 import ModalDropdown from 'react-native-modal-dropdown';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -20,12 +21,9 @@ import {FONT} from '../../constants/fonts';
 import {UserContext} from '../../context/context';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import {ReportHeaderFilter} from '../../components/ReportHeaderFilter';
-import {ReportHeaderBack} from '../../components/ReportHeaderBack';
-import LogoMini from '../../components/LogoMini';
 import {ModalHeaderFilter} from '../../components/ModalHeaderFilter';
 
-export function ModalFilterScreen({navigation}) {
+export function ModalFilterScreen({navigation, route}) {
   const user = useContext(UserContext);
   const [isVisible, setIsVisible] = useState(true);
   const [modalValueText, setModalValueText] = useState('One day');
@@ -36,59 +34,74 @@ export function ModalFilterScreen({navigation}) {
       await MaterialCommunityIcons.loadFont();
       await MaterialIcons.loadFont();
     })();
+    const parent = navigation.dangerouslyGetParent();
+    parent.setOptions({
+      tabBarVisible: false,
+    });
+    return () =>
+      parent.setOptions({
+        tabBarVisible: true,
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <>
       <HeaderStatus />
       <SafeAreaView style={styles.container}>
-        <BottomSheet
-          isVisible={isVisible}
-          containerStyle={styles.containerStyle}>
-          <ModalHeaderFilter
-            title={'Filters'}
-            onPress={() => console.log('ModalHeaderFilter')}
-          />
-          <View style={{padding: 20}}>
-            <ModalDropdown
-              options={['One day', 'Multi-Day']}
-              dropdownStyle={styles.dropdownStyle}
-              dropdownTextStyle={styles.textStyle}
-              scrollEnabled={false}
-              dropdownTextHighlightStyle={styles.dropdownTextHighlightStyle}
-              textStyle={styles.text}
-              style={{}}
-              onSelect={(idx, value) => {
-                if (idx === 0) {
-                  console.log(value);
-                  setModalValueText(value);
-                } else {
-                  console.log(value);
-                  setModalValueText(value);
-                }
-              }}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.modalValueText}>{modalValueText}</Text>
-                <MaterialIcons
-                  size={20}
-                  name="arrow-drop-down"
-                  color={THEME.PRIMARY_COLOR}
-                />
-              </View>
-            </ModalDropdown>
-            <View>
-              <Text>Date</Text>
-              <View style={{flexDirection: 'row'}}>
-                <MaterialCommunityIcons
-                  size={20}
-                  name="calendar-blank-outline"
-                  color={THEME.CHAR_COLOR}
-                />
-                <Text style={{color: THEME.PRIMARY_COLOR, fontSize: 15, fontFamily: FONT.Regular}}>Sep 1, 2020</Text>
-              </View>
+        {/*<BottomSheet*/}
+        {/*  isVisible={isVisible}*/}
+        {/*  containerStyle={styles.containerStyle}>*/}
+        <ModalHeaderFilter
+          title={'Filters'}
+          onPress={() => navigation.navigate('ReportScreen')}
+        />
+        <View style={{padding: 20}}>
+          <ModalDropdown
+            options={['One day', 'Multi-Day']}
+            dropdownStyle={styles.dropdownStyle}
+            dropdownTextStyle={styles.textStyle}
+            scrollEnabled={false}
+            dropdownTextHighlightStyle={styles.dropdownTextHighlightStyle}
+            textStyle={styles.text}
+            style={{width: 170, height: 60}}
+            onSelect={(idx, value) => {
+              if (idx === 0) {
+                console.log(value);
+                setModalValueText(value);
+              } else {
+                console.log(value);
+                setModalValueText(value);
+              }
+            }}>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={styles.modalValueText}>{modalValueText}</Text>
+              <MaterialIcons
+                size={20}
+                name="arrow-drop-down"
+                color={THEME.PRIMARY_COLOR}
+              />
+            </View>
+          </ModalDropdown>
+          <View>
+            <Text>Date</Text>
+            <View style={{flexDirection: 'row'}}>
+              <MaterialCommunityIcons
+                size={20}
+                name="calendar-blank-outline"
+                color={THEME.CHAR_COLOR}
+              />
+              <Text
+                style={{
+                  color: THEME.PRIMARY_COLOR,
+                  fontSize: 15,
+                  fontFamily: FONT.Regular,
+                }}>
+                Sep 1, 2020
+              </Text>
             </View>
           </View>
-        </BottomSheet>
+        </View>
+        {/*</BottomSheet>*/}
       </SafeAreaView>
     </>
   );
@@ -98,6 +111,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   containerStyle: {
     backgroundColor: 'white',
@@ -107,7 +122,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   dropdownStyle: {
-    width: 138,
+    width: 155,
     height: 111,
     shadowColor: 'black',
     shadowOffset: {width: 0, height: 2},
@@ -135,7 +150,7 @@ const styles = StyleSheet.create({
     color: THEME.PRIMARY_COLOR,
     fontSize: 15,
     fontFamily: FONT.Regular,
-    marginRight: 50,
+    marginRight: 'auto',
     marginLeft: 20,
   },
   block: {

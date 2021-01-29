@@ -1,7 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Alert} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
-import {NavigationContainer} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  useRoute,
+  useFocusEffect,
+} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,15 +50,16 @@ const App = () => {
       console.log('[Notification] onNotification: ', notify);
       if (notify) {
         const title =
-          notify?.twi_title || notify.data?.twi_title || notify?.title;
+          notify?.twi_title || notify?.data?.twi_title || notify?.title;
         const message =
-          notify?.twi_body || notify.data?.twi_body || notify?.body;
+          notify?.twi_body || notify?.data?.twi_body || notify?.body;
         const options = {
           soundName: 'default',
           playSound: true,
           vibrate: true,
-          // largeIcon: 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
-          // smallIcon: 'ic_launcher' // add icon small for Android (Link: app/src/main/mipmap)
+          // largeIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
+          // smallIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
+          // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
         };
         localNotificationService.showNotification(
           title,
@@ -68,16 +73,21 @@ const App = () => {
 
     function onOpenNotification(notify) {
       console.log('[Notification] onOpenNotification: ', notify);
-      const title =
-        notify?.twi_title || notify.data?.twi_title || notify?.title;
-      const message = notify?.twi_body || notify.data?.twi_body || notify?.body;
-      sleep(4000);
-      Alert.alert(
-        title,
-        message,
-        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-        {cancelable: false},
-      );
+      if (state.loading) {
+        console.log('[Notification] [Notification][Notification]');
+        if (notify) {
+          sleep(4000);
+          const title = notify?.twi_title || notify?.data?.twi_title || notify?.title;
+          const message = notify?.twi_body || notify?.data?.twi_body || notify?.body;
+          return Alert.alert(
+            title,
+            message,
+            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+            {cancelable: false},
+          );
+        }
+        setNotifyData(notify);
+      }
     }
 
     SplashScreen.hide();
