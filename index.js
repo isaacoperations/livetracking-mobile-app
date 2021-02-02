@@ -11,20 +11,30 @@ import {localNotificationService} from './src/services/LocalNotificationServices
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
-  const title = remoteMessage?.twi_title || remoteMessage?.data?.twi_title || remoteMessage?.title;
-  const message = remoteMessage?.twi_body || remoteMessage?.data?.twi_body || remoteMessage?.body;
+  const title =
+    remoteMessage?.data?.twi_title ||
+    remoteMessage?.twi_title ||
+    remoteMessage?.title;
+  const message =
+    remoteMessage?.data?.twi_body ||
+    remoteMessage?.twi_body ||
+    remoteMessage?.body;
   const options = {
     soundName: 'default',
     playSound: true,
     vibrate: true,
-    // largeIcon: 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
-    // smallIcon: 'ic_launcher' // add icon small for Android (Link: app/src/main/mipmap)
+    // largeIcon:
+    //   remoteMessage?.icon || remoteMessage?.data?.icon || 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
+    // smallIcon:
+    //   remoteMessage?.icon || remoteMessage?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
+    // imageUrl:
+    //   remoteMessage?.image || remoteMessage?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
   };
   localNotificationService.showNotification(
     title,
     message,
-    remoteMessage, //data
-    options, //options
+    remoteMessage, // data
+    options, // options
   );
 });
 

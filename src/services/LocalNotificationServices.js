@@ -1,6 +1,6 @@
+import {Platform} from 'react-native';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import {Platform} from 'react-native';
 
 class LocalNotificationService {
   constructor() {
@@ -19,14 +19,24 @@ class LocalNotificationService {
           return;
         }
         notification.userInteraction = true;
-        onOpenNotification(
-          Platform.OS === 'ios' ? notification.data.item : notification.data,
-        );
+        onOpenNotification(Platform.OS === 'ios' ? notification.data.item : notification.data);
 
         if (Platform.OS === 'ios') {
           // (required) Called when a remote is received or opened, or local notification is opened
           notification.finish(PushNotificationIOS.FetchResult.NoData);
         }
+      },
+
+      onAction: function (notification) {
+        console.log('[LocalNotificationService] ACTION:', notification.action);
+        console.log('[LocalNotificationService] NOTIFICATION ACTION:', notification);
+        // process the action
+        onOpenNotification(notification.action);
+      },
+
+      // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
+      onRegistrationError: function(err) {
+        console.error(err.message, err);
       },
 
       // IOS ONLY (optional): default: all - Permissions to register.

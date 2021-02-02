@@ -25,6 +25,7 @@ class FCMService {
         if (enabled) {
           // User has permissions
           this.getToken(onRegister);
+          this.getAPNsToken(onRegister);
         } else {
           // User doesn't have permission
           this.requestPermission(onRegister);
@@ -136,7 +137,7 @@ class FCMService {
         if (Platform.OS === 'ios') {
           notification = remoteMessage.notification;
         } else {
-          notification = remoteMessage.notification;
+          notification = remoteMessage.data;
         }
         onNotification(notification);
       }

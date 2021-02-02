@@ -13,7 +13,6 @@ import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -23,6 +22,7 @@ import HeaderStatus from '../../components/HeaderStatus';
 import {UserContext} from '../../context/context';
 import IconCubes from '../../components/IconCubes';
 import {ProgressLine} from '../../components/ProgressLine';
+import IconArrow from '../../components/IconArrow';
 
 const cardList = [
   {
@@ -150,7 +150,6 @@ export function CardDetailScreen({navigation}) {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
-      await Entypo.loadFont();
     })();
   }, []);
 
@@ -292,24 +291,25 @@ export function CardDetailScreen({navigation}) {
                         }}>
                         51%
                       </Text>
-                      <Entypo
-                        name={'triangle-down'}
-                        size={20}
-                        color={THEME.DANGER_COLOR}
+                      <IconArrow
+                        height={10}
+                        width={10}
+                        fill={THEME.DANGER_COLOR}
                         style={{
-                          marginTop: Platform.OS === 'ios' ? 0 : -13,
+                          marginTop: Platform.OS === 'ios' ? 1 : -8,
                         }}
                       />
                     </View>
                   </View>
                   <View style={styles.cardProgressLineMiddle}>
                     <View style={styles.cardProgressLineMiddleText}>
-                      <Entypo
-                        name={'triangle-up'}
-                        size={20}
-                        color={'rgba(0, 68, 132, 0.4)'}
+                      <IconArrow
+                        height={10}
+                        width={10}
+                        fill={'rgba(0, 68, 132, 0.4)'}
                         style={{
-                          marginBottom: Platform.OS === 'ios' ? 0 : -7,
+                          marginTop: Platform.OS === 'ios' ? 0 : -7,
+                          transform: [{rotate: '180deg'}],
                         }}
                       />
                       <Text
@@ -337,7 +337,11 @@ export function CardDetailScreen({navigation}) {
                 </View>
               </View>
             </View>
-            <View style={[styles.block, {paddingBottom: 30, marginBottom: 0, height: '100%'}]}>
+            <View
+              style={[
+                styles.block,
+                {paddingBottom: 30, marginBottom: 0, height: '100%'},
+              ]}>
               <Text style={styles.label}>Downtime Pareto</Text>
               <View style={styles.tabContainer}>
                 <SegmentedControlTab
@@ -480,14 +484,14 @@ const styles = StyleSheet.create({
   cardProgressLineHeadText: {
     position: 'absolute',
     top: -65,
-    right: -20,
+    right: -22,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardProgressLineMiddleText: {
     position: 'absolute',
     bottom: -65,
-    right: -25,
+    right: -28,
     justifyContent: 'center',
     alignItems: 'center',
   },

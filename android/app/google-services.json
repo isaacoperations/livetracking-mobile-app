@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:470072842195:android:399b1a69664ba8da6d4126",
+        "mobilesdk_app_id": "1:470072842195:android:d26fed2673ac2ea16d4126",
         "android_client_info": {
-          "package_name": "com.lmaapp"
+          "package_name": "com.livetracking.lmaapp"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "470072842195-t9or0bfpk6kmbqrvbnoctfg16hm9ca4n.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "470072842195-2idl7s2asnp0o8akeo6536aid9sbrbt3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.livetracking.lmaapp"
+              }
             }
           ]
         }

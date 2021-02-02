@@ -23,11 +23,12 @@ import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import {CardComponent} from '../../components/CardComponent';
+import {CardComponent} from '../ReportScreen/components/CardComponent';
 import IconBox from '../../components/IconBox';
 import {Btn} from '../../components/Button';
 
 import {UserContext, NotificationContext} from '../../context/context';
+import {RBSheetHeader} from '../../components/RBSheetHeader';
 
 const cardList = [
   {
@@ -164,9 +165,9 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to copy to Token Device </Text>*/}
-        {/*</TouchableOpacity>*/}
+        <TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>
+          <Text>Click here to copy to Token Device </Text>
+        </TouchableOpacity>
 
         <View style={styles.tabContainer}>
           <SegmentedControlTab
@@ -261,41 +262,11 @@ export function HomeScreen({navigation}) {
                   borderTopLeftRadius: 20,
                 },
               }}>
-              <View
-                style={{
-                  alignItems: 'center',
-                  backgroundColor: 'white',
-                  flexDirection: 'row',
-                  width: '100%',
-                  height: 56,
-                }}>
-                <TouchableOpacity
-                  onPress={() => refRBSheet.current.close()}
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: 20,
-                    height: 20,
-                  }}>
-                  <MaterialIcons
-                    name="close"
-                    size={20}
-                    style={{color: '#000'}}
-                  />
-                </TouchableOpacity>
-                <View
-                  style={{
-                    flex: 3,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text style={{fontSize: 17, fontFamily: FONT.Medium}}>
-                    Edit List
-                  </Text>
-                </View>
-                <View style={{flex: 1}} />
-              </View>
+              <RBSheetHeader
+                onPress={() => refRBSheet.current.close()}
+                title={'Edit List'}
+                iconName={'close'}
+              />
               <ScrollView>
                 {checkData.map((item, i) => (
                   <ListItem

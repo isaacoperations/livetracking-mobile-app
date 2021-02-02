@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
-import {NotificationComponent} from '../../components/NotificationComponent';
+import {NotificationComponent} from './components/NotificationComponent';
 import IconBox from '../../components/IconBox';
 import {FONT} from '../../constants/fonts';
 import {THEME} from '../../constants/theme';

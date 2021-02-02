@@ -24,7 +24,8 @@ import {ReportScreen} from '../screens/ReportScreen/ReportScreen';
 import {DownTimeScreen} from '../screens/ReportScreen/DownTimeScreen';
 import {RunLogScreen} from '../screens/ReportScreen/RunLogScreen';
 import {NotificationScreen} from '../screens/NotificationScreen/NotificationScreen';
-import {ModalFilterScreen} from '../screens/ReportScreen/ModalFilterScreen';
+import {ModalFilterScreen} from '../screens/ReportScreen/screens/ModalFilterScreen';
+import {ModalProductScreen} from '../screens/ReportScreen/screens/ModalProductScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -149,6 +150,20 @@ const ReportStackNavigator = ({navigation, route}) => {
             },
           })}
         />
+        <ReportStack.Screen
+          name="ModalProduct"
+          component={ModalProductScreen}
+          options={() => ({
+            title: 'Products',
+            headerRight: () => <Text> </Text>,
+            headerShown: false,
+            ...TransitionPresets.ModalPresentationIOS,
+            cardStyle: {
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            },
+          })}
+        />
       </ReportStack.Navigator>
     </>
   );
@@ -162,34 +177,25 @@ const NotificationStackNavigator = () => {
     })();
   }, []);
   return (
-    <>
-      <NotificationStack.Navigator screenOptions={screenOptions}>
-        <NotificationStack.Screen
-          name="Notification"
-          component={NotificationScreen}
-          options={() => ({
-            title: 'Test Factory Etobicoke South',
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
-                <LogoMini />
-              </TouchableOpacity>
-            ),
-            headerRight: () => <Text> </Text>,
-          })}
-        />
-      </NotificationStack.Navigator>
-    </>
+    <NotificationStack.Navigator screenOptions={screenOptions}>
+      <NotificationStack.Screen
+        name="Notification"
+        component={NotificationScreen}
+        options={() => ({
+          title: 'Test Factory Etobicoke South',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+              <LogoMini />
+            </TouchableOpacity>
+          ),
+          headerRight: () => <Text> </Text>,
+        })}
+      />
+    </NotificationStack.Navigator>
   );
 };
 
-// ReportStackNavigator.navigationOptions = ({navigation}) => {
-//     return {
-//         tabBarLabel: 'SlowStack',
-//     };
-// };
-
-function MainTabNavigation({navigation}) {
-    console.log('MainTabNavigation', navigation);
+function MainTabNavigation() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({

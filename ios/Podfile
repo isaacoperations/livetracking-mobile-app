@@ -3,7 +3,9 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'LMAapp' do
+$FirebaseSDKVersion = '7.0.0'
+
+target 'livetracking' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
@@ -11,7 +13,7 @@ target 'LMAapp' do
     pod 'Firebase/Analytics'
     pod 'Firebase/Messaging'
 
-  target 'LMAappTests' do
+  target 'livetrackingTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -26,10 +28,10 @@ target 'LMAapp' do
   end
 end
 
-target 'LMAapp-tvOS' do
-  # Pods for LMAapp-tvOS
+target 'livetracking-tvOS' do
+  # Pods for livetracking-tvOS
 
-  target 'LMAapp-tvOSTests' do
+  target 'livetracking-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end

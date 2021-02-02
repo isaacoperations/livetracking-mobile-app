@@ -1,12 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Alert} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
-import {
-  NavigationContainer,
-  useRoute,
-  useFocusEffect,
-} from '@react-navigation/native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
@@ -36,59 +31,8 @@ const App = () => {
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
 
-    function onRegister(token) {
-      AsyncStorage.setItem('tokenDevice', token);
-      console.log('[Notification] onRegister: ', token);
-    }
-
-    function onRegisterAPNS(token) {
-      AsyncStorage.setItem('tokenDeviceAPNs', token);
-      console.log('[Notification] onRegister tokenDeviceAPNs: ', token);
-    }
-
-    function onNotification(notify) {
-      console.log('[Notification] onNotification: ', notify);
-      if (notify) {
-        const title =
-          notify?.twi_title || notify?.data?.twi_title || notify?.title;
-        const message =
-          notify?.twi_body || notify?.data?.twi_body || notify?.body;
-        const options = {
-          soundName: 'default',
-          playSound: true,
-          vibrate: true,
-          // largeIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
-          // smallIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
-          // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
-        };
-        localNotificationService.showNotification(
-          title,
-          message,
-          notify, //data
-          options, //options
-        );
-      }
-      setNotifyData(notify);
-    }
-
-    function onOpenNotification(notify) {
-      console.log('[Notification] onOpenNotification: ', notify);
-      if (state.loading) {
-        console.log('[Notification] [Notification][Notification]');
-        if (notify) {
-          sleep(4000);
-          const title = notify?.twi_title || notify?.data?.twi_title || notify?.title;
-          const message = notify?.twi_body || notify?.data?.twi_body || notify?.body;
-          return Alert.alert(
-            title,
-            message,
-            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-            {cancelable: false},
-          );
-        }
-        setNotifyData(notify);
-      }
-    }
+    onNotification();
+    onOpenNotification();
 
     SplashScreen.hide();
 
@@ -99,6 +43,72 @@ const App = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function onRegister(token) {
+    AsyncStorage.setItem('tokenDevice', token);
+    console.log('[Notification] onRegister: ', token);
+  }
+
+  function onRegisterAPNS(token) {
+    AsyncStorage.setItem('tokenDeviceAPNs', token);
+    console.log('[Notification] onRegister tokenDeviceAPNs: ', token);
+  }
+
+  function onNotification(notify) {
+    console.log('[Notification] onNotification: ', notify);
+    if (notify) {
+      const title =
+        notify?.twi_title || notify?.data?.twi_title || notify?.title;
+      const message =
+        notify?.twi_body || notify?.data?.twi_body || notify?.body;
+      const options = {
+        soundName: 'default',
+        playSound: true,
+        vibrate: true,
+        // largeIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon large for Android (Link: app/src/main/mipmap)
+        // smallIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
+        // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
+      };
+      localNotificationService.showNotification(
+        title,
+        message,
+        notify, //data
+        options, //options
+      );
+    }
+    setNotifyData(notify);
+  }
+
+  function onOpenNotification(notify) {
+    console.log('[Notification] onOpenNotification: ', notify);
+    if (!state.loading) {
+      console.log(
+        '[Notification] [Notification][Notification]',
+        notify?.data?.twi_title,
+        notify?.data?.twi_body,
+      );
+      if (notify) {
+        sleep(4000).then(() => {
+          const title =
+            notify?.twi_title || notify?.data?.twi_title || notify?.title;
+          const message =
+            notify?.twi_body || notify?.data?.twi_body || notify?.body;
+          localNotificationService.showNotification(
+            title,
+            message,
+            notify, //data
+          );
+          // return Alert.alert(
+          //   title,
+          //   message,
+          //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          //   {cancelable: false},
+          // );
+        });
+      }
+      setNotifyData(notify);
+    }
+  }
 
   if (state.user?.token) {
     console.log('access user token');
@@ -116,9 +126,7 @@ const App = () => {
         {state.user?.token ? (
           <UserContext.Provider value={state?.user}>
             <NotificationContext.Provider value={notifyData}>
-              <SafeAreaProvider>
-                <MainTabNavigation />
-              </SafeAreaProvider>
+              <MainTabNavigation />
             </NotificationContext.Provider>
           </UserContext.Provider>
         ) : (

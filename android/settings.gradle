@@ -1,4 +1,4 @@
-rootProject.name = 'LMAapp'
+rootProject.name = 'livetracking'
 include ':@react-native-firebase_app'
 project(':@react-native-firebase_app').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/app/android')
 include ':react-native-vector-icons'

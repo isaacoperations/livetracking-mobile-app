@@ -1,0 +1,10 @@
+{
+    "tokenGenerator": {
+        "accountSid": "ACe8aaa9cb7f5576fd38d7df43c9bfcba1",
+        "signingKeySid": "SK2fdf388cef758b869c4a6489d3ae7508",
+        "signingKeySecret": "xxx",
+        "serviceSid": "IS4ebfb67a7cd5bad84a22f3af59aa537a",
+        "fcm": "CR99f78b0cf52447f733a5560a5edaa36a",
+        "apns": "CR1324ceb4074354927ca14a1b68fb2b02"
+    }
+}

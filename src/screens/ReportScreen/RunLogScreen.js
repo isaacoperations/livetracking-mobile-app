@@ -17,8 +17,8 @@ import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {UserContext} from '../../context/context';
-import {ReportHeaderFilter} from '../../components/ReportHeaderFilter';
-import {ReportHeaderBack} from '../../components/ReportHeaderBack';
+import {ReportHeaderFilter} from './components/ReportHeaderFilter';
+import {ReportHeaderBack} from './components/ReportHeaderBack';
 
 const nodeList = [
   {

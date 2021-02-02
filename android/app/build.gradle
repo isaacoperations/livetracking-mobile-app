@@ -136,7 +136,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.lmaapp"
+        applicationId "com.livetracking.lmaapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -206,9 +206,10 @@ dependencies {
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
-    implementation platform('com.google.firebase:firebase-bom:26.3.0')
+    //implementation platform('com.google.firebase:firebase-bom:26.3.0')
 
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    //implementation project(':react-native-push-notification')
 
     implementation project(':react-native-vector-icons')
 

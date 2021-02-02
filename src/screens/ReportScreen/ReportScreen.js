@@ -19,8 +19,8 @@ import HeaderStatus from '../../components/HeaderStatus';
 
 import {UserContext} from '../../context/context';
 import {ProgressLine} from '../../components/ProgressLine';
-import {ReportHeaderInfo} from '../../components/ReportHeaderInfo';
-import {ReportHeaderFilter} from '../../components/ReportHeaderFilter';
+import {ReportHeaderInfo} from './components/ReportHeaderInfo';
+import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import IconArrow from '../../components/IconArrow';
 
 const progressList = [

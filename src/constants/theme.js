@@ -15,6 +15,7 @@ export const THEME = {
   WARNING_COLOR: '#FEC600',
   ERROR_COLOR: '#E00000',
   ASH_COLOR: '#BBB',
+  ASH_2_COLOR: '#DDD',
   PEW_COLOR: '#999',
   GREEN_COLOR: '#7CBEA6',
   TRANSPARENT_COLOR: 'transparent',

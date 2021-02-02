@@ -15,7 +15,7 @@ import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {UserContext} from '../../context/context';
-import {DownTimeComponent} from '../../components/DownTimeComponent';
+import {DownTimeComponent} from './components/DownTimeComponent';
 
 export function DownTimeScreen({navigation}) {
   const user = useContext(UserContext);

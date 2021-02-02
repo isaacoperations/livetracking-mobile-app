@@ -2,13 +2,13 @@
 
 buildscript {
     ext {
+        firebaseMessagingVersion = "+" // default: "+"
+        googlePlayServicesVersion = "+"
+
         buildToolsVersion = "29.0.2"
         minSdkVersion = 16
         compileSdkVersion = 29
         targetSdkVersion = 29
-
-        firebaseMessagingVersion = "+" // default: "+"
-        googlePlayServicesVersion = "+"
     }
     repositories {
         google()
@@ -16,7 +16,7 @@ buildscript {
     }
     dependencies {
         classpath('com.android.tools.build:gradle:4.1.1')
-        classpath 'com.google.gms:google-services:4.3.4'
+        classpath 'com.google.gms:google-services:4.3.3'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -40,22 +40,22 @@ allprojects {
     }
 }
 
-project.ext {
-  set('react-native', [
-    versions: [
-      // Overriding Build/Android SDK Versions
-      android : [
-        minSdk    : 16,
-        targetSdk : 30,
-        compileSdk: 30,
-        buildTools: "30.0.2"
-      ],
-
-      // Overriding Library SDK Versions
-      firebase: [
-        // Override Firebase SDK Version
-        bom           : "26.0.0"
-      ],
-    ],
-  ])
-}
+// project.ext {
+//   set('react-native', [
+//     versions: [
+//       // Overriding Build/Android SDK Versions
+//       android : [
+//         minSdk    : 16,
+//         targetSdk : 30,
+//         compileSdk: 30,
+//         buildTools: "30.0.2"
+//       ],
+//
+//       // Overriding Library SDK Versions
+//       firebase: [
+//         // Override Firebase SDK Version
+//         bom           : "26.0.0"
+//       ],
+//     ],
+//   ])
+// }

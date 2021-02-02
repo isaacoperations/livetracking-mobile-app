@@ -27,9 +27,9 @@ export function useAuth() {
               .userInfo({token: data.accessToken})
               .then(async (user) => {
                 const userData = {
-                  email: user.email,
+                  email: user.email ? user.email : 'user@livetracking.io',
                   token: data.accessToken,
-                  picture: user.picture,
+                  picture: user.picture || '',
                 };
                 await RNSInfo.setItem('user', JSON.stringify(userData), {});
                 dispatch(createAction('SET_USER', userData));
