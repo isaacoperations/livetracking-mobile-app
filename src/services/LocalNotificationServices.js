@@ -27,12 +27,12 @@ class LocalNotificationService {
         }
       },
 
-      onAction: function (notification) {
-        console.log('[LocalNotificationService] ACTION:', notification.action);
-        console.log('[LocalNotificationService] NOTIFICATION ACTION:', notification);
-        // process the action
-        onOpenNotification(notification.action);
-      },
+      // onAction: function (notification) {
+      //   console.log('[LocalNotificationService] ACTION:', notification.action);
+      //   console.log('[LocalNotificationService] NOTIFICATION ACTION:', notification);
+      //   // process the action
+      //   onOpenNotification(notification.action);
+      // },
 
       // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
       onRegistrationError: function(err) {
@@ -123,15 +123,6 @@ class LocalNotificationService {
       }
     });
   };
-
-  popInitialNotification() {
-    PushNotification.popInitialNotification((notification) =>
-      console.log(
-        '[LocalNotificationService] InitialNotication:',
-        notification,
-      ),
-    );
-  }
 
   cancelAllLocalNotifications = () => {
     if (Platform.OS === 'ios') {

@@ -27,7 +27,7 @@ import {CardComponent} from '../ReportScreen/components/CardComponent';
 import IconBox from '../../components/IconBox';
 import {Btn} from '../../components/Button';
 
-import {UserContext, NotificationContext} from '../../context/context';
+import {UserContext} from '../../context/context';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 
 const cardList = [
@@ -122,17 +122,13 @@ export function HomeScreen({navigation}) {
   const WIDTH = Dimensions.get('window').width;
 
   const user = useContext(UserContext);
-  const notify = useContext(NotificationContext);
 
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
     })();
-    console.log('home user token', user?.token);
-    console.log('home user email', user?.email);
-    console.log('home user picture', user?.picture);
-    console.log('home notify data', notify);
+    console.log('home user ', user);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

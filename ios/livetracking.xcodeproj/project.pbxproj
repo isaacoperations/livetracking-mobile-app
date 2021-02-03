@@ -19,11 +19,12 @@
 		328394550B2F46AAAAB63518 /* SFProDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 18EE1B0ACC2E4A5AAFDD704E /* SFProDisplay-Medium.otf */; };
 		3A0CFFD3324EA7C10950EB1E /* libPods-ImageNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 79002D8CC515B88F13C07FE6 /* libPods-ImageNotification.a */; };
 		3E147918677D836F08E42CED /* libPods-livetracking-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31667061A618CCF98D13ECFB /* libPods-livetracking-tvOSTests.a */; };
+		3F08CBF825C9EACE00075F72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */; };
 		3F103E4C25C43E5500C526ED /* Icon@4x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E4B25C43E5500C526ED /* Icon@4x.png */; };
 		3F103E5D25C43EE400C526ED /* Icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E5C25C43EE400C526ED /* Icon@3x.png */; };
 		3F103E6E25C43F5B00C526ED /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E6D25C43F5B00C526ED /* Icon@2x.png */; };
 		3F103E7F25C43FB700C526ED /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E7E25C43FB700C526ED /* Icon.png */; };
-		3F30F46925C46554007FE769 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F30F46825C46554007FE769 /* GoogleService-Info.plist */; };
+		3F30F46925C46554007FE769 /* GoogleService-Info-old2.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */; };
 		3F30F4A025C46687007FE769 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F30F49F25C46687007FE769 /* NotificationService.m */; };
 		3F30F4A425C46687007FE769 /* ImageNotification.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3F30F49C25C46687007FE769 /* ImageNotification.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4178C1A158E7DE72532B65EC /* libPods-livetracking-livetrackingTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47FD5B0CB3DA81902E510955 /* libPods-livetracking-livetrackingTests.a */; };
@@ -105,6 +106,7 @@
 		31667061A618CCF98D13ECFB /* libPods-livetracking-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-livetracking-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32A5EDE1819D4D7FBC0D56CD /* SFProDisplay-ThinItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFProDisplay-ThinItalic.otf"; path = "../assets/fonts/SFProDisplay-ThinItalic.otf"; sourceTree = "<group>"; };
 		384D60D1CB566DE41AECCF78 /* Pods-livetracking-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-livetracking-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-livetracking-tvOSTests/Pods-livetracking-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3F103E4B25C43E5500C526ED /* Icon@4x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@4x.png"; sourceTree = "<group>"; };
 		3F103E5C25C43EE400C526ED /* Icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@3x.png"; sourceTree = "<group>"; };
 		3F103E6D25C43F5B00C526ED /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
@@ -113,12 +115,11 @@
 		3F17399F25A33D4D00740468 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		3F1739A125A33D4D00740468 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F173B2C25A3858900740468 /* livetracking.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = livetracking.entitlements; path = livetracking/livetracking.entitlements; sourceTree = "<group>"; };
-		3F30F46825C46554007FE769 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-old2.plist"; sourceTree = "<group>"; };
 		3F30F49C25C46687007FE769 /* ImageNotification.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ImageNotification.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F30F49E25C46687007FE769 /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		3F30F49F25C46687007FE769 /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		3F30F4A125C46687007FE769 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3FA98FE925C2AD2A00FFB7AB /* GoogleService-Info-old.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-old.plist"; sourceTree = "<group>"; };
 		3FF1EE1A259CCBA200579D68 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		3FF1EE1B259CCBA200579D68 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		3FF1EE1C259CCBA200579D68 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
@@ -248,9 +249,9 @@
 			children = (
 				3F173B2C25A3858900740468 /* livetracking.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
-				3F30F46825C46554007FE769 /* GoogleService-Info.plist */,
+				3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				3FA98FE925C2AD2A00FFB7AB /* GoogleService-Info-old.plist */,
+				3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -575,7 +576,8 @@
 				7822C80587A04D0DAB606F23 /* SFProDisplay-Light.otf in Resources */,
 				3F103E4C25C43E5500C526ED /* Icon@4x.png in Resources */,
 				3F103E5D25C43EE400C526ED /* Icon@3x.png in Resources */,
-				3F30F46925C46554007FE769 /* GoogleService-Info.plist in Resources */,
+				3F08CBF825C9EACE00075F72 /* GoogleService-Info.plist in Resources */,
+				3F30F46925C46554007FE769 /* GoogleService-Info-old2.plist in Resources */,
 				4A8396CEB4914136A6232F7B /* SFProDisplay-LightItalic.otf in Resources */,
 				328394550B2F46AAAAB63518 /* SFProDisplay-Medium.otf in Resources */,
 				C32C970F59F247B58940E141 /* SFProDisplay-MediumItalic.otf in Resources */,

@@ -1,14 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Alert} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
-import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NavigationContainer} from '@react-navigation/native';
 
-import {
-  AuthContext,
-  UserContext,
-  NotificationContext,
-} from './src/context/context';
+import {AuthContext, UserContext} from './src/context/context';
 
 import {fcmService} from './src/services/FCMServices';
 import {localNotificationService} from './src/services/LocalNotificationServices';
@@ -21,7 +17,6 @@ import {sleep} from './src/utils/sleep';
 
 const App = () => {
   const {auth, state} = useAuth();
-  const [notifyData, setNotifyData] = useState({});
 
   useEffect(() => {
     console.log('user state app', state?.user);
@@ -31,8 +26,7 @@ const App = () => {
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
 
-    onNotification();
-    onOpenNotification();
+    // localNotificationService.showNotification('title', 'message');
 
     SplashScreen.hide();
 
@@ -76,37 +70,33 @@ const App = () => {
         options, //options
       );
     }
-    setNotifyData(notify);
   }
 
   function onOpenNotification(notify) {
     console.log('[Notification] onOpenNotification: ', notify);
-    if (!state.loading) {
-      console.log(
-        '[Notification] [Notification][Notification]',
-        notify?.data?.twi_title,
-        notify?.data?.twi_body,
-      );
-      if (notify) {
-        sleep(4000).then(() => {
-          const title =
-            notify?.twi_title || notify?.data?.twi_title || notify?.title;
-          const message =
-            notify?.twi_body || notify?.data?.twi_body || notify?.body;
-          localNotificationService.showNotification(
-            title,
-            message,
-            notify, //data
-          );
-          // return Alert.alert(
-          //   title,
-          //   message,
-          //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          //   {cancelable: false},
-          // );
-        });
-      }
-      setNotifyData(notify);
+    console.log(
+      '[Notification] [Notification][Notification]',
+      notify?.data?.twi_title,
+      notify?.data?.twi_body,
+    );
+    if (notify) {
+      sleep(4000).then(() => {
+        const title =
+          notify?.twi_title || notify?.data?.twi_title || notify?.title;
+        const message =
+          notify?.twi_body || notify?.data?.twi_body || notify?.body;
+        // localNotificationService.showNotification(
+        //   title,
+        //   message,
+        //   notify, //data
+        // );
+        return Alert.alert(
+          title,
+          message,
+          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          {cancelable: false},
+        );
+      });
     }
   }
 
@@ -125,9 +115,7 @@ const App = () => {
       <NavigationContainer>
         {state.user?.token ? (
           <UserContext.Provider value={state?.user}>
-            <NotificationContext.Provider value={notifyData}>
-              <MainTabNavigation />
-            </NotificationContext.Provider>
+            <MainTabNavigation />
           </UserContext.Provider>
         ) : (
           <AuthStackNavigator />
