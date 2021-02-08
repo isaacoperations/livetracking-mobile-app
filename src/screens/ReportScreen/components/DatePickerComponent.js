@@ -11,6 +11,7 @@ function DatePickerComponent({title = 'Date', date, onPress}) {
         size={25}
         name="calendar-blank-outline"
         color={THEME.CHAR_COLOR}
+        style={styles.calendar}
       />
       <View style={{marginLeft: 10}}>
         <Text style={[styles.title, styles.uppercase]}>{title}</Text>
@@ -46,5 +47,8 @@ const styles = StyleSheet.create({
   },
   uppercase: {
     textTransform: 'uppercase',
+  },
+  calendar: {
+    marginBottom: Platform.OS === 'android' ? 4 : 0,
   },
 });

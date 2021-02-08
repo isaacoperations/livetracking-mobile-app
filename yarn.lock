@@ -5275,7 +5275,7 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-moment@^2.29.1:
+moment@^2.27.0, moment@^2.29.1:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
@@ -5992,6 +5992,14 @@ react-native-countdown-component@^2.7.1:
     lodash "^4.17.13"
     prop-types "^15.5.8"
     sprintf-js "^1.1.1"
+
+react-native-daterange-picker@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-daterange-picker/-/react-native-daterange-picker-1.5.1.tgz#3f180e14c0c8089dd6fa88048ddee6d02d8abf29"
+  integrity sha512-Oq02ApRw4XTIo1Hyw3R5vKm7zyntRSqBvmOzlzXDUxS7K9GLstvTD8U3asj23ZmAGy6OR+Ye5mghnUpJoIrjfw==
+  dependencies:
+    lodash "^4.17.19"
+    moment "^2.27.0"
 
 react-native-elements@^3.1.0:
   version "3.1.0"

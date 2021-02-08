@@ -12,7 +12,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
-import {AuthContext} from '../context/context';
+import {AuthContext, UserContext} from '../context/context';
 
 import IconLive from '../components/IconLive';
 import IconReport from '../components/IconReport';
@@ -25,7 +25,6 @@ import {DownTimeScreen} from '../screens/ReportScreen/DownTimeScreen';
 import {RunLogScreen} from '../screens/ReportScreen/RunLogScreen';
 import {NotificationScreen} from '../screens/NotificationScreen/NotificationScreen';
 import {ModalFilterScreen} from '../screens/ReportScreen/screens/ModalFilterScreen';
-import {ModalProductScreen} from '../screens/ReportScreen/screens/ModalProductScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -34,6 +33,8 @@ const NotificationStack = createStackNavigator();
 
 const HomeStackNavigator = () => {
   const {logout} = useContext(AuthContext);
+  const user = useContext(UserContext);
+  const {app_metadata} = user;
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -46,7 +47,7 @@ const HomeStackNavigator = () => {
           name="Main"
           component={HomeScreen}
           options={() => ({
-            title: 'Test Factory Etobicoke South',
+            title: app_metadata?.factories[0].id || 'Test Factory',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -70,6 +71,8 @@ const HomeStackNavigator = () => {
 
 const ReportStackNavigator = ({navigation, route}) => {
   const {logout} = useContext(AuthContext);
+  const user = useContext(UserContext);
+  const {app_metadata} = user;
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -98,7 +101,8 @@ const ReportStackNavigator = ({navigation, route}) => {
           name="ReportScreen"
           component={ReportScreen}
           options={() => ({
-            title: 'Test Factory Etobicoke South',
+            title:
+              app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -127,7 +131,8 @@ const ReportStackNavigator = ({navigation, route}) => {
           name="RunLog"
           component={RunLogScreen}
           options={() => ({
-            title: 'Test Factory Etobicoke South',
+            title:
+              app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -150,20 +155,6 @@ const ReportStackNavigator = ({navigation, route}) => {
             },
           })}
         />
-        <ReportStack.Screen
-          name="ModalProduct"
-          component={ModalProductScreen}
-          options={() => ({
-            title: 'Products',
-            headerRight: () => <Text> </Text>,
-            headerShown: false,
-            ...TransitionPresets.ModalPresentationIOS,
-            cardStyle: {
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            },
-          })}
-        />
       </ReportStack.Navigator>
     </>
   );
@@ -171,6 +162,8 @@ const ReportStackNavigator = ({navigation, route}) => {
 
 const NotificationStackNavigator = () => {
   const {logout} = useContext(AuthContext);
+  const user = useContext(UserContext);
+  const {app_metadata} = user;
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -182,7 +175,7 @@ const NotificationStackNavigator = () => {
         name="Notification"
         component={NotificationScreen}
         options={() => ({
-          title: 'Test Factory Etobicoke South',
+          title: app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
           headerLeft: () => (
             <TouchableOpacity onPress={() => logout()} style={styles.menu}>
               <LogoMini />

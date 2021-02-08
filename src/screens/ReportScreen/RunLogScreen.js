@@ -11,6 +11,7 @@ import {Divider, SearchBar} from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
+import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -44,19 +45,18 @@ const nodeList = [
 export function RunLogScreen({navigation}) {
   const user = useContext(UserContext);
   const [search, setSearch] = useState('');
-  const [nodeData, setNodeData] = useState([]);
+  const [nodeData, setNodeData] = useState(nodeList || []);
   const [sortShownDate, setSortShownDate] = useState(true);
   const [sortShownLine, setSortShownLine] = useState(true);
   const [sortShownSku, setSortShownSku] = useState(true);
   useEffect(() => {
     console.log('home user', user?.token);
-    console.log('nodeList', JSON.stringify(nodeList));
     console.log('search result', search);
-    setNodeData(nodeList);
     (async () => {
       await MaterialCommunityIcons.loadFont();
       await MaterialIcons.loadFont();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, sortShownLine, nodeData]);
 
   const updateSearch = (text) => {
@@ -64,7 +64,7 @@ export function RunLogScreen({navigation}) {
     setSearch(text);
   };
 
-  const handleSortShowDate = (text) => {
+  const handleSortShowDate = () => {
     setSortShownDate(!sortShownDate);
     sortAscDescDate(sortShownDate);
   };
@@ -86,17 +86,25 @@ export function RunLogScreen({navigation}) {
   });
 
   const sortAscDescDate = (bool) => {
-    bool
-      ? nodeData.sort(
-          (a, b) =>
-            moment(a.date).format('YYYYMMDD') >
-            moment(b.date).format('YYYYMMDD'),
-        )
-      : nodeData.sort(
-          (a, b) =>
-            moment(a.date).format('YYYYMMDD') <
-            moment(b.date).format('YYYYMMDD'),
-        );
+    let data;
+    if (bool) {
+      data = _.orderBy(
+        nodeData,
+        function (dateObj) {
+          return new Date(dateObj.date);
+        },
+        ['asc'],
+      );
+    } else {
+      data = _.orderBy(
+        nodeData,
+        function (dateObj) {
+          return new Date(dateObj.date);
+        },
+        ['desc'],
+      );
+    }
+    setNodeData(data);
   };
 
   const sortAscDescTitle = (bool) => {
@@ -183,16 +191,54 @@ export function RunLogScreen({navigation}) {
                 <Pressable
                   onPress={() => navigation.navigate('CardDetailReport')}>
                   {({pressed}) => (
-                    <View style={[styles.block, {backgroundColor: pressed ? THEME.PRIMARY_COLOR_DARK : THEME.WHITE_COLOR}]}>
-                      <Text style={[styles.title, {flex: 1, color: pressed ? THEME.WHITE_COLOR : THEME.DARK_COLOR}]}>
+                    <View
+                      style={[
+                        styles.block,
+                        {
+                          backgroundColor: pressed
+                            ? THEME.PRIMARY_COLOR_DARK
+                            : THEME.WHITE_COLOR,
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          styles.title,
+                          {
+                            flex: 1,
+                            color: pressed
+                              ? THEME.WHITE_COLOR
+                              : THEME.DARK_COLOR,
+                          },
+                        ]}>
                         {moment(item.date)
                           .add(1, 'day')
                           .format('dddd YYYY-MM-DD')}
                       </Text>
-                      <Text style={[styles.title, {flex: 2, paddingLeft: 20, color: pressed ? THEME.WHITE_COLOR : THEME.DARK_COLOR}]}>
+                      <Text
+                        style={[
+                          styles.title,
+                          {
+                            flex: 2,
+                            paddingLeft: 20,
+                            color: pressed
+                              ? THEME.WHITE_COLOR
+                              : THEME.DARK_COLOR,
+                          },
+                        ]}>
                         {item.title}
                       </Text>
-                      <Text style={[styles.title, {flex: 2, color: pressed ? THEME.WHITE_COLOR : THEME.DARK_COLOR}]}>{item.sku}</Text>
+                      <Text
+                        style={[
+                          styles.title,
+                          {
+                            flex: 2,
+                            color: pressed
+                              ? THEME.WHITE_COLOR
+                              : THEME.DARK_COLOR,
+                          },
+                        ]}>
+                        {item.sku}
+                      </Text>
                     </View>
                   )}
                 </Pressable>

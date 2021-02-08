@@ -17,15 +17,11 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import Auth0 from 'react-native-auth0';
 
-import {API_URL_FORGOT_PASSWORD} from '../../config';
+import APIConfig from '../../config';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 import HeaderStatus from '../../components/HeaderStatus';
 import ErrorComponent from '../../components/ErrorComponent';
-
-import {credentials} from '../../config/auth0-configuration';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {createAction} from '../../utils/createAction';
 
 export function ForgotPasswordScreen({navigation}) {
   const [isError, setIsError] = useState('');
@@ -38,7 +34,6 @@ export function ForgotPasswordScreen({navigation}) {
       .required('Required'),
   });
 
-  const auth0 = new Auth0(credentials);
   const formData = new FormData();
 
   return (
@@ -58,16 +53,9 @@ export function ForgotPasswordScreen({navigation}) {
               },
             });
             formData.append('email_data', data);
-            // await auth0.auth
-            //   .resetPassword({
-            //     email: values.email.toLowerCase(),
-            //     connection: 'Username-Password-Authentication',
-            //   })
-            //   .then(async (res) => {
-            //     console.log('data auth0', res);
             await axios({
               method: 'POST',
-              url: API_URL_FORGOT_PASSWORD,
+              url: APIConfig.FORGOT_PASSWORD,
               headers: {
                 'x-api-key': 'sL5WYLqysS3N8g12LpnyL9dUUoDxoPDT7CW25dGr',
                 'Content-Type': 'multipart/form-data;',
@@ -77,12 +65,6 @@ export function ForgotPasswordScreen({navigation}) {
               setIsLoading(false);
               setIsError('');
             });
-            // })
-            // .catch((err) => {
-            //   console.log('errr', err);
-            //   setIsError(err.message);
-            //   setIsLoading(false);
-            // });
             actions.resetForm();
           } catch (e) {
             setIsError(e.message);

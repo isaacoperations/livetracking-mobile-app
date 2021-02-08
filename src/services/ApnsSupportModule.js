@@ -2,7 +2,7 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {localNotificationService} from './LocalNotificationServices';
 
 class ApnsSupport {
-  static registerForPushCallback(log, client) {
+  registerForPushCallback(client) {
     console.log(
       'ApnsSupportModule.JS.registerForPushCallback',
       'requesting APN token',
@@ -14,7 +14,6 @@ class ApnsSupport {
         'got new APN token',
         token,
       );
-      client.setPushRegistrationId('apn', token);
     });
 
     PushNotificationIOS.addEventListener('registrationError', function (err) {
@@ -79,8 +78,8 @@ class ApnsSupport {
       });
   }
 
-  static showPushCallback(log, push) {
-    log.info(
+  showPushCallback(push) {
+      console.log(
       'ApnsSupportModule.JS.showPushCallback',
       'show notification',
       push,
@@ -98,12 +97,12 @@ class ApnsSupport {
       // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
     };
     localNotificationService.showNotification(
-      title,
-      message,
+      title || 'ios',
+      message || 'ios',
       notify, //data
       options, //options
     );
   }
 }
 
-const apnsManager = new ApnsSupport();
+export const apnsManager = new ApnsSupport();

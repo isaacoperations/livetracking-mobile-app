@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {Divider, ListItem, CheckBox} from 'react-native-elements';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import ModalDropdown from 'react-native-modal-dropdown';
+//import DateRangePicker from 'react-native-daterange-picker';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -22,7 +23,7 @@ import _ from 'lodash';
 
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
-import {NodeLine, ProductLine} from '../db/db';
+import {NodeLine, ProductLine} from '../../../utils/db/db';
 
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeaderFilter} from '../components/ModalHeaderFilter';
@@ -31,6 +32,7 @@ import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
 
 export function ModalFilterScreen({navigation}) {
+  const parent = navigation.dangerouslyGetParent();
   const [modalValueText, setModalValueText] = useState('One day');
   const [isCheckVisibleLine, setIsCheckVisibleLine] = useState(false);
   const [isCheckVisibleProduct, setIsCheckVisibleProduct] = useState(false);
@@ -39,10 +41,17 @@ export function ModalFilterScreen({navigation}) {
   const [checkAllLine, setCheckAllLine] = useState(false);
   const [checkAllProduct, setCheckAllProduct] = useState(false);
   const [checkDataProduct, setCheckDataProduct] = useState(ProductLine || []);
-  const parent = navigation.dangerouslyGetParent();
-  const [date, setDate] = useState(new Date()); //1598051730000
-  const [dateTo, setDateTo] = useState(new Date()); //1598051730000
-  const [dateFrom, setDateFrom] = useState(new Date()); //1598051730000
+  const [showAndroid, setShowAndroid] = useState(false);
+  const [showAndroidTo, setShowAndroidTo] = useState(false);
+  const [showAndroidFrom, setShowAndroidFrom] = useState(false);
+  const [minDate, setMinDate] = useState(new Date(2020, 0, 1));
+  const [maxDate, setMaxDate] = useState(new Date(2050, 11, 30));
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [displayedDate, setDisplayedDate] = useState(moment());
+  const [date, setDate] = useState(new Date());
+  const [dateTo, setDateTo] = useState(new Date());
+  const [dateFrom, setDateFrom] = useState(new Date());
   const refRBSheetDate = useRef();
   const refRBSheetTo = useRef();
   const refRBSheetFrom = useRef();
@@ -127,7 +136,9 @@ export function ModalFilterScreen({navigation}) {
     } else {
       setIsCheckVisibleProduct(false);
     }
-    const reject = _.reject(data, function(o) { return !o.selected; });
+    const reject = _.reject(data, function (o) {
+      return !o.selected;
+    });
     const size = _.size(reject);
     setCountCheckProduct(`Products (${size})`);
     setCheckDataProduct(data);
@@ -140,7 +151,9 @@ export function ModalFilterScreen({navigation}) {
         selected: !checkAllProduct,
       };
     });
-    const reject = _.reject(data, function(o) { return !o.selected; });
+    const reject = _.reject(data, function (o) {
+      return !o.selected;
+    });
     const size = _.size(reject);
     setCountCheckProduct(`Products (${size})`);
     setCheckDataProduct(data);
@@ -151,11 +164,7 @@ export function ModalFilterScreen({navigation}) {
 
   const onChangeDate = (event, selectedDate) => {
     if (Platform.OS === 'android') {
-      if (event.type === 'set') {
-        refRBSheetDate.current.close();
-      } else {
-        refRBSheetDate.current.close();
-      }
+      setShowAndroid(false);
     }
     const currentDate = selectedDate || date;
     setDate(currentDate);
@@ -163,26 +172,61 @@ export function ModalFilterScreen({navigation}) {
 
   const onChangeFrom = (event, selectedDate) => {
     if (Platform.OS === 'android') {
-      if (event.type === 'set') {
-        refRBSheetFrom.current.close();
-      } else {
-        refRBSheetFrom.current.close();
-      }
+      setShowAndroidFrom(false);
     }
     const currentDate = selectedDate || dateFrom;
     setDateFrom(currentDate);
+    setDateTo(currentDate);
+    setMinDate(currentDate);
   };
 
   const onChangeTo = (event, selectedDate) => {
     if (Platform.OS === 'android') {
-      if (event.type === 'set') {
-        refRBSheetTo.current.close();
-      } else {
-        refRBSheetTo.current.close();
-      }
+      setShowAndroidTo(false);
     }
     const currentDate = selectedDate || dateTo;
+    console.log('currentDate', currentDate);
     setDateTo(currentDate);
+  };
+
+  const setDatesRange = (dates) => {
+    console.log('setDatesRange', dates);
+  };
+
+  const handleSubmit = () => {
+    const data = {
+      date: date,
+      dateTo: dateTo,
+      dateFrom: dateFrom,
+    };
+    console.log('handleSubmit', JSON.stringify(data, 2, null));
+    navigation.navigate('ReportScreen');
+  };
+
+  const handleReset = () => {
+    console.log('handleReset');
+    setDate(new Date());
+    setDateTo(new Date());
+    setDateFrom(new Date());
+
+    const dataLine = checkData.map((item) => {
+      return {
+        ...item,
+        selected: false,
+      };
+    });
+    setIsCheckVisibleLine(false);
+    setCheckData(dataLine);
+
+    const dataProduct = checkDataProduct.map((item) => {
+      return {
+        ...item,
+        selected: false,
+      };
+    });
+    setCountCheckProduct('All products');
+    setCheckDataProduct(dataProduct);
+    setIsCheckVisibleProduct(false);
   };
 
   return (
@@ -227,12 +271,12 @@ export function ModalFilterScreen({navigation}) {
               {modalValueText && modalValueText === 'One day' ? (
                 <>
                   <DatePickerComponent
-                    date={moment(date).format('MMM DD, YYYY')} // moment(date).format('MMM DD, YYYY')
-                    title={'From'}
+                    date={moment(date).format('MMM DD, YYYY')}
+                    title={'Date'}
                     onPress={() => {
                       Platform.OS === 'ios'
                         ? refRBSheetDate.current.open()
-                        : console.log('android show');
+                        : setShowAndroid(true);
                     }}
                   />
                   {Platform.OS === 'ios' ? (
@@ -273,23 +317,46 @@ export function ModalFilterScreen({navigation}) {
                         display={'spinner'}
                         dateFormat="month day year"
                         onChange={onChangeDate}
-                        style={{
-                          backgroundColor: THEME.WHITE_COLOR,
-                        }}
+                        minimumDate={minDate}
+                        maximumDate={maxDate}
+                        textColor="black"
                       />
                     </RBSheet>
-                  ) : null}
+                  ) : (
+                    showAndroid && (
+                      <>
+                        <RNDateTimePicker
+                          value={date}
+                          mode={'date'}
+                          display={'default'}
+                          dateFormat="month day year"
+                          onChange={onChangeDate}
+                          minimumDate={minDate}
+                          maximumDate={maxDate}
+                          textColor="black"
+                        />
+                        {/*<DateRangePicker*/}
+                        {/*  onChange={setDatesRange}*/}
+                        {/*  endDate={endDate}*/}
+                        {/*  startDate={startDate}*/}
+                        {/*  displayedDate={displayedDate}*/}
+                        {/*  range={true}>*/}
+                        {/*  <Text>Click me!</Text>*/}
+                        {/*</DateRangePicker>*/}
+                      </>
+                    )
+                  )}
                 </>
               ) : (
                 <View style={{flexDirection: 'row'}}>
                   <View style={{flex: 1, marginRight: 10}}>
                     <DatePickerComponent
-                      date={moment(dateFrom).format('MMM DD, YYYY')} // moment(date).format('MMM DD, YYYY')
+                      date={moment(dateFrom).format('MMM DD, YYYY')}
                       title={'From'}
                       onPress={() => {
                         Platform.OS === 'ios'
                           ? refRBSheetFrom.current.open()
-                          : console.log('android show');
+                          : setShowAndroidFrom(true);
                       }}
                     />
                     {Platform.OS === 'ios' ? (
@@ -330,22 +397,35 @@ export function ModalFilterScreen({navigation}) {
                           mode={'date'}
                           display={'spinner'}
                           dateFormat="month day year"
+                          minimumDate={new Date(2020, 0, 1)}
+                          maximumDate={maxDate}
                           onChange={onChangeFrom}
-                          style={{
-                            backgroundColor: THEME.WHITE_COLOR,
-                          }}
+                          textColor="black"
                         />
                       </RBSheet>
-                    ) : null}
+                    ) : (
+                      showAndroidFrom && (
+                        <RNDateTimePicker
+                          value={dateFrom}
+                          mode={'date'}
+                          display={'default'}
+                          dateFormat="month day year"
+                          minimumDate={minDate}
+                          maximumDate={maxDate}
+                          onChange={onChangeFrom}
+                          textColor="black"
+                        />
+                      )
+                    )}
                   </View>
                   <View style={{flex: 1, marginLeft: 10}}>
                     <DatePickerComponent
-                      date={moment(dateTo).format('MMM DD, YYYY')} // moment(date).format('MMM DD, YYYY')
+                      date={moment(dateTo).format('MMM DD, YYYY')}
                       title={'To'}
                       onPress={() => {
                         Platform.OS === 'ios'
                           ? refRBSheetTo.current.open()
-                          : console.log('android show');
+                          : setShowAndroidTo(true);
                       }}
                     />
                     {Platform.OS === 'ios' ? (
@@ -387,12 +467,25 @@ export function ModalFilterScreen({navigation}) {
                           display={'spinner'}
                           dateFormat="month day year"
                           onChange={onChangeTo}
-                          style={{
-                            backgroundColor: THEME.WHITE_COLOR,
-                          }}
+                          minimumDate={minDate}
+                          maximumDate={maxDate}
+                          textColor="black"
                         />
                       </RBSheet>
-                    ) : null}
+                    ) : (
+                      showAndroidTo && (
+                        <RNDateTimePicker
+                          value={dateTo}
+                          mode={'date'}
+                          display={'default'}
+                          dateFormat="month day year"
+                          minimumDate={minDate}
+                          maximumDate={maxDate}
+                          onChange={onChangeTo}
+                          textColor="black"
+                        />
+                      )
+                    )}
                   </View>
                 </View>
               )}
@@ -528,7 +621,7 @@ export function ModalFilterScreen({navigation}) {
             },
           ]}>
           <Pressable
-            onPress={() => console.log('reset')}
+            onPress={handleReset}
             style={{flex: 1, height: 44, justifyContent: 'center'}}>
             {({pressed}) => (
               <Text
@@ -547,7 +640,7 @@ export function ModalFilterScreen({navigation}) {
             <Btn
               navigation={navigation}
               title={'Apply'}
-              onPress={() => console.log('apply')}
+              onPress={handleSubmit}
               borderColor={THEME.PRIMARY_COLOR}
               backgroundColor={THEME.PRIMARY_COLOR}
               backgroundColorHover={THEME.WHITE_COLOR}

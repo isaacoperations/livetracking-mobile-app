@@ -51,13 +51,13 @@ class FCMService {
       });
   };
 
-  getAPNsToken = (onRegister) => {
+  getAPNsToken = (onRegisterAPNS) => {
     messaging()
       .getAPNSToken()
       .then((fcmToken) => {
         if (fcmToken) {
           console.log('[FCMService] getAPNSToken ', fcmToken);
-          onRegister(fcmToken);
+          onRegisterAPNS(fcmToken);
           // Alert.alert(
           //   'Notification Token Device',
           //   fcmToken,

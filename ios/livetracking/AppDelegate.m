@@ -84,6 +84,10 @@ static void InitializeFlipper(UIApplication *application) {
 
  // End I added
 
+    // Define UNUserNotificationCenter
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+
   NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
@@ -105,10 +109,6 @@ static void InitializeFlipper(UIApplication *application) {
   UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
   UIViewController *vc = [sb instantiateInitialViewController];
   rootView.loadingView = vc.view;
-
-   // Define UNUserNotificationCenter
- UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
- center.delegate = self;
 
   return YES;
 }

@@ -18,6 +18,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import Clipboard from 'react-native-advanced-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -30,6 +31,7 @@ import {Btn} from '../../components/Button';
 import {UserContext} from '../../context/context';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 
+import APIConfig from '../../config';
 const cardList = [
   {
     id: 1,
@@ -123,12 +125,35 @@ export function HomeScreen({navigation}) {
 
   const user = useContext(UserContext);
 
+  const {
+    authData: {idToken, tokenType},
+    app_metadata,
+  } = user;
+
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
+
+      console.log('home user data ', user);
+
+      await axios({
+        method: 'GET',
+        url: `${APIConfig.BASE_URL}/mobile/liveview/all`,
+        headers: {
+          'FACTORY-ID': app_metadata?.factories[0].id,
+          'Content-Type': 'application/json',
+          Authorization: `${tokenType} ${idToken}`,
+        },
+      })
+        .then(({data}) => {
+          console.log('response ', data);
+        })
+        .catch((e) => {
+          console.log('error ', e);
+        });
     })();
-    console.log('home user ', user);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -161,9 +186,9 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>
-          <Text>Click here to copy to Token Device </Text>
-        </TouchableOpacity>
+        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
+        {/*  <Text>Click here to copy to Token Device </Text>*/}
+        {/*</TouchableOpacity>*/}
 
         <View style={styles.tabContainer}>
           <SegmentedControlTab

@@ -14,6 +14,7 @@ import AuthStackNavigator from './src/navigation/AuthStackNavigation';
 import {useAuth} from './src/hooks/useAuth';
 import {SplashScreenComponent} from './src/components/SplashScreen';
 import {sleep} from './src/utils/sleep';
+import {apnsManager} from './src/services/ApnsSupportModule';
 
 const App = () => {
   const {auth, state} = useAuth();
@@ -26,7 +27,10 @@ const App = () => {
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
 
-    // localNotificationService.showNotification('title', 'message');
+    //apnsManager.registerForPushCallback(onRegisterAPNS);
+    //apnsManager.showPushCallback(onNotification);
+
+    //localNotificationService.showNotification('title1', 'message1');
 
     SplashScreen.hide();
 
