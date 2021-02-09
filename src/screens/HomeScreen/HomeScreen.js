@@ -1,4 +1,10 @@
-import React, {useContext, useEffect, useState, useRef} from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useReducer,
+} from 'react';
 import {
   View,
   Text,
@@ -9,6 +15,7 @@ import {
   Platform,
   FlatList,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -18,163 +25,143 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import Clipboard from 'react-native-advanced-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
+
+import {LiveViewContext, UserContext} from '../../context/context';
+import {useData} from '../../services/ApiService';
+import reducer, {initialState} from '../../reducer/reducer';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {CardComponent} from '../ReportScreen/components/CardComponent';
 import IconBox from '../../components/IconBox';
 import {Btn} from '../../components/Button';
-
-import {UserContext} from '../../context/context';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
-
-import APIConfig from '../../config';
-const cardList = [
-  {
-    id: 1,
-    title: 'Ippolito DXM Node 1',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 85,
-    isChecked: false,
-  },
-  {
-    id: 2,
-    title: 'Ippolito DXM Node 2',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'warning',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 3,
-    title: 'Ippolito DXM Node 3',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'error',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 4,
-    title: 'Ippolito DXM Node 4',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 5,
-    title: 'Ippolito DXM Node 5',
-    description: null,
-    status: 'info',
-    progress: null,
-    isChecked: false,
-  },
-  {
-    id: 6,
-    title: 'Ippolito DXM Node 6',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 7,
-    title: 'Ippolito DXM Node 7',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 8,
-    title: 'Ippolito DXM Node 8',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'warning',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 9,
-    title: 'Ippolito DXM Node 9',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 87,
-    isChecked: false,
-  },
-  {
-    id: 10,
-    title: 'Ippolito DXM Node 10',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'warning',
-    progress: 87,
-    isChecked: false,
-  },
-];
+import {createAction} from '../../utils/createAction';
+import {sleep} from '../../utils/sleep';
 
 export function HomeScreen({navigation}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const [checkData, setCheckData] = useState(cardList);
+  const [nodeData, setNodeData] = useState([]);
   const refRBSheet = useRef();
   const numColumns = 2;
   const WIDTH = Dimensions.get('window').width;
 
+  const [state, dispatch] = useReducer(reducer, initialState);
   const user = useContext(UserContext);
-
-  const {
-    authData: {idToken, tokenType},
-    app_metadata,
-  } = user;
+  const {LiveView} = useData();
 
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
-
+      // await AsyncStorage.removeItem('line');
       console.log('home user data ', user);
-
-      await axios({
-        method: 'GET',
-        url: `${APIConfig.BASE_URL}/mobile/liveview/all`,
-        headers: {
-          'FACTORY-ID': app_metadata?.factories[0].id,
-          'Content-Type': 'application/json',
-          Authorization: `${tokenType} ${idToken}`,
-        },
-      })
-        .then(({data}) => {
-          console.log('response ', data);
-        })
-        .catch((e) => {
-          console.log('error ', e);
-        });
     })();
 
+    sleep(100).then(async () => {
+      await AsyncStorage.getItem('line').then((line) => {
+        if (line) {
+          dispatch(createAction('SET_LINE', JSON.parse(line)));
+          setIsVisible(false);
+        } else {
+          console.log('not found line ', line);
+          setIsVisible(true);
+        }
+      });
+
+      console.log('asctnc', await AsyncStorage.getItem('line'));
+
+      await LiveView.getAllNode()
+        .then(async ({data}) => {
+          console.log('response data  ', data?.liveviewInfo);
+          const nodes = data?.liveviewInfo;
+          setNodeData(nodes);
+          if (state.line.length > 0) {
+            console.log('Ystate line data ', state.line);
+          } else {
+            console.log('Xstate line not data ', state.line);
+            if ((await AsyncStorage.getItem('line')) === null) {
+              console.log('Tstate line not data ', state.line);
+              dispatch(createAction('SET_LINE', nodes));
+              await AsyncStorage.setItem('line', JSON.stringify(nodes));
+            }
+          }
+        })
+        .catch((e) => {
+          console.log('errror', e.message);
+        });
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log('home line data ', state.line);
+
   const renderCard = ({item}) => (
     <CardComponent
-      key={item.id}
-      id={item.id}
-      title={item.title}
-      description={item.description}
-      status={item.status}
-      progress={item.progress}
-      onPress={() => navigation.navigate('CardDetail')}
+      key={item.lineId}
+      id={item.lineId}
+      title={item.lineName}
+      description={item.productName}
+      status={item.lineStatus}
+      progressLine={item.lineTargetEfficiency}
+      progressRun={item.runEfficiency}
+      currentDowntimeDurationSeconds={item.currentDowntimeDurationSeconds}
+      currentDowntimeStartTime={item.currentDowntimeStartTime}
+      currentDowntimeStatus={item.currentDowntimeStatus}
+      runDurationSeconds={item.runDurationSeconds}
+      runStartTime={item.runStartTime}
+      targetSpeed={item.targetSpeed}
+      onPress={() =>
+        navigation.navigate('CardDetail', {
+          id: item.lineId,
+          title: item.lineName,
+          description: item.productName,
+          status: item.lineStatus,
+          progressLine: item.lineTargetEfficiency,
+          progressRun: item.runEfficiency,
+          currentDowntimeDurationSeconds: item.currentDowntimeDurationSeconds,
+          currentDowntimeStartTime: item.currentDowntimeStartTime,
+          currentDowntimeStatus: item.currentDowntimeStatus,
+          runDurationSeconds: item.runDurationSeconds,
+          runStartTime: item.runStartTime,
+          targetSpeed: item.targetSpeed,
+        })
+      }
     />
   );
 
-  const handleChecked = (id) => {
-    let data = checkData.slice();
-    const index = data.findIndex((x) => x.id === id);
-    data[index].isChecked = !data[index].isChecked;
-    setCheckData(data);
-    setIsVisible(false);
+  const handleChecked = async (idx) => {
+    if (state.line.length > 0) {
+      const data = state?.line.map((item) => {
+        if (item.lineId === idx) {
+          return {
+            ...item,
+            selected: !item.selected || false,
+          };
+        }
+        return {
+          ...item,
+          selected: item.selected || false,
+        };
+      });
+
+      dispatch(createAction('SET_LINE', data));
+      await AsyncStorage.setItem('line', JSON.stringify(data));
+
+      const uniqDataBy = _.uniqBy(data, 'selected');
+      const some = _.some(uniqDataBy, ['selected', true]);
+      if (some) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    } else {
+      Alert.alert('Not data');
+    }
   };
 
   const copyToClipboard = async () => {
@@ -203,146 +190,140 @@ export function HomeScreen({navigation}) {
             activeTabTextStyle={styles.activeTabTextStyle}
           />
         </View>
-        {selectedIndex === 0 ? (
-          <FlatList
-            contentContainerStyle={{
-              paddingBottom: 20,
-              paddingLeft: 10,
-              paddingRight: 10,
-            }}
-            data={cardList}
-            numColumns={numColumns}
-            horizontal={false}
-            renderItem={renderCard}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        ) : (
-          <View
-            style={[
-              styles.container,
-              {
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flex: 1,
-              },
-            ]}>
-            {isVisible ? (
-              <>
-                <IconBox style={{marginTop: 'auto', marginBottom: 15}} />
-                <Text style={styles.subtitle}>
-                  You have no lines in your watch list
-                </Text>
-              </>
-            ) : (
-              <>
-                <ScrollView
-                  style={[
-                    styles.containerScrollView,
-                    {
-                      paddingLeft: 10,
-                      paddingRight: 10,
-                    },
-                  ]}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      flexWrap: 'wrap',
-                      height: '100%',
-                      width: '100%',
-                    }}>
-                    {checkData.map((item, i) => {
-                      return item.isChecked ? (
-                        <CardComponent
-                          key={item.id}
-                          id={item.id}
-                          title={item.title}
-                          description={item.description}
-                          status={item.status}
-                          progress={item.progress}
-                          onPress={() => {
-                            navigation.navigate('CardDetail');
-                          }}
-                        />
-                      ) : null;
-                    })}
-                  </View>
-                </ScrollView>
-              </>
-            )}
-            <RBSheet
-              ref={refRBSheet}
-              closeOnDragDown={false}
-              height={Platform.OS === 'ios' ? 500 : 400}
-              closeOnPressMask={false}
-              customStyles={{
-                wrapper: {
-                  backgroundColor: 'transparent',
+        {nodeData.length > 0 ? (
+          selectedIndex === 0 ? (
+            <FlatList
+              contentContainerStyle={{
+                paddingBottom: 20,
+                paddingLeft: 10,
+                paddingRight: 10,
+              }}
+              data={nodeData}
+              numColumns={numColumns}
+              horizontal={false}
+              renderItem={renderCard}
+              keyExtractor={(item) => item.lineId.toString()}
+            />
+          ) : (
+            <View
+              style={[
+                styles.container,
+                {
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flex: 1,
                 },
-                container: {
-                  borderTopRightRadius: 20,
-                  borderTopLeftRadius: 20,
-                },
-              }}>
-              <RBSheetHeader
-                onPress={() => refRBSheet.current.close()}
-                title={'Edit List'}
-                iconName={'close'}
-              />
-              <ScrollView>
-                {checkData.map((item, i) => (
-                  <ListItem
-                    key={i}
-                    containerStyle={{
-                      paddingLeft: 30,
-                      backgroundColor: 'white',
-                    }}
-                    activeOpacity={1}
-                    onPress={() => handleChecked(item.id)}>
-                    <ListItem.Content
+              ]}>
+              {isVisible ? (
+                <>
+                  <IconBox style={{marginTop: 'auto', marginBottom: 15}} />
+                  <Text style={styles.subtitle}>
+                    You have no lines in your watch list
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <ScrollView
+                    style={[
+                      styles.containerScrollView,
+                      {paddingHorizontal: 10},
+                    ]}>
+                    <View
                       style={{
                         flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        height: '100%',
+                        width: '100%',
                       }}>
-                      <ListItem.Title style={{color: THEME.DARK_COLOR}}>
-                        {item.title}
-                      </ListItem.Title>
-                      <View>
-                        <CheckBox
-                          checkedIcon={
-                            <MaterialIcons
-                              name={'check-circle'}
-                              size={24}
-                              style={{color: THEME.PRIMARY_COLOR}}
-                            />
-                          }
-                          uncheckedIcon={
-                            <MaterialCommunityIcons
-                              name={'circle-outline'}
-                              size={24}
-                              style={{color: THEME.PRIMARY_COLOR}}
-                            />
-                          }
-                          checked={item.isChecked}
-                          onPress={() => handleChecked(item.id)}
-                        />
-                      </View>
-                    </ListItem.Content>
-                  </ListItem>
-                ))}
-              </ScrollView>
-            </RBSheet>
-            <View style={styles.containerBottom}>
-              <Btn
-                size={THEME.BUTTON_PRIMARY_SMALL}
-                fontFamily={FONT.Regular}
-                title={'Edit List'}
-                icon={false}
-                backgroundColor={'transparent'}
-                textColorHover={THEME.WHITE_COLOR}
-                onPress={() => refRBSheet.current.open()}
-              />
+                      {state?.line.map((item, i) => {
+                        return item.selected ? renderCard({item}) : null;
+                      })}
+                    </View>
+                  </ScrollView>
+                </>
+              )}
+              <RBSheet
+                ref={refRBSheet}
+                closeOnDragDown={false}
+                height={Platform.OS === 'ios' ? 500 : 400}
+                closeOnPressMask={false}
+                customStyles={{
+                  wrapper: {
+                    backgroundColor: 'transparent',
+                  },
+                  container: {
+                    borderTopRightRadius: 20,
+                    borderTopLeftRadius: 20,
+                  },
+                }}>
+                <RBSheetHeader
+                  onPress={() => refRBSheet.current.close()}
+                  title={'Edit List'}
+                  iconName={'close'}
+                />
+                <ScrollView>
+                  {state?.line.map((item) => (
+                    <ListItem
+                      key={item.lineId}
+                      containerStyle={{
+                        paddingLeft: 30,
+                        backgroundColor: 'white',
+                      }}
+                      activeOpacity={1}
+                      onPress={() => handleChecked(item.lineId)}>
+                      <ListItem.Content
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+                          {item.lineName}
+                        </ListItem.Title>
+                        <View>
+                          <CheckBox
+                            checkedIcon={
+                              <MaterialIcons
+                                name={'check-circle'}
+                                size={24}
+                                color={THEME.PRIMARY_COLOR}
+                              />
+                            }
+                            uncheckedIcon={
+                              <MaterialCommunityIcons
+                                name={'circle-outline'}
+                                size={24}
+                                color={THEME.PRIMARY_COLOR}
+                              />
+                            }
+                            checked={item.selected || false}
+                            onPress={() => handleChecked(item.lineId)}
+                          />
+                        </View>
+                      </ListItem.Content>
+                    </ListItem>
+                  ))}
+                </ScrollView>
+              </RBSheet>
+              <View style={styles.containerBottom}>
+                <Btn
+                  size={THEME.BUTTON_PRIMARY_SMALL}
+                  fontFamily={FONT.Regular}
+                  title={'Edit List'}
+                  icon={false}
+                  backgroundColor={'transparent'}
+                  textColorHover={THEME.WHITE_COLOR}
+                  onPress={() => refRBSheet.current.open()}
+                />
+              </View>
             </View>
+          )
+        ) : (
+          <View style={styles.noLineContainer}>
+            <IconBox style={{marginBottom: 15}} />
+            <Text style={styles.subtitle}>
+              You have no lines in your watch list
+            </Text>
           </View>
         )}
       </SafeAreaView>
@@ -409,5 +390,11 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 'auto',
     marginBottom: 0,
+  },
+  noLineContainer: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

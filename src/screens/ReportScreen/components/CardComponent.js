@@ -1,6 +1,8 @@
 import * as React from 'react';
 import {
-  Dimensions, Platform,
+  Alert,
+  Dimensions,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -8,6 +10,7 @@ import {
 } from 'react-native';
 import {Card} from 'react-native-elements';
 import CountDown from 'react-native-countdown-component';
+import _ from 'lodash';
 
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
@@ -17,19 +20,31 @@ import IconE from '../../../components/IconE';
 import IconMoon from '../../../components/IconMoon';
 import IconDanger from '../../../components/IconDanger';
 
+
 const numColumns = 2;
 const WIDTH = Dimensions.get('window').width;
 
-export function CardComponent({id, progress, description, status, title, onPress}) {
+export function CardComponent({
+  progressLine = '50',
+  progressRun = '80',
+  description,
+  status,
+  title,
+  onPress,
+  currentDowntimeDurationSeconds,
+  currentDowntimeStartTime,
+  currentDowntimeStatus,
+  runDurationSeconds,
+  runStartTime,
+  targetSpeed,
+}) {
   return (
     <Card
       containerStyle={[
         styles.cardContainer,
-        {width: progress ? 'auto' : '46%'},
+        {width: progressLine ? 'auto' : '46%'},
       ]}>
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={onPress}>
+      <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
         <View style={styles.cardImage}>
           <BadgeComponent status={status} />
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.cardTitle}>
@@ -45,33 +60,58 @@ export function CardComponent({id, progress, description, status, title, onPress
           ) : (
             <Text style={{marginTop: 15}} />
           )}
-          <View style={[styles.cardProgress, {marginBottom: progress ? 7 : 20}]}>
+          <View
+            style={[
+              styles.cardProgress,
+              {marginBottom: 20},
+            ]}>
             <IconE />
-            {progress ? (
+            {progressLine ? (
               <>
-                <Text style={styles.cardProgressTitle}>{progress}%</Text>
+                <Text style={styles.cardProgressTitle}>
+                  {_.floor(progressRun, 1)}%
+                </Text>
                 <View style={styles.cardProgressRow}>
-                  <View style={styles.cardProgressLineHead} />
-                  <View style={styles.cardProgressLineMiddle} />
+                  <View
+                    style={[
+                      styles.cardProgressLineHead,
+                      {width: `${_.floor(progressRun)}%`},
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.cardProgressLineMiddle,
+                      {width: `${_.floor(progressLine)}%`},
+                    ]}
+                  />
                   <View style={styles.cardProgressLineFooter} />
                 </View>
               </>
             ) : null}
           </View>
           <View style={styles.cardTimerRow}>
-            {status === 'error' ? (
+            {status === 'down' ? (
               <IconDanger style={{marginBottom: 4}} />
             ) : (
               <IconMoon style={{marginBottom: 4}} />
             )}
-            {progress ? (
+            {status !== 'notrunning' ? (
               <>
                 <CountDown
                   size={15}
-                  until={10000}
-                  onFinish={() => alert('Finished')}
+                  until={
+                    status === 'slow' || status === 'normal'
+                      ? runDurationSeconds
+                      : status === 'down'
+                      ? currentDowntimeDurationSeconds
+                      : null
+                  }
+                  onFinish={() => console.log('Finished')}
                   digitTxtStyle={{
-                    color: status === 'error' ? THEME.ERROR_COLOR : THEME.PRIMARY_COLOR_DARK,
+                    color:
+                      status === 'down'
+                        ? THEME.ERROR_COLOR
+                        : THEME.PRIMARY_COLOR_DARK,
                     fontSize: 12,
                   }}
                   timeLabelStyle={{

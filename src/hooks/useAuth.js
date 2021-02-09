@@ -1,5 +1,6 @@
 import {useReducer, useMemo, useEffect} from 'react';
 import RNSInfo from 'react-native-sensitive-info';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Auth0 from 'react-native-auth0';
 
 import {createAction} from '../utils/createAction';
@@ -40,9 +41,11 @@ export function useAuth() {
       },
       logout: async () => {
         await RNSInfo.deleteItem('user', {});
+        await AsyncStorage.removeItem('line');
         dispatch(createAction('REMOVE_USER'));
       },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   useEffect(() => {

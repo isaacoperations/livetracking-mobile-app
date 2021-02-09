@@ -4,7 +4,7 @@ import SplashScreen from 'react-native-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationContainer} from '@react-navigation/native';
 
-import {AuthContext, UserContext} from './src/context/context';
+import {AuthContext, LiveViewContext, UserContext} from './src/context/context';
 
 import {fcmService} from './src/services/FCMServices';
 import {localNotificationService} from './src/services/LocalNotificationServices';
@@ -20,8 +20,6 @@ const App = () => {
   const {auth, state} = useAuth();
 
   useEffect(() => {
-    console.log('user state app', state?.user);
-
     //fcmService.registerAppWithFCM();
     fcmService.getAPNsToken(onRegisterAPNS);
     fcmService.register(onRegister, onNotification, onOpenNotification);
@@ -104,10 +102,12 @@ const App = () => {
     }
   }
 
-  if (state.user?.token) {
-    console.log('access user token');
+  console.log('user state app', state?.user);
+
+  if (state.line) {
+    console.log('access state line', state.line);
   } else {
-    console.log('not user token');
+    console.log('not state line');
   }
 
   if (state.loading) {
@@ -119,7 +119,9 @@ const App = () => {
       <NavigationContainer>
         {state.user?.token ? (
           <UserContext.Provider value={state?.user}>
-            <MainTabNavigation />
+            <LiveViewContext.Provider value={state?.line}>
+              <MainTabNavigation />
+            </LiveViewContext.Provider>
           </UserContext.Provider>
         ) : (
           <AuthStackNavigator />

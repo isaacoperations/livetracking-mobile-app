@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {THEME} from '../constants/theme';
@@ -25,11 +26,13 @@ import {DownTimeScreen} from '../screens/ReportScreen/DownTimeScreen';
 import {RunLogScreen} from '../screens/ReportScreen/RunLogScreen';
 import {NotificationScreen} from '../screens/NotificationScreen/NotificationScreen';
 import {ModalFilterScreen} from '../screens/ReportScreen/screens/ModalFilterScreen';
+import {SelectFactoryScreen} from '../screens/SelectFactoryScreen/SelectFactoryScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ReportStack = createStackNavigator();
 const NotificationStack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
 const HomeStackNavigator = () => {
   const {logout} = useContext(AuthContext);
@@ -47,7 +50,7 @@ const HomeStackNavigator = () => {
           name="Main"
           component={HomeScreen}
           options={() => ({
-            title: app_metadata?.factories[0].id || 'Test Factory',
+            title: app_metadata?.factories[1].id || 'Test Factory',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -60,7 +63,7 @@ const HomeStackNavigator = () => {
           name="CardDetail"
           component={CardDetailScreen}
           options={() => ({
-            title: 'Run report 2',
+            title: 'Run report',
             headerRight: () => <Text> </Text>,
           })}
         />
@@ -102,7 +105,7 @@ const ReportStackNavigator = ({navigation, route}) => {
           component={ReportScreen}
           options={() => ({
             title:
-              app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -132,7 +135,7 @@ const ReportStackNavigator = ({navigation, route}) => {
           component={RunLogScreen}
           options={() => ({
             title:
-              app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity onPress={() => logout()} style={styles.menu}>
                 <LogoMini />
@@ -175,7 +178,8 @@ const NotificationStackNavigator = () => {
         name="Notification"
         component={NotificationScreen}
         options={() => ({
-          title: app_metadata?.factories[0].id || 'Test Factory Etobicoke South',
+          title:
+            app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
           headerLeft: () => (
             <TouchableOpacity onPress={() => logout()} style={styles.menu}>
               <LogoMini />
@@ -188,7 +192,19 @@ const NotificationStackNavigator = () => {
   );
 };
 
-function MainTabNavigation() {
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="MenuTab" component={TabNavigator} />
+      <Drawer.Screen
+        name="SelectFactoryScreen2"
+        component={SelectFactoryScreen}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -257,6 +273,10 @@ function MainTabNavigation() {
       />
     </Tab.Navigator>
   );
+}
+
+function MainTabNavigation() {
+  return <TabNavigator />;
 }
 
 export default MainTabNavigation;

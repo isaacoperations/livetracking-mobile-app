@@ -1,15 +1,24 @@
-import * as React from 'react';
+import React from 'react';
 import {StyleSheet} from 'react-native';
 import {Badge} from 'react-native-elements';
 
 import {FONT} from '../constants/fonts';
 import {THEME} from '../constants/theme';
 
-export function BadgeComponent({
-  status,
-  textColor = THEME.WHITE_COLOR,
-}) {
-  const statusLower = status.toLocaleLowerCase();
+export function BadgeComponent({status, textColor = THEME.WHITE_COLOR}) {
+  let statusLine;
+  if (status === 'down') {
+    statusLine = 'error';
+  } else if (status === 'slow') {
+    statusLine = 'warning';
+  } else if (status === 'normal') {
+    statusLine = 'success';
+  } else {
+    statusLine = 'info';
+  }
+
+  const statusLower = statusLine.toLocaleLowerCase();
+
   return (
     <Badge
       value={
@@ -21,9 +30,9 @@ export function BadgeComponent({
           ? 'down'
           : statusLower === 'info'
           ? 'not running'
-          : null
+          : 'down'
       }
-      status={status !== 'info' ? status : 'primary'}
+      status={statusLower}
       containerStyle={styles.badgeContainer}
       badgeStyle={[
         styles.badgeStyle,

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, Fragment} from 'react';
+import React, {useEffect, useState, Fragment} from 'react';
 import {
   View,
   Text,
@@ -6,34 +6,23 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
-  FlatList,
   Pressable,
 } from 'react-native';
 import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import moment from 'moment';
+import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-
-import {UserContext} from '../../context/context';
+import IconArrow from '../../components/IconArrow';
 import IconCubes from '../../components/IconCubes';
 import {ProgressLine} from '../../components/ProgressLine';
-import IconArrow from '../../components/IconArrow';
 
-const cardList = [
-  {
-    id: 1,
-    title: 'Ippolito DXM Node 1',
-    description: 'Blueberry Muffins w/ whole wheat flour',
-    status: 'success',
-    progress: 85,
-    isChecked: false,
-  },
-];
 
 const progressList = [
   {
@@ -137,34 +126,48 @@ const progressList2 = [
   },
 ];
 
-export function CardDetailScreen({navigation}) {
-  const user = useContext(UserContext);
+export function CardDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [progressShown, setProgressShown] = useState(0);
   const [progressShown2, setProgressShown2] = useState(0);
   const [progressOpacity, setProgressOpacity] = useState(true);
   const [progressOpacity2, setProgressOpacity2] = useState(true);
 
+  const {
+    id,
+    title,
+    description,
+    status,
+    progressLine,
+    progressRun,
+    currentDowntimeDurationSeconds,
+    currentDowntimeStartTime,
+    currentDowntimeStatus,
+    runDurationSeconds,
+    runStartTime,
+    targetSpeed,
+  } = route.params;
+
   useEffect(() => {
-    console.log('home user', user?.token);
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleProgress = (id) => {
+  const toggleProgress = (idx) => {
     let data = progressList.slice();
-    const index = data.findIndex((x) => x.id === id);
+    const index = data.findIndex((x) => x.id === idx);
     data[index].isShow = !data[index].isShow;
     setProgressShown(index + 1);
     setProgressOpacity(!progressOpacity);
     console.log(progressShown);
   };
 
-  const toggleProgress2 = (id) => {
+  const toggleProgress2 = (idx) => {
     let data = progressList2.slice();
-    const index = data.findIndex((x) => x.id === id);
+    const index = data.findIndex((x) => x.id === idx);
     data[index].isShow = !data[index].isShow;
     console.log(index);
     setProgressShown2(index + 1);
@@ -181,11 +184,11 @@ export function CardDetailScreen({navigation}) {
             <View style={styles.block}>
               <Text style={styles.label}>Line</Text>
               <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
-                Ippolito DXM Node 1
+                {title}
               </Text>
               <Text style={styles.label}>Product</Text>
               <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
-                Blueberry Muffins w/ whole wheat flour
+                {description}
               </Text>
               <Divider style={styles.divider} />
               <View style={{flex: 1, flexDirection: 'row'}}>
@@ -205,7 +208,7 @@ export function CardDetailScreen({navigation}) {
                       name={'clock-time-four-outline'}
                       style={{marginRight: 10}}
                     />
-                    <Text style={styles.textBlue}>1:07:11 PM</Text>
+                    <Text style={styles.textBlue}>{moment(runStartTime).format('h:mm:ss a')}</Text>
                   </View>
                 </View>
                 <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
@@ -217,7 +220,7 @@ export function CardDetailScreen({navigation}) {
                       name={'clock-time-four-outline'}
                       style={{marginRight: 10}}
                     />
-                    <Text style={styles.textBlue}>4:33:22 PM</Text>
+                    <Text style={styles.textBlue}>{moment(runStartTime).format('h:mm:ss a')}</Text>
                   </View>
                 </View>
               </View>
@@ -265,21 +268,21 @@ export function CardDetailScreen({navigation}) {
                     color: THEME.PRIMARY_COLOR_DARK,
                     marginRight: 10,
                   }}>
-                  79
+                  {targetSpeed}
                 </Text>
                 <Text style={styles.textBlue}>pkg/min</Text>
               </View>
             </View>
             <Divider style={styles.divider} />
-            <View style={[styles.block, {paddingBottom: 30, height: 190}]}>
+            <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
               <Text style={styles.label}>EFFICIENCY</Text>
               <View
                 style={{
                   marginTop: 10,
                   alignItems: 'center',
                 }}>
-                <View style={[styles.cardProgressRow, {marginTop: 35}]}>
-                  <View style={styles.cardProgressLineHead}>
+                <View style={[styles.cardProgressRow, {marginTop: 65}]}>
+                  <View style={[styles.cardProgressLineHead, {width: `${_.floor(progressRun)}%`}]}>
                     <View style={styles.cardProgressLineHeadText}>
                       <Text style={styles.textBlue}>OEE</Text>
                       <Text
@@ -289,7 +292,7 @@ export function CardDetailScreen({navigation}) {
                           color: THEME.PRIMARY_COLOR_DARK,
                           marginTop: Platform.OS === 'ios' ? 0 : -10,
                         }}>
-                        51%
+                        {_.floor(progressRun, 1)}%
                       </Text>
                       <IconArrow
                         height={10}
@@ -301,7 +304,7 @@ export function CardDetailScreen({navigation}) {
                       />
                     </View>
                   </View>
-                  <View style={styles.cardProgressLineMiddle}>
+                  <View style={[styles.cardProgressLineMiddle, {width: `${_.floor(progressLine)}%`}]}>
                     <View style={styles.cardProgressLineMiddleText}>
                       <IconArrow
                         height={10}
@@ -329,7 +332,7 @@ export function CardDetailScreen({navigation}) {
                           color: 'rgba(0, 68, 132, 0.4)',
                           marginTop: Platform.OS === 'ios' ? 0 : -15,
                         }}>
-                        72%
+                        {_.floor(progressLine, 1)}%
                       </Text>
                     </View>
                   </View>
