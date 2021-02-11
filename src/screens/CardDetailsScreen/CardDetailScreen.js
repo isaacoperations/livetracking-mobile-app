@@ -1,11 +1,10 @@
-import React, {useEffect, useState, useLayoutEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import {Divider} from 'react-native-elements';
@@ -13,19 +12,21 @@ import SegmentedControlTab from 'react-native-segmented-control-tab';
 import Accordion from 'react-native-collapsible/Accordion';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import moment from 'moment';
-import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import IconArrow from '../../components/icons/IconArrow';
-import IconCubes from '../../components/icons/IconCubes';
 import {ProgressLine} from '../../components/ProgressLine';
+import {ProgressContent} from '../../components/ProgressContent';
+import {CardTitle} from './components/CardTitle';
+import {CardProductTitle} from './components/CardProductTitle';
+import {CardTime} from './components/CardTime';
+import {CardOutput} from './components/CardOutput';
+import {CardSpeed} from './components/CardSpeed';
+import {CardEfficiency} from './components/CardEfficiency';
 
 import {useData} from '../../services/ApiService';
-import {ProgressContent} from '../../components/ProgressContent';
 
 export function CardDetailScreen({route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -96,187 +97,21 @@ export function CardDetailScreen({route}) {
           <ScrollView style={styles.container}>
             <View>
               <View style={styles.block}>
-                <Text style={styles.label}>Line</Text>
-                <Text
-                  style={styles.text}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {runData?.lineName}
-                </Text>
-                <Text style={styles.label}>Product</Text>
-                <Text
-                  style={styles.text}
-                  numberOfLines={2}
-                  ellipsizeMode="tail">
-                  {runData?.productName}
-                </Text>
+                <CardTitle title={runData?.lineName} />
+                <CardProductTitle title={runData?.productName} />
                 <Divider style={styles.divider} />
-                <View style={{flex: 1, flexDirection: 'row'}}>
-                  <View
-                    style={{
-                      flex: 1,
-                      borderRightWidth: 1,
-                      borderColor: THEME.GRAY_COLOR,
-                      paddingTop: 20,
-                      paddingBottom: 30,
-                    }}>
-                    <Text style={styles.label}>Start time</Text>
-                    <View style={styles.timeBlock}>
-                      <MaterialCommunityIcons
-                        size={20}
-                        color={THEME.PRIMARY_COLOR_DARK}
-                        name={'clock-time-four-outline'}
-                        style={{marginRight: 10}}
-                      />
-                      <Text style={styles.textBlue}>
-                        {moment(runData?.runStartTime).format('h:mm:ss a')}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
-                    <Text style={styles.label}>End time</Text>
-                    <View style={styles.timeBlock}>
-                      <MaterialCommunityIcons
-                        size={20}
-                        color={THEME.PRIMARY_COLOR_DARK}
-                        name={'clock-time-four-outline'}
-                        style={{marginRight: 10}}
-                      />
-                      <Text style={styles.textBlue}>
-                        {moment(runData?.runEndTime).format('h:mm:ss a')}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+                <CardTime startTime={runData?.runStartTime} endTime={runData?.runEndTime} />
               </View>
-              <View
-                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <Text style={styles.label}>OUTPUT</Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 10,
-                    alignItems: 'center',
-                  }}>
-                  <IconCubes style={{marginRight: 20}} />
-                  <Text
-                    style={{
-                      fontSize: 17,
-                      fontFamily: FONT.Medium,
-                      color: THEME.PRIMARY_COLOR_DARK,
-                      marginRight: 10,
-                    }}>
-                    {runData?.output}
-                  </Text>
-                  <Text style={styles.textBlue}>
-                    {runData?.displayableOutputUnit}
-                  </Text>
-                </View>
+              <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <CardOutput title={runData?.output} unit={runData?.displayableOutputUnit} />
               </View>
               <Divider style={styles.divider} />
-              <View
-                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <Text style={styles.label}>Speed</Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 10,
-                    alignItems: 'center',
-                  }}>
-                  <MaterialIcons
-                    name={'speed'}
-                    size={35}
-                    color={THEME.PRIMARY_COLOR_DARK}
-                    style={{marginRight: 20}}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 17,
-                      fontFamily: FONT.Medium,
-                      color: THEME.PRIMARY_COLOR_DARK,
-                      marginRight: 10,
-                    }}>
-                    {_.floor(runData?.averageSpeed, 1)}
-                  </Text>
-                  <Text style={styles.textBlue}>
-                    {runData?.displayableSpeedUnit}
-                  </Text>
-                </View>
+              <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <CardSpeed speed={runData?.averageSpeed} unit={runData?.displayableSpeedUnit} />
               </View>
               <Divider style={styles.divider} />
               <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
-                <Text style={styles.label}>EFFICIENCY</Text>
-                <View
-                  style={{
-                    marginTop: 10,
-                    alignItems: 'center',
-                  }}>
-                  <View style={[styles.cardProgressRow, {marginTop: 65}]}>
-                    <View
-                      style={[
-                        styles.cardProgressLineHead,
-                        {width: `${_.floor(runData?.efficiencyPercent, 1)}%`},
-                      ]}>
-                      <View style={styles.cardProgressLineHeadText}>
-                        <Text style={styles.textBlue}>OEE</Text>
-                        <Text
-                          style={{
-                            fontSize: 22,
-                            fontFamily: FONT.Medium,
-                            color: THEME.PRIMARY_COLOR_DARK,
-                            marginTop: Platform.OS === 'ios' ? 0 : -10,
-                          }}>
-                          {_.floor(runData?.efficiencyPercent, 1)}%
-                        </Text>
-                        <IconArrow
-                          height={10}
-                          width={10}
-                          fill={THEME.DANGER_COLOR}
-                          style={{
-                            marginTop: Platform.OS === 'ios' ? 1 : -8,
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={[
-                        styles.cardProgressLineMiddle,
-                        {width: `${_.floor(runData?.efficiencyTarget, 1)}%`},
-                      ]}>
-                      <View style={styles.cardProgressLineMiddleText}>
-                        <IconArrow
-                          height={10}
-                          width={10}
-                          fill={'rgba(0, 68, 132, 0.4)'}
-                          style={{
-                            marginTop: Platform.OS === 'ios' ? 0 : -7,
-                            transform: [{rotate: '180deg'}],
-                          }}
-                        />
-                        <Text
-                          style={[
-                            styles.textBlue,
-                            {
-                              color: 'rgba(0, 68, 132, 0.4)',
-                              marginTop: Platform.OS === 'ios' ? 0 : 0,
-                            },
-                          ]}>
-                          TARGET
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: 22,
-                            fontFamily: FONT.Medium,
-                            color: 'rgba(0, 68, 132, 0.4)',
-                            marginTop: Platform.OS === 'ios' ? 0 : -15,
-                          }}>
-                          {_.floor(runData?.efficiencyTarget, 1)}%
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.cardProgressLineFooter} />
-                  </View>
-                </View>
+                <CardEfficiency efficiencyPercent={runData?.efficiencyPercent} efficiencyTarget={runData?.efficiencyTarget} />
               </View>
               <View
                 style={[
@@ -341,80 +176,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textTransform: 'uppercase',
   },
-  text: {
-    fontSize: 17,
-    fontFamily: FONT.Medium,
-    color: THEME.DARK_COLOR,
-    marginBottom: 20,
-  },
-  textBlue: {
-    fontSize: 15,
-    fontFamily: FONT.Regular,
-    color: THEME.PRIMARY_COLOR_DARK,
-    marginBottom: 0,
-  },
   divider: {
     backgroundColor: THEME.GRAY_COLOR,
     marginLeft: -30,
     marginRight: -30,
-  },
-  timeCol: {},
-  timeBlock: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  cardProgressRow: {
-    position: 'relative',
-    width: '100%',
-    marginBottom: 6,
-  },
-  cardProgressLineHeadText: {
-    position: 'absolute',
-    top: -65,
-    right: -22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardProgressLineMiddleText: {
-    position: 'absolute',
-    bottom: -65,
-    right: -28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardProgressLineHead: {
-    width: '50%',
-    position: 'absolute',
-    zIndex: 3,
-    left: 0,
-    top: 0,
-    backgroundColor: THEME.PRIMARY_COLOR_DARK,
-    borderTopRightRadius: 2,
-    borderBottomRightRadius: 2,
-    height: 16,
-  },
-  cardProgressLineMiddle: {
-    width: '80%',
-    position: 'absolute',
-    zIndex: 2,
-    left: 0,
-    top: 3,
-    backgroundColor: 'rgba(0, 68, 132, 0.4)',
-    borderTopRightRadius: 2,
-    borderBottomRightRadius: 2,
-    height: 10,
-  },
-  cardProgressLineFooter: {
-    width: '100%',
-    position: 'absolute',
-    zIndex: 1,
-    left: 0,
-    top: 3,
-    backgroundColor: '#DDDDDD',
-    borderTopRightRadius: 2,
-    borderBottomRightRadius: 2,
-    height: 10,
   },
   tabContainer: {
     marginTop: 30,

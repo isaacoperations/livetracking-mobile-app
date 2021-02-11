@@ -1,28 +1,45 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Pressable, Alert} from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import messaging from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {Btn} from '../../components/Button';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
+
+import {Btn} from '../../components/Button';
 import LogoNotification from '../../components/icons/LogoNotification';
+
+import {fcmService} from '../../services/FCMServices';
 
 export function EnableNotificationScreen({navigation}) {
   const [isShow, setIsShow] = useState(true);
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  useEffect(() => {
+    fcmService.checkPermission(onRegister);
+  }, []);
 
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
+  async function onRegister(token) {
+    if (token) {
+      console.log('[Notification] [checkPermission] onRegister: ', token);
       setIsShow(false);
     } else {
-      console.log('Authorization status:', authStatus);
+      setIsShow(true);
+      await AsyncStorage.setItem('tokenDevice', token);
+      console.log('[Notification] [checkPermission] not onRegister: ', token);
     }
   }
+  // async function requestUserPermission() {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  //
+  //   if (enabled) {
+  //     console.log('Authorization status:', authStatus);
+  //     setIsShow(false);
+  //   } else {
+  //     console.log('Authorization status:', authStatus);
+  //   }
+  // }
 
   const handleSubmit = async () => {
     // Alert.alert(
@@ -37,7 +54,7 @@ export function EnableNotificationScreen({navigation}) {
     //     {text: 'OK', onPress: () => navigation.navigate('Authentication')},
     //   ],
     // );
-    await requestUserPermission();
+    await onRegister();
   };
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, StyleSheet, View} from 'react-native';
+import {Text, StyleSheet, View, Platform} from 'react-native';
 import {Avatar} from 'react-native-elements'
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT.Medium,
   },
   email: {
+    marginTop: Platform.OS === 'android' ? -10 : 0,
     color: THEME.DARK_COLOR,
     fontSize: 12,
     fontFamily: FONT.Regular,

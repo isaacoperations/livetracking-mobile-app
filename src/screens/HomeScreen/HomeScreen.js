@@ -4,6 +4,7 @@ import React, {
   useState,
   useRef,
   useReducer,
+  useLayoutEffect,
 } from 'react';
 import {
   View,
@@ -68,7 +69,14 @@ export function HomeScreen({navigation}) {
         await AsyncStorage.getItem('line').then((line) => {
           if (line) {
             dispatch(createAction('SET_LINE', JSON.parse(line)));
-            setIsVisible(false);
+            const data = JSON.parse(line);
+            const uniqDataBy = _.uniqBy(data, 'selected');
+            const some = _.some(uniqDataBy, ['selected', true]);
+            if (some) {
+              setIsVisible(false);
+            } else {
+              setIsVisible(true);
+            }
           } else {
             console.log('not found line ', line);
             setIsVisible(true);
@@ -95,8 +103,9 @@ export function HomeScreen({navigation}) {
         logout();
       }
     });
+    console.log('isVisible', isVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isVisible]);
 
   console.log('home line data ', state.line);
 
@@ -163,9 +172,9 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>
-          <Text>Click here to copy to Token Device </Text>
-        </TouchableOpacity>
+        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
+        {/*  <Text>Click here to copy to Token Device </Text>*/}
+        {/*</TouchableOpacity>*/}
 
         <View style={styles.tabContainer}>
           <SegmentedControlTab
@@ -212,25 +221,20 @@ export function HomeScreen({navigation}) {
                   </Text>
                 </>
               ) : (
-                <>
-                  <ScrollView
-                    style={[
-                      styles.containerScrollView,
-                      {paddingHorizontal: 10},
-                    ]}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        height: '100%',
-                        width: '100%',
-                      }}>
-                      {state?.line.map((item, i) => {
-                        return item.selected ? renderCard({item}) : null;
-                      })}
-                    </View>
-                  </ScrollView>
-                </>
+                <ScrollView
+                  style={[styles.containerScrollView, {paddingHorizontal: 10}]}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                      height: '100%',
+                      width: '100%',
+                    }}>
+                    {state?.line.map((item, i) => {
+                      return item.selected ? renderCard({item}) : null;
+                    })}
+                  </View>
+                </ScrollView>
               )}
               <RBSheet
                 ref={refRBSheet}
