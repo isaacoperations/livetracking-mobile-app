@@ -11,8 +11,8 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
   Platform,
+  TouchableOpacity,
   FlatList,
   Dimensions,
   Alert,
@@ -30,13 +30,13 @@ import _ from 'lodash';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import {LiveViewContext, UserContext} from '../../context/context';
+import {AuthContext, UserContext} from '../../context/context';
 import {useData} from '../../services/ApiService';
 import reducer, {initialState} from '../../reducer/reducer';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {CardComponent} from '../ReportScreen/components/CardComponent';
-import IconBox from '../../components/IconBox';
+import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 import {createAction} from '../../utils/createAction';
@@ -52,6 +52,7 @@ export function HomeScreen({navigation}) {
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const user = useContext(UserContext);
+  const {logout} = useContext(AuthContext);
   const {LiveView} = useData();
 
   useEffect(() => {
@@ -63,20 +64,18 @@ export function HomeScreen({navigation}) {
     })();
 
     sleep(100).then(async () => {
-      await AsyncStorage.getItem('line').then((line) => {
-        if (line) {
-          dispatch(createAction('SET_LINE', JSON.parse(line)));
-          setIsVisible(false);
-        } else {
-          console.log('not found line ', line);
-          setIsVisible(true);
-        }
-      });
+      try {
+        await AsyncStorage.getItem('line').then((line) => {
+          if (line) {
+            dispatch(createAction('SET_LINE', JSON.parse(line)));
+            setIsVisible(false);
+          } else {
+            console.log('not found line ', line);
+            setIsVisible(true);
+          }
+        });
 
-      console.log('asctnc', await AsyncStorage.getItem('line'));
-
-      await LiveView.getAllNode()
-        .then(async ({data}) => {
+        await LiveView.getAllLine().then(async ({data}) => {
           console.log('response data  ', data?.liveviewInfo);
           const nodes = data?.liveviewInfo;
           setNodeData(nodes);
@@ -90,10 +89,11 @@ export function HomeScreen({navigation}) {
               await AsyncStorage.setItem('line', JSON.stringify(nodes));
             }
           }
-        })
-        .catch((e) => {
-          console.log('errror', e.message);
         });
+      } catch (e) {
+        console.log('error message', e);
+        logout();
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -104,6 +104,7 @@ export function HomeScreen({navigation}) {
     <CardComponent
       key={item.lineId}
       id={item.lineId}
+      runId={item.runId}
       title={item.lineName}
       description={item.productName}
       status={item.lineStatus}
@@ -117,18 +118,7 @@ export function HomeScreen({navigation}) {
       targetSpeed={item.targetSpeed}
       onPress={() =>
         navigation.navigate('CardDetail', {
-          id: item.lineId,
-          title: item.lineName,
-          description: item.productName,
-          status: item.lineStatus,
-          progressLine: item.lineTargetEfficiency,
-          progressRun: item.runEfficiency,
-          currentDowntimeDurationSeconds: item.currentDowntimeDurationSeconds,
-          currentDowntimeStartTime: item.currentDowntimeStartTime,
-          currentDowntimeStatus: item.currentDowntimeStatus,
-          runDurationSeconds: item.runDurationSeconds,
-          runStartTime: item.runStartTime,
-          targetSpeed: item.targetSpeed,
+          runId: item.runId,
         })
       }
     />
@@ -173,9 +163,9 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to copy to Token Device </Text>*/}
-        {/*</TouchableOpacity>*/}
+        <TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>
+          <Text>Click here to copy to Token Device </Text>
+        </TouchableOpacity>
 
         <View style={styles.tabContainer}>
           <SegmentedControlTab

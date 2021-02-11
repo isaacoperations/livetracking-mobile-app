@@ -25,7 +25,7 @@ import {FONT} from '../../../constants/fonts';
 import {NodeLine, ProductLine} from '../../../utils/db/db';
 
 import HeaderStatus from '../../../components/HeaderStatus';
-import {ModalHeaderFilter} from '../components/ModalHeaderFilter';
+import {ModalHeaderFilter} from '../../../components/ModalHeader';
 import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';

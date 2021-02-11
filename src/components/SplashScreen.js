@@ -2,7 +2,7 @@ import React from 'react';
 import {ActivityIndicator, View} from 'react-native';
 
 import {THEME} from '../constants/theme';
-import LogoWhiteSvg from './LogoWhite';
+import LogoWhiteSvg from './icons/LogoWhite';
 
 export function SplashScreenComponent({indicator = true}) {
   return (

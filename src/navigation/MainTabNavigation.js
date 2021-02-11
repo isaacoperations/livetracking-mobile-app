@@ -8,17 +8,16 @@ import {
 } from 'react-native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createDrawerNavigator} from '@react-navigation/drawer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
-import {AuthContext, UserContext} from '../context/context';
+import {UserContext} from '../context/context';
 
-import IconLive from '../components/IconLive';
-import IconReport from '../components/IconReport';
-import IconNotification from '../components/IconNotification';
-import LogoMini from '../components/LogoMini';
+import IconLive from '../components/icons/IconLive';
+import IconReport from '../components/icons/IconReport';
+import IconNotification from '../components/icons/IconNotification';
+import LogoMini from '../components/icons/LogoMini';
 import {HomeScreen} from '../screens/HomeScreen/HomeScreen';
 import {CardDetailScreen} from '../screens/CardDetailsScreen/CardDetailScreen';
 import {ReportScreen} from '../screens/ReportScreen/ReportScreen';
@@ -27,15 +26,17 @@ import {RunLogScreen} from '../screens/ReportScreen/RunLogScreen';
 import {NotificationScreen} from '../screens/NotificationScreen/NotificationScreen';
 import {ModalFilterScreen} from '../screens/ReportScreen/screens/ModalFilterScreen';
 import {SelectFactoryScreen} from '../screens/SelectFactoryScreen/SelectFactoryScreen';
+import {SettingScreen} from '../screens/SettingScreen/SettingScreen';
 
 const Tab = createBottomTabNavigator();
+const RootStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const ReportStack = createStackNavigator();
+const SettingStack = createStackNavigator();
+const FilterStack = createStackNavigator();
 const NotificationStack = createStackNavigator();
-const Drawer = createDrawerNavigator();
 
-const HomeStackNavigator = () => {
-  const {logout} = useContext(AuthContext);
+const HomeStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
   const {app_metadata} = user;
   useEffect(() => {
@@ -50,9 +51,10 @@ const HomeStackNavigator = () => {
           name="Main"
           component={HomeScreen}
           options={() => ({
-            title: app_metadata?.factories[1].id || 'Test Factory',
+            title: app_metadata?.factories[1]?.id || 'Test Factory',
             headerLeft: () => (
-              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SelectFactoryTab')}>
                 <LogoMini />
               </TouchableOpacity>
             ),
@@ -72,8 +74,7 @@ const HomeStackNavigator = () => {
   );
 };
 
-const ReportStackNavigator = ({navigation, route}) => {
-  const {logout} = useContext(AuthContext);
+const ReportStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
   const {app_metadata} = user;
   useEffect(() => {
@@ -105,9 +106,10 @@ const ReportStackNavigator = ({navigation, route}) => {
           component={ReportScreen}
           options={() => ({
             title:
-              app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
             headerLeft: () => (
-              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SelectFactoryTab')}>
                 <LogoMini />
               </TouchableOpacity>
             ),
@@ -135,27 +137,14 @@ const ReportStackNavigator = ({navigation, route}) => {
           component={RunLogScreen}
           options={() => ({
             title:
-              app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
             headerLeft: () => (
-              <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SelectFactoryTab')}>
                 <LogoMini />
               </TouchableOpacity>
             ),
             headerRight: () => <Text> </Text>,
-          })}
-        />
-        <ReportStack.Screen
-          name="ModalFilter"
-          component={ModalFilterScreen}
-          options={() => ({
-            title: 'Filters',
-            headerRight: () => <Text> </Text>,
-            headerShown: false,
-            ...TransitionPresets.ModalPresentationIOS,
-            cardStyle: {
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            },
           })}
         />
       </ReportStack.Navigator>
@@ -163,8 +152,7 @@ const ReportStackNavigator = ({navigation, route}) => {
   );
 };
 
-const NotificationStackNavigator = () => {
-  const {logout} = useContext(AuthContext);
+const NotificationStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
   const {app_metadata} = user;
   useEffect(() => {
@@ -179,9 +167,10 @@ const NotificationStackNavigator = () => {
         component={NotificationScreen}
         options={() => ({
           title:
-            app_metadata?.factories[1].id || 'Test Factory Etobicoke South',
+            app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
           headerLeft: () => (
-            <TouchableOpacity onPress={() => logout()} style={styles.menu}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SelectFactoryTab')}>
               <LogoMini />
             </TouchableOpacity>
           ),
@@ -191,18 +180,6 @@ const NotificationStackNavigator = () => {
     </NotificationStack.Navigator>
   );
 };
-
-function DrawerNavigator() {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="MenuTab" component={TabNavigator} />
-      <Drawer.Screen
-        name="SelectFactoryScreen2"
-        component={SelectFactoryScreen}
-      />
-    </Drawer.Navigator>
-  );
-}
 
 function TabNavigator() {
   return (
@@ -275,8 +252,67 @@ function TabNavigator() {
   );
 }
 
+function SettingNavigator() {
+  return (
+    <SettingStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <SettingStack.Screen
+        name="SelectFactory"
+        component={SelectFactoryScreen}
+      />
+      <SettingStack.Screen name="Setting" component={SettingScreen} />
+    </SettingStack.Navigator>
+  );
+}
+
+function FilterNavigator() {
+  return (
+    <FilterStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <FilterStack.Screen name="ModalFilter" component={ModalFilterScreen} />
+    </FilterStack.Navigator>
+  );
+}
+
+function RootNavigator() {
+  return (
+    <RootStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        ...TransitionPresets.ModalPresentationIOS,
+      }}
+      mode="modal">
+      <RootStack.Screen name="MenuTab" component={TabNavigator} />
+      <RootStack.Screen
+        name="SelectFactoryTab"
+        component={SettingNavigator}
+        options={() => ({
+          cardStyle: {
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          },
+        })}
+      />
+      <RootStack.Screen
+        name="FilterTab"
+        component={FilterNavigator}
+        options={() => ({
+          cardStyle: {
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          },
+        })}
+      />
+    </RootStack.Navigator>
+  );
+}
+
 function MainTabNavigation() {
-  return <TabNavigator />;
+  return <RootNavigator />;
 }
 
 export default MainTabNavigation;

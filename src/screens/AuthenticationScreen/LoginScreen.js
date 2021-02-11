@@ -25,7 +25,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import LogoBlackSvg from '../../components/LogoBlack';
+import LogoBlackSvg from '../../components/icons/LogoBlack';
 import HeaderStatus from '../../components/HeaderStatus';
 import ErrorComponent from '../../components/ErrorComponent';
 

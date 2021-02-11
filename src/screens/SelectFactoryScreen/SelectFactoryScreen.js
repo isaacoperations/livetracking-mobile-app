@@ -1,53 +1,39 @@
 import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Platform,
-  Pressable,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import {StyleSheet, SafeAreaView, ScrollView, Dimensions} from 'react-native';
 import {Divider} from 'react-native-elements';
-
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 import {THEME} from '../../constants/theme';
-import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
+import {ModalHeader} from '../../components/ModalHeader';
+import {SelectFactoryItem} from './components/SelectFactoryItem';
 
 export function SelectFactoryScreen({navigation}) {
-  const parent = navigation.dangerouslyGetParent();
   const HEIGHT = Dimensions.get('window').height;
-
-  useEffect(() => {
-    (async () => {
-      await MaterialCommunityIcons.loadFont();
-      await MaterialIcons.loadFont();
-    })();
-
-    parent.setOptions({
-      tabBarVisible: false,
-    });
-    return () =>
-      parent.setOptions({
-        tabBarVisible: true,
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
-      <HeaderStatus />
+      <HeaderStatus ios={'dark'} />
       <SafeAreaView style={styles.container}>
+        <ModalHeader
+          title={'Select Factory'}
+          onPressClose={() => navigation.goBack()}
+          onPressSetting={() => navigation.navigate('Setting')}
+          iconShow={true}
+          iconColor={THEME.DARK_COLOR}
+          iconTitleSetting={'settings'}
+          backgroundColor={'#EDF0F3'}
+        />
         <ScrollView>
-          <View style={{padding: 20}}>
-              <Text>Test 123</Text>
-          </View>
+          <SelectFactoryItem onPress={() => console.log('pressed')} />
+          <SelectFactoryItem
+            onPress={() => console.log('pressed')}
+            iconShow={true}
+          />
+          <SelectFactoryItem
+            onPress={() => console.log('pressed')}
+            iconShow={true}
+          />
+          <SelectFactoryItem onPress={() => console.log('pressed')} />
         </ScrollView>
       </SafeAreaView>
     </>
@@ -57,21 +43,8 @@ export function SelectFactoryScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: THEME.GRAY_COLOR,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-  },
-  containerStyle: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: Platform.OS === 'ios' ? 58 : 10,
-    flexDirection: 'column',
-  },
-  text: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    fontSize: 14,
-    fontFamily: FONT.SemiBold,
   },
 });

@@ -3,7 +3,7 @@ import {View, StyleSheet} from 'react-native';
 
 import {THEME} from '../../constants/theme';
 import {Btn} from '../../components/Button';
-import LogoWhiteSvg from '../../components/LogoWhite';
+import LogoWhiteSvg from '../../components/icons/LogoWhite';
 import HeaderStatus from '../../components/HeaderStatus';
 
 export function AuthenticationScreen({navigation}) {

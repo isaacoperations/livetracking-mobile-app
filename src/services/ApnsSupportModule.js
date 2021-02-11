@@ -79,7 +79,7 @@ class ApnsSupport {
   }
 
   showPushCallback(push) {
-      console.log(
+    console.log(
       'ApnsSupportModule.JS.showPushCallback',
       'show notification',
       push,

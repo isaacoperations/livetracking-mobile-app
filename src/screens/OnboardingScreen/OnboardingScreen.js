@@ -13,10 +13,10 @@ import * as Animatable from 'react-native-animatable';
 import {IMAGE} from '../../constants/images';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
-import Onboarding1 from '../../components/OnBoarding_1';
-import Onboarding2 from '../../components/OnBoarding_2';
-import Onboarding3 from '../../components/OnBoarding_3';
-import Onboarding4 from '../../components/OnBoarding_4';
+import Onboarding1 from './components/OnBoarding_1';
+import Onboarding2 from './components/OnBoarding_2';
+import Onboarding3 from './components/OnBoarding_3';
+import Onboarding4 from './components/OnBoarding_4';
 
 export function OnboardingScreen({navigation}) {
   const [page, setPage] = useState(0);

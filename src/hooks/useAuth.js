@@ -50,6 +50,9 @@ export function useAuth() {
   );
   useEffect(() => {
     sleep(2000).then(async () => {
+        // await RNSInfo.deleteItem('user', {});
+        // await AsyncStorage.removeItem('line');
+        // dispatch(createAction('REMOVE_USER'));
       await RNSInfo.getItem('user', {}).then((user) => {
         if (user) {
           dispatch(createAction('SET_USER', JSON.parse(user)));

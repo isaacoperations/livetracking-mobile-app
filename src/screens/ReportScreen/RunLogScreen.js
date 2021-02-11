@@ -60,7 +60,6 @@ export function RunLogScreen({navigation}) {
   }, [search, sortShownLine, nodeData]);
 
   const updateSearch = (text) => {
-    console.log('search text', text);
     setSearch(text);
   };
 
@@ -68,11 +67,11 @@ export function RunLogScreen({navigation}) {
     setSortShownDate(!sortShownDate);
     sortAscDescDate(sortShownDate);
   };
-  const handleSortShowLine = (text) => {
+  const handleSortShowLine = () => {
     setSortShownLine(!sortShownLine);
     sortAscDescTitle(sortShownLine);
   };
-  const handleSortShowSku = (text) => {
+  const handleSortShowSku = () => {
     setSortShownSku(!sortShownSku);
     sortAscDesSKU(sortShownSku);
   };
@@ -189,7 +188,24 @@ export function RunLogScreen({navigation}) {
               <Fragment key={item.id}>
                 <Divider style={styles.divider} />
                 <Pressable
-                  onPress={() => navigation.navigate('CardDetailReport')}>
+                  onPress={() =>
+                    navigation.navigate('CardDetailReport', {
+                      id: item.lineId || 1,
+                      title: item.lineName || 1,
+                      description: item.productName || 1,
+                      status: item.lineStatus || 1,
+                      progressLine: item.lineTargetEfficiency || 1,
+                      progressRun: item.runEfficiency || 1,
+                      currentDowntimeDurationSeconds:
+                        item.currentDowntimeDurationSeconds || 1,
+                      currentDowntimeStartTime:
+                        item.currentDowntimeStartTime || 1,
+                      currentDowntimeStatus: item.currentDowntimeStatus || 1,
+                      runDurationSeconds: item.runDurationSeconds || 1,
+                      runStartTime: item.runStartTime || 1,
+                      targetSpeed: item.targetSpeed || 1,
+                    })
+                  }>
                   {({pressed}) => (
                     <View
                       style={[

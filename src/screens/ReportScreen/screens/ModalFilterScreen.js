@@ -26,7 +26,7 @@ import {FONT} from '../../../constants/fonts';
 import {NodeLine, ProductLine} from '../../../utils/db/db';
 
 import HeaderStatus from '../../../components/HeaderStatus';
-import {ModalHeaderFilter} from '../components/ModalHeaderFilter';
+import {ModalHeader} from '../../../components/ModalHeader';
 import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
@@ -68,14 +68,14 @@ export function ModalFilterScreen({navigation}) {
     console.log('dateFrom', dateFrom);
     console.log('checkData', checkData);
     console.log('checkDataProduct', checkDataProduct);
-
-    parent.setOptions({
-      tabBarVisible: false,
-    });
-    return () =>
-      parent.setOptions({
-        tabBarVisible: true,
-      });
+    //
+    // parent.setOptions({
+    //   tabBarVisible: false,
+    // });
+    // return () =>
+    //   parent.setOptions({
+    //     tabBarVisible: true,
+    //   });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkData, checkDataProduct, isCheckVisibleLine, isCheckVisibleProduct]);
 
@@ -231,11 +231,11 @@ export function ModalFilterScreen({navigation}) {
 
   return (
     <>
-      <HeaderStatus />
+      <HeaderStatus ios={'dark'} />
       <SafeAreaView style={styles.container}>
-        <ModalHeaderFilter
+        <ModalHeader
           title={'Filters'}
-          onPress={() => navigation.navigate('ReportScreen')}
+          onPressClose={() => navigation.goBack()}
         />
         {/* Start Scroll */}
         <ScrollView nestedScrollEnabled={true}>

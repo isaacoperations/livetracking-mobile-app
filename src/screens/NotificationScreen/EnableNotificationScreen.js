@@ -6,7 +6,7 @@ import messaging from '@react-native-firebase/messaging';
 import {Btn} from '../../components/Button';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
-import LogoNotification from '../../components/LogoNotification';
+import LogoNotification from '../../components/icons/LogoNotification';
 
 export function EnableNotificationScreen({navigation}) {
   const [isShow, setIsShow] = useState(true);

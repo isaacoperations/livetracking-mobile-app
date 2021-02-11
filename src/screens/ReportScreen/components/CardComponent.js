@@ -16,9 +16,9 @@ import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
 
 import {BadgeComponent} from '../../../components/BadgeComponent';
-import IconE from '../../../components/IconE';
-import IconMoon from '../../../components/IconMoon';
-import IconDanger from '../../../components/IconDanger';
+import IconE from '../../../components/icons/IconE';
+import IconMoon from '../../../components/icons/IconMoon';
+import IconDanger from '../../../components/icons/IconDanger';
 
 
 const numColumns = 2;

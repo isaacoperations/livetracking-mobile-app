@@ -1,4 +1,4 @@
-import React, {useEffect, useState, Fragment} from 'react';
+import React, {useEffect, useState, useLayoutEffect} from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,11 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
-  Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
+import Accordion from 'react-native-collapsible/Accordion';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import moment from 'moment';
@@ -19,417 +20,301 @@ import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import IconArrow from '../../components/IconArrow';
-import IconCubes from '../../components/IconCubes';
+import IconArrow from '../../components/icons/IconArrow';
+import IconCubes from '../../components/icons/IconCubes';
 import {ProgressLine} from '../../components/ProgressLine';
 
+import {useData} from '../../services/ApiService';
+import {ProgressContent} from '../../components/ProgressContent';
 
-const progressList = [
-  {
-    id: 1,
-    title: 'Slow Running',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 100,
-    isShow: false,
-  },
-  {
-    id: 2,
-    title: 'Break / Lunch',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 90,
-    isShow: false,
-  },
-  {
-    id: 3,
-    title: 'No Feed',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 80,
-    isShow: false,
-  },
-  {
-    id: 4,
-    title: 'Uncategorized',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 70,
-    isShow: false,
-  },
-  {
-    id: 5,
-    title: 'Changeover',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 60,
-    isShow: false,
-  },
-  {
-    id: 6,
-    title: 'Short Stop',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 50,
-    isShow: false,
-  },
-  {
-    id: 7,
-    title: 'Cleaning',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 40,
-    isShow: false,
-  },
-  {
-    id: 8,
-    title: 'Slow Startup',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 30,
-    isShow: false,
-  },
-  {
-    id: 9,
-    title: 'Gap',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 20,
-    isShow: false,
-  },
-  {
-    id: 10,
-    title: 'Printing',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 10,
-    isShow: false,
-  },
-];
-
-const progressList2 = [
-  {
-    id: 1,
-    title: 'Uncategorized',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 100,
-    isShow: false,
-  },
-  {
-    id: 2,
-    title: 'Uncategorized 2',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 90,
-    isShow: false,
-  },
-];
-
-export function CardDetailScreen({navigation, route}) {
+export function CardDetailScreen({route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [progressShown, setProgressShown] = useState(0);
-  const [progressShown2, setProgressShown2] = useState(0);
-  const [progressOpacity, setProgressOpacity] = useState(true);
-  const [progressOpacity2, setProgressOpacity2] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeSections, setActiveSections] = useState([]);
+  const [runData, setRunData] = useState({});
+  const {LiveView} = useData();
 
-  const {
-    id,
-    title,
-    description,
-    status,
-    progressLine,
-    progressRun,
-    currentDowntimeDurationSeconds,
-    currentDowntimeStartTime,
-    currentDowntimeStatus,
-    runDurationSeconds,
-    runStartTime,
-    targetSpeed,
-  } = route.params;
+  const {runId} = route.params;
 
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
       await MaterialCommunityIcons.loadFont();
+
+      setIsLoading(true);
+      if (runId) {
+        await LiveView.getByLineId(runId)
+          .then(({data}) => {
+            console.log('response run data', data);
+            setRunData(data);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            setIsLoading(true);
+            console.log('error run', error);
+          });
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleProgress = (idx) => {
-    let data = progressList.slice();
-    const index = data.findIndex((x) => x.id === idx);
-    data[index].isShow = !data[index].isShow;
-    setProgressShown(index + 1);
-    setProgressOpacity(!progressOpacity);
-    console.log(progressShown);
+  const renderHeader = (content, index, isActive) => {
+    return (
+      <ProgressLine
+        title={content.reasonName}
+        percent={content.lostTimePercent}
+        isActive={isActive}
+      />
+    );
   };
 
-  const toggleProgress2 = (idx) => {
-    let data = progressList2.slice();
-    const index = data.findIndex((x) => x.id === idx);
-    data[index].isShow = !data[index].isShow;
-    console.log(index);
-    setProgressShown2(index + 1);
-    setProgressOpacity2(!progressOpacity2);
-    console.log(progressShown2);
+  const renderContent = (section) => {
+    return (
+      <ProgressContent
+        title={section.reasonName}
+        info={section.reasonName}
+        percent={section.lostTimePercent}
+      />
+    );
+  };
+
+  const updateSections = (items) => {
+    setActiveSections(items);
   };
 
   return (
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.container}>
-          <View>
-            <View style={styles.block}>
-              <Text style={styles.label}>Line</Text>
-              <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
-                {title}
-              </Text>
-              <Text style={styles.label}>Product</Text>
-              <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
-                {description}
-              </Text>
-              <Divider style={styles.divider} />
-              <View style={{flex: 1, flexDirection: 'row'}}>
+        {isLoading ? (
+          <ActivityIndicator
+            size={50}
+            color={THEME.PRIMARY_COLOR_DARK}
+            style={{marginTop: 'auto', marginBottom: 'auto'}}
+          />
+        ) : (
+          <ScrollView style={styles.container}>
+            <View>
+              <View style={styles.block}>
+                <Text style={styles.label}>Line</Text>
+                <Text
+                  style={styles.text}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {runData?.lineName}
+                </Text>
+                <Text style={styles.label}>Product</Text>
+                <Text
+                  style={styles.text}
+                  numberOfLines={2}
+                  ellipsizeMode="tail">
+                  {runData?.productName}
+                </Text>
+                <Divider style={styles.divider} />
+                <View style={{flex: 1, flexDirection: 'row'}}>
+                  <View
+                    style={{
+                      flex: 1,
+                      borderRightWidth: 1,
+                      borderColor: THEME.GRAY_COLOR,
+                      paddingTop: 20,
+                      paddingBottom: 30,
+                    }}>
+                    <Text style={styles.label}>Start time</Text>
+                    <View style={styles.timeBlock}>
+                      <MaterialCommunityIcons
+                        size={20}
+                        color={THEME.PRIMARY_COLOR_DARK}
+                        name={'clock-time-four-outline'}
+                        style={{marginRight: 10}}
+                      />
+                      <Text style={styles.textBlue}>
+                        {moment(runData?.runStartTime).format('h:mm:ss a')}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
+                    <Text style={styles.label}>End time</Text>
+                    <View style={styles.timeBlock}>
+                      <MaterialCommunityIcons
+                        size={20}
+                        color={THEME.PRIMARY_COLOR_DARK}
+                        name={'clock-time-four-outline'}
+                        style={{marginRight: 10}}
+                      />
+                      <Text style={styles.textBlue}>
+                        {moment(runData?.runEndTime).format('h:mm:ss a')}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+              <View
+                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <Text style={styles.label}>OUTPUT</Text>
                 <View
                   style={{
-                    flex: 1,
-                    borderRightWidth: 1,
-                    borderColor: THEME.GRAY_COLOR,
-                    paddingTop: 20,
-                    paddingBottom: 30,
+                    flexDirection: 'row',
+                    marginTop: 10,
+                    alignItems: 'center',
                   }}>
-                  <Text style={styles.label}>Start time</Text>
-                  <View style={styles.timeBlock}>
-                    <MaterialCommunityIcons
-                      size={20}
-                      color={THEME.PRIMARY_COLOR_DARK}
-                      name={'clock-time-four-outline'}
-                      style={{marginRight: 10}}
-                    />
-                    <Text style={styles.textBlue}>{moment(runStartTime).format('h:mm:ss a')}</Text>
-                  </View>
-                </View>
-                <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
-                  <Text style={styles.label}>End time</Text>
-                  <View style={styles.timeBlock}>
-                    <MaterialCommunityIcons
-                      size={20}
-                      color={THEME.PRIMARY_COLOR_DARK}
-                      name={'clock-time-four-outline'}
-                      style={{marginRight: 10}}
-                    />
-                    <Text style={styles.textBlue}>{moment(runStartTime).format('h:mm:ss a')}</Text>
-                  </View>
+                  <IconCubes style={{marginRight: 20}} />
+                  <Text
+                    style={{
+                      fontSize: 17,
+                      fontFamily: FONT.Medium,
+                      color: THEME.PRIMARY_COLOR_DARK,
+                      marginRight: 10,
+                    }}>
+                    {runData?.output}
+                  </Text>
+                  <Text style={styles.textBlue}>
+                    {runData?.displayableOutputUnit}
+                  </Text>
                 </View>
               </View>
-            </View>
-            <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-              <Text style={styles.label}>OUTPUT</Text>
+              <Divider style={styles.divider} />
               <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 10,
-                  alignItems: 'center',
-                }}>
-                <IconCubes style={{marginRight: 20}} />
-                <Text
+                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <Text style={styles.label}>Speed</Text>
+                <View
                   style={{
-                    fontSize: 17,
-                    fontFamily: FONT.Medium,
-                    color: THEME.PRIMARY_COLOR_DARK,
-                    marginRight: 10,
+                    flexDirection: 'row',
+                    marginTop: 10,
+                    alignItems: 'center',
                   }}>
-                  23
-                </Text>
-                <Text style={styles.textBlue}>cases</Text>
+                  <MaterialIcons
+                    name={'speed'}
+                    size={35}
+                    color={THEME.PRIMARY_COLOR_DARK}
+                    style={{marginRight: 20}}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 17,
+                      fontFamily: FONT.Medium,
+                      color: THEME.PRIMARY_COLOR_DARK,
+                      marginRight: 10,
+                    }}>
+                    {_.floor(runData?.averageSpeed, 1)}
+                  </Text>
+                  <Text style={styles.textBlue}>
+                    {runData?.displayableSpeedUnit}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <Divider style={styles.divider} />
-            <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-              <Text style={styles.label}>Speed</Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 10,
-                  alignItems: 'center',
-                }}>
-                <MaterialIcons
-                  name={'speed'}
-                  size={35}
-                  color={THEME.PRIMARY_COLOR_DARK}
-                  style={{marginRight: 20}}
-                />
-                <Text
+              <Divider style={styles.divider} />
+              <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
+                <Text style={styles.label}>EFFICIENCY</Text>
+                <View
                   style={{
-                    fontSize: 17,
-                    fontFamily: FONT.Medium,
-                    color: THEME.PRIMARY_COLOR_DARK,
-                    marginRight: 10,
+                    marginTop: 10,
+                    alignItems: 'center',
                   }}>
-                  {targetSpeed}
-                </Text>
-                <Text style={styles.textBlue}>pkg/min</Text>
-              </View>
-            </View>
-            <Divider style={styles.divider} />
-            <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
-              <Text style={styles.label}>EFFICIENCY</Text>
-              <View
-                style={{
-                  marginTop: 10,
-                  alignItems: 'center',
-                }}>
-                <View style={[styles.cardProgressRow, {marginTop: 65}]}>
-                  <View style={[styles.cardProgressLineHead, {width: `${_.floor(progressRun)}%`}]}>
-                    <View style={styles.cardProgressLineHeadText}>
-                      <Text style={styles.textBlue}>OEE</Text>
-                      <Text
-                        style={{
-                          fontSize: 22,
-                          fontFamily: FONT.Medium,
-                          color: THEME.PRIMARY_COLOR_DARK,
-                          marginTop: Platform.OS === 'ios' ? 0 : -10,
-                        }}>
-                        {_.floor(progressRun, 1)}%
-                      </Text>
-                      <IconArrow
-                        height={10}
-                        width={10}
-                        fill={THEME.DANGER_COLOR}
-                        style={{
-                          marginTop: Platform.OS === 'ios' ? 1 : -8,
-                        }}
-                      />
+                  <View style={[styles.cardProgressRow, {marginTop: 65}]}>
+                    <View
+                      style={[
+                        styles.cardProgressLineHead,
+                        {width: `${_.floor(runData?.efficiencyPercent, 1)}%`},
+                      ]}>
+                      <View style={styles.cardProgressLineHeadText}>
+                        <Text style={styles.textBlue}>OEE</Text>
+                        <Text
+                          style={{
+                            fontSize: 22,
+                            fontFamily: FONT.Medium,
+                            color: THEME.PRIMARY_COLOR_DARK,
+                            marginTop: Platform.OS === 'ios' ? 0 : -10,
+                          }}>
+                          {_.floor(runData?.efficiencyPercent, 1)}%
+                        </Text>
+                        <IconArrow
+                          height={10}
+                          width={10}
+                          fill={THEME.DANGER_COLOR}
+                          style={{
+                            marginTop: Platform.OS === 'ios' ? 1 : -8,
+                          }}
+                        />
+                      </View>
                     </View>
-                  </View>
-                  <View style={[styles.cardProgressLineMiddle, {width: `${_.floor(progressLine)}%`}]}>
-                    <View style={styles.cardProgressLineMiddleText}>
-                      <IconArrow
-                        height={10}
-                        width={10}
-                        fill={'rgba(0, 68, 132, 0.4)'}
-                        style={{
-                          marginTop: Platform.OS === 'ios' ? 0 : -7,
-                          transform: [{rotate: '180deg'}],
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.textBlue,
-                          {
+                    <View
+                      style={[
+                        styles.cardProgressLineMiddle,
+                        {width: `${_.floor(runData?.efficiencyTarget, 1)}%`},
+                      ]}>
+                      <View style={styles.cardProgressLineMiddleText}>
+                        <IconArrow
+                          height={10}
+                          width={10}
+                          fill={'rgba(0, 68, 132, 0.4)'}
+                          style={{
+                            marginTop: Platform.OS === 'ios' ? 0 : -7,
+                            transform: [{rotate: '180deg'}],
+                          }}
+                        />
+                        <Text
+                          style={[
+                            styles.textBlue,
+                            {
+                              color: 'rgba(0, 68, 132, 0.4)',
+                              marginTop: Platform.OS === 'ios' ? 0 : 0,
+                            },
+                          ]}>
+                          TARGET
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 22,
+                            fontFamily: FONT.Medium,
                             color: 'rgba(0, 68, 132, 0.4)',
-                            marginTop: Platform.OS === 'ios' ? 0 : 0,
-                          },
-                        ]}>
-                        TARGET
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 22,
-                          fontFamily: FONT.Medium,
-                          color: 'rgba(0, 68, 132, 0.4)',
-                          marginTop: Platform.OS === 'ios' ? 0 : -15,
-                        }}>
-                        {_.floor(progressLine, 1)}%
-                      </Text>
+                            marginTop: Platform.OS === 'ios' ? 0 : -15,
+                          }}>
+                          {_.floor(runData?.efficiencyTarget, 1)}%
+                        </Text>
+                      </View>
                     </View>
+                    <View style={styles.cardProgressLineFooter} />
                   </View>
-                  <View style={styles.cardProgressLineFooter} />
                 </View>
               </View>
-            </View>
-            <View
-              style={[
-                styles.block,
-                {paddingBottom: 30, marginBottom: 0, height: '100%'},
-              ]}>
-              <Text style={styles.label}>Downtime Pareto</Text>
-              <View style={styles.tabContainer}>
-                <SegmentedControlTab
-                  values={['Positive effect', 'Negative effect']}
-                  selectedIndex={selectedIndex}
-                  onTabPress={(index) => setSelectedIndex(index)}
-                  tabsContainerStyle={styles.tabsContainerStyle}
-                  tabStyle={styles.tabStyle}
-                  firstTabStyle={styles.firstTabStyle}
-                  borderRadius={0}
-                  tabTextStyle={styles.tabTextStyle}
-                  activeTabStyle={styles.activeTabStyle}
-                  activeTabTextStyle={styles.activeTabTextStyle}
-                />
+              <View
+                style={[
+                  styles.block,
+                  {paddingBottom: 30, marginBottom: 0, height: '100%'},
+                ]}>
+                <Text style={styles.label}>Downtime Pareto</Text>
+                <View style={styles.tabContainer}>
+                  <SegmentedControlTab
+                    values={['Positive effect', 'Negative effect']}
+                    selectedIndex={selectedIndex}
+                    onTabPress={(index) => setSelectedIndex(index)}
+                    tabsContainerStyle={styles.tabsContainerStyle}
+                    tabStyle={styles.tabStyle}
+                    firstTabStyle={styles.firstTabStyle}
+                    borderRadius={0}
+                    tabTextStyle={styles.tabTextStyle}
+                    activeTabStyle={styles.activeTabStyle}
+                    activeTabTextStyle={styles.activeTabTextStyle}
+                  />
+                </View>
+                {selectedIndex === 0 ? (
+                  <Accordion
+                    sections={runData?.lostTimeList}
+                    activeSections={activeSections}
+                    renderHeader={renderHeader}
+                    renderContent={renderContent}
+                    onChange={updateSections}
+                    underlayColor={'transparent'}
+                    containerStyle={styles.accordionContainerStyle}
+                  />
+                ) : (
+                  <Text>Not effect</Text>
+                )}
               </View>
-              {selectedIndex === 0
-                ? progressList.map((item) => {
-                    return progressShown === item.id ? (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          onPress={() => toggleProgress(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={item.percent}
-                            opacity={1}
-                            info={item.description}
-                            show={item.isShow}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    ) : (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          disabled={!progressOpacity}
-                          onPress={() => toggleProgress(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={item.percent}
-                            opacity={progressOpacity ? 1 : 0.3}
-                            info={item.description}
-                            show={item.isShow}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    );
-                  })
-                : progressList2.map((item) => {
-                    return progressShown2 === item.id ? (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          onPress={() => toggleProgress2(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={item.percent}
-                            opacity={1}
-                            info={item.description}
-                            show={item.isShow}
-                            backgroundColor={THEME.GREEN_COLOR}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    ) : (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          disabled={!progressOpacity2}
-                          onPress={() => toggleProgress2(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={item.percent}
-                            opacity={progressOpacity2 ? 1 : 0.3}
-                            info={item.description}
-                            show={item.isShow}
-                            backgroundColor={THEME.GREEN_COLOR}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    );
-                  })}
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
       </SafeAreaView>
     </>
   );
@@ -563,5 +448,9 @@ const styles = StyleSheet.create({
   },
   activeTabTextStyle: {
     color: THEME.DARK_COLOR,
+  },
+  accordionContainerStyle: {
+    marginLeft: -30,
+    marginRight: -30,
   },
 });

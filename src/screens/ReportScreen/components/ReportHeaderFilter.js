@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -19,7 +18,7 @@ export function ReportHeaderFilter({navigation}) {
   }, []);
   return (
     <View style={styles.container}>
-      <ScrollView horizontal={true}>
+      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.filterContainer}>
           <Button
             buttonStyle={styles.filterButton}
@@ -33,28 +32,28 @@ export function ReportHeaderFilter({navigation}) {
             }
             title="2"
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('ModalFilter')}
+            onPress={() => navigation.navigate('FilterTab')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Sep 1, 2020 - Sep 2, 2020"
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('ModalFilter')}
+            onPress={() => navigation.navigate('FilterTab')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Ippolito DXM Node 1"
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('ModalFilter')}
+            onPress={() => navigation.navigate('FilterTab')}
           />
           <Button
             buttonStyle={styles.filterButton}
             titleStyle={styles.filterButtonText}
             title="Ippolito DXM Node 2"
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('ModalFilter')}
+            onPress={() => navigation.navigate('FilterTab')}
           />
         </View>
       </ScrollView>

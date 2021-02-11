@@ -21,7 +21,7 @@ import {UserContext} from '../../context/context';
 import {ProgressLine} from '../../components/ProgressLine';
 import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
-import IconArrow from '../../components/IconArrow';
+import IconArrow from '../../components/icons/IconArrow';
 
 const progressList = [
   {

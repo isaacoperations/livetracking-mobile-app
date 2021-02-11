@@ -15,7 +15,7 @@ export const useData = () => {
 
   axios.defaults.baseURL = APIConfig.BASE_URL;
   axios.defaults.headers.common.Authorization = `${tokenType} ${idToken}`;
-  axios.defaults.headers.common['FACTORY-ID'] = app_metadata?.factories[1].id;
+  axios.defaults.headers.common['FACTORY-ID'] = app_metadata?.factories[1]?.id;
   axios.defaults.headers.post['Content-Type'] = 'application/json';
   axios.defaults.headers.get['Content-Type'] = 'application/json';
 
@@ -55,9 +55,8 @@ export const useData = () => {
 
   // TODO: could be expanded on further to handle .then()s
   const LiveView = {
-    getById: (templateId) =>
-      requests.get(`/api/users/me/templates/${templateId}/`),
-    getAllNode: () => requests.get('/mobile/liveview/all'),
+    getByLineId: (runId) => requests.get(`/mobile/reporting/run/${runId}`),
+    getAllLine: () => requests.get('/mobile/liveview/all'),
   };
 
   return {LiveView};
