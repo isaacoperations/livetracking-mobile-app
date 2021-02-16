@@ -124,6 +124,9 @@ static void InitializeFlipper(UIApplication *application) {
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  NSLog(@"DEVICE DID REGISTER:");
+  NSLog(@"DEVICE TOKEN: %@", deviceToken);
+  NSLog(@"%@", deviceToken);
   [FIRMessaging messaging].APNSToken = deviceToken;
   [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }

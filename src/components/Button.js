@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {View, Text, StyleSheet, Pressable, Platform} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
@@ -15,7 +15,7 @@ export function Btn({
   backgroundColorHover = THEME.PRIMARY_COLOR,
   textColor = THEME.PRIMARY_COLOR,
   textColorHover = THEME.PRIMARY_COLOR,
-  fontFamily = FONT.SemiBold,
+  fontFamily = Platform.OS === 'ios' ? FONT.SemiBold : FONT.Bold,
   size = THEME.BUTTON_PRIMARY_BIG,
   onPress,
 }) {

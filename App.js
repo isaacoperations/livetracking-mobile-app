@@ -1,11 +1,10 @@
 import React, {useEffect} from 'react';
 import {Alert} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationContainer} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {AuthContext, LiveViewContext, UserContext} from './src/context/context';
-
 import {fcmService} from './src/services/FCMServices';
 import {localNotificationService} from './src/services/LocalNotificationServices';
 
@@ -14,23 +13,21 @@ import AuthStackNavigator from './src/navigation/AuthStackNavigation';
 import {useAuth} from './src/hooks/useAuth';
 import {SplashScreenComponent} from './src/components/SplashScreen';
 import {sleep} from './src/utils/sleep';
-import {apnsManager} from './src/services/ApnsSupportModule';
 
 const App = () => {
   const {auth, state} = useAuth();
 
   useEffect(() => {
-    //fcmService.registerAppWithFCM();
-    fcmService.getAPNsToken(onRegisterAPNS);
-    fcmService.register(onRegister, onNotification, onOpenNotification);
-    localNotificationService.configure(onOpenNotification);
-
     //apnsManager.registerForPushCallback(onRegisterAPNS);
     //apnsManager.showPushCallback(onNotification);
 
-    //localNotificationService.showNotification('title1', 'message1');
-
     SplashScreen.hide();
+
+    //localNotificationService.showNotification('title', 'body');
+
+    fcmService.getAPNsToken(onRegisterAPNS);
+    fcmService.register(onRegister, onNotification, onOpenNotification);
+    localNotificationService.configure(onOpenNotification);
 
     return () => {
       console.log('[App], unRegister FCM');
@@ -65,6 +62,8 @@ const App = () => {
         // smallIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
         // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
       };
+      const runID = notify?.twi_action || notify?.data?.twi_action;
+      AsyncStorage.setItem('runID', runID);
       localNotificationService.showNotification(
         title,
         message,
@@ -80,6 +79,7 @@ const App = () => {
       '[Notification] [Notification][Notification]',
       notify?.data?.twi_title,
       notify?.data?.twi_body,
+      notify?.data?.twi_action,
     );
     if (notify) {
       sleep(4000).then(() => {
@@ -87,6 +87,8 @@ const App = () => {
           notify?.twi_title || notify?.data?.twi_title || notify?.title;
         const message =
           notify?.twi_body || notify?.data?.twi_body || notify?.body;
+        const runID = notify?.twi_action || notify?.data?.twi_action;
+        AsyncStorage.setItem('runID', runID);
         // localNotificationService.showNotification(
         //   title,
         //   message,
@@ -98,16 +100,12 @@ const App = () => {
           [{text: 'OK', onPress: () => console.log('OK Pressed')}],
           {cancelable: false},
         );
+        // return navigation.push('CardDetail', {
+        //   runId: notify?.twi_action || notify?.data?.twi_action,
+        // });
       });
     }
-  }
-
-  console.log('user state app', state?.user);
-
-  if (state.line) {
-    console.log('access state line', state.line);
-  } else {
-    console.log('not state line');
+    return null;
   }
 
   if (state.loading) {

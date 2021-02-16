@@ -14,8 +14,8 @@ export function ReportHeaderInfo({navigation, runItems = 89}) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => navigation.navigate('DownTime')}
-        activeOpacity={0.8}>
+        onPress={() => console.log('downtime')}
+        activeOpacity={1}>
         <Text style={styles.textLeft}>{runItems} Runs found</Text>
       </TouchableOpacity>
       <TouchableOpacity

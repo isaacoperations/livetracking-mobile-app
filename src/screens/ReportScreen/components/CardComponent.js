@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  Alert,
   Dimensions,
   Platform,
   StyleSheet,
@@ -20,7 +19,6 @@ import IconE from '../../../components/icons/IconE';
 import IconMoon from '../../../components/icons/IconMoon';
 import IconDanger from '../../../components/icons/IconDanger';
 
-
 const numColumns = 2;
 const WIDTH = Dimensions.get('window').width;
 
@@ -32,11 +30,7 @@ export function CardComponent({
   title,
   onPress,
   currentDowntimeDurationSeconds,
-  currentDowntimeStartTime,
-  currentDowntimeStatus,
   runDurationSeconds,
-  runStartTime,
-  targetSpeed,
 }) {
   return (
     <Card
@@ -60,11 +54,7 @@ export function CardComponent({
           ) : (
             <Text style={{marginTop: 15}} />
           )}
-          <View
-            style={[
-              styles.cardProgress,
-              {marginBottom: 20},
-            ]}>
+          <View style={[styles.cardProgress, {marginBottom: 20}]}>
             <IconE />
             {progressLine ? (
               <>
@@ -127,8 +117,8 @@ export function CardComponent({
                     marginTop: 'auto',
                     marginBottom: 1,
                   }}
-                  timeToShow={['H', 'M', 'S']}
                   timeLabels={{h: 'HR', m: 'MIN', s: 'SEC'}}
+                  timeToShow={['H', 'M', 'S']}
                   showSeparator
                 />
               </>

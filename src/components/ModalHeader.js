@@ -24,7 +24,7 @@ export function ModalHeader({
     <View
       style={{
         flexDirection: 'row',
-        height: 50,
+        height: 56,
         backgroundColor: backgroundColor,
       }}>
       <View style={styles.closeContainer}>

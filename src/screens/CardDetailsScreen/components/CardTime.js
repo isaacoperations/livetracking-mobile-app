@@ -1,15 +1,17 @@
 import React, {useEffect} from 'react';
 import {Text, StyleSheet, View} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
+import IconCheck from '../../../components/icons/IconCheck';
 
 export function CardTime({startTime = null, endTime = null}) {
+  console.log('endTime', endTime);
   useEffect(() => {
     (async () => {
-      await MaterialCommunityIcons.loadFont();
+      await MaterialIcons.loadFont();
     })();
   }, []);
   return (
@@ -25,29 +27,31 @@ export function CardTime({startTime = null, endTime = null}) {
           }}>
           <Text style={styles.label}>Start time</Text>
           <View style={styles.timeBlock}>
-            <MaterialCommunityIcons
-              size={20}
+            <MaterialIcons
+              size={25}
               color={THEME.PRIMARY_COLOR_DARK}
-              name={'clock-time-four-outline'}
+              name={'access-time'}
               style={{marginRight: 10}}
             />
             <Text style={styles.textBlue}>
-              {moment(startTime).format('h:mm:ss a')}
+              {startTime
+                ? moment(startTime).format('h:mm:ss a')
+                : 'In progress'}
             </Text>
           </View>
         </View>
         <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
-          <Text style={styles.label}>End time</Text>
+          <Text style={[styles.label, {marginBottom: 7}]}>End time</Text>
           <View style={styles.timeBlock}>
-            <MaterialCommunityIcons
-              size={20}
-              color={THEME.PRIMARY_COLOR_DARK}
-              name={'clock-time-four-outline'}
-              style={{marginRight: 10}}
-            />
-            <Text style={styles.textBlue}>
-              {moment(endTime).format('h:mm:ss a')}
-            </Text>
+            <IconCheck />
+            <View style={{marginLeft: 15}}>
+              <Text style={[styles.textBlue, styles.textTop]}>
+                {moment(new Date()).format('Do MM YYYY')}
+              </Text>
+              <Text style={styles.textBlue}>
+                {endTime ? moment(endTime).format('h:mm:ss a') : 'In progress'}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -72,12 +76,17 @@ const styles = StyleSheet.create({
   timeBlock: {
     marginTop: 10,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   textBlue: {
     fontSize: 15,
     fontFamily: FONT.Regular,
     color: THEME.PRIMARY_COLOR_DARK,
     marginBottom: 0,
+  },
+  textTop: {
+    position: 'absolute',
+    top: -11,
+    fontSize: 12,
   },
 });

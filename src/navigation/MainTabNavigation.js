@@ -14,7 +14,6 @@ import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
 import {UserContext} from '../context/context';
 
-import IconLive from '../components/icons/IconLive';
 import IconReport from '../components/icons/IconReport';
 import IconNotification from '../components/icons/IconNotification';
 import LogoMini from '../components/icons/LogoMini';
@@ -27,6 +26,10 @@ import {NotificationScreen} from '../screens/NotificationScreen/NotificationScre
 import {ModalFilterScreen} from '../screens/ReportScreen/screens/ModalFilterScreen';
 import {SelectFactoryScreen} from '../screens/SelectFactoryScreen/SelectFactoryScreen';
 import {SettingScreen} from '../screens/SettingScreen/SettingScreen';
+import {TroubleShootingScreen} from '../screens/SettingScreen/screens/TroubleshootingScreen';
+import {SecurityScreen} from '../screens/SettingScreen/screens/SecurityScreen';
+import {NotifyScreen} from '../screens/SettingScreen/screens/NotifyScreen';
+import IconLiveview from '../components/icons/IconLiveView';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -65,7 +68,7 @@ const HomeStackNavigator = ({navigation}) => {
           name="CardDetail"
           component={CardDetailScreen}
           options={() => ({
-            title: 'Run report',
+            title: 'Run Report',
             headerRight: () => <Text> </Text>,
           })}
         />
@@ -120,7 +123,7 @@ const ReportStackNavigator = ({navigation}) => {
           name="CardDetailReport"
           component={CardDetailScreen}
           options={() => ({
-            title: 'Run report',
+            title: 'Run Report',
             headerRight: () => <Text> </Text>,
           })}
         />
@@ -190,7 +193,7 @@ function TabNavigator() {
           let iconName;
           if (route.name === 'Liveview') {
             iconName = (
-              <IconLive
+              <IconLiveview
                 color={
                   focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
                 }
@@ -263,6 +266,9 @@ function SettingNavigator() {
         component={SelectFactoryScreen}
       />
       <SettingStack.Screen name="Setting" component={SettingScreen} />
+      <SettingStack.Screen name="Troubleshooting" component={TroubleShootingScreen} />
+      <SettingStack.Screen name="Security" component={SecurityScreen} />
+      <SettingStack.Screen name="NotifySetting" component={NotifyScreen} />
     </SettingStack.Navigator>
   );
 }

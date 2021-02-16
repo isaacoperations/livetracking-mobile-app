@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   SafeAreaView,
   ScrollView,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -27,60 +29,175 @@ import {CardSpeed} from './components/CardSpeed';
 import {CardEfficiency} from './components/CardEfficiency';
 
 import {useData} from '../../services/ApiService';
+import {sleep} from '../../utils/sleep';
 
 export function CardDetailScreen({route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeSections, setActiveSections] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeSectionsPositive, setActiveSectionsPositive] = useState([]);
+  const [activeSectionsNegative, setActiveSectionsNegative] = useState([]);
   const [runData, setRunData] = useState({});
   const {LiveView} = useData();
 
   const {runId} = route.params;
 
-  useEffect(() => {
-    (async () => {
-      await MaterialIcons.loadFont();
-      await MaterialCommunityIcons.loadFont();
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        await MaterialIcons.loadFont();
+        await MaterialCommunityIcons.loadFont();
 
-      setIsLoading(true);
-      if (runId) {
-        await LiveView.getByLineId(runId)
-          .then(({data}) => {
-            console.log('response run data', data);
-            setRunData(data);
-            setIsLoading(false);
-          })
-          .catch((error) => {
-            setIsLoading(true);
-            console.log('error run', error);
-          });
-      }
-    })();
+        setIsLoading(true);
+        if (runId) {
+          await fetchData();
+        } else {
+          setIsLoading(false);
+        }
+      })();
+
+      console.log('runData?.lostTimeList', runData?.lostTimeList);
+
+      const refreshID = setInterval(async () => {
+        console.log('refreshID refreshID 10');
+        setActiveSectionsPositive([]);
+        setActiveSectionsNegative([]);
+        await fetchData();
+      }, 10000);
+
+      return () => {
+        clearInterval(refreshID);
+        setActiveSectionsPositive([]);
+        setActiveSectionsNegative([]);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  async function fetchData() {
+    await LiveView.getByLineId(runId)
+      .then(({data}) => {
+        console.log('response run data', data);
+        setRunData(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(true);
+        console.log('error run', error);
+      });
+  }
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    const refreshId = sleep(1000).then(async () => {
+      setActiveSectionsPositive([]);
+      setActiveSectionsNegative([]);
+      await fetchData().then(() => {
+        setRefreshing(false);
+      });
+    });
+    return () => clearTimeout(refreshId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderHeader = (content, index, isActive) => {
+  const renderHeaderPositive = (content, index, isActive, sections) => {
     return (
       <ProgressLine
+        index={index}
         title={content.reasonName}
         percent={content.lostTimePercent}
         isActive={isActive}
+        sections={sections}
       />
     );
   };
 
-  const renderContent = (section) => {
+  const renderContentPositive = (content, index, isActive) => {
     return (
       <ProgressContent
-        title={section.reasonName}
-        info={section.reasonName}
-        percent={section.lostTimePercent}
+        index={index}
+        isActive={isActive}
+        title={content.reasonName}
+        time={content.lostTimeSeconds}
+        percent={content.lostTimePercent}
       />
     );
   };
 
-  const updateSections = (items) => {
-    setActiveSections(items);
+  const renderHeaderNegative = (content, index, isActive, sections) => {
+    return (
+      <ProgressLine
+        index={index}
+        title={content.reasonName}
+        percent={content.lostTimePercent}
+        isActive={isActive}
+        backgroundColor={THEME.GREEN_COLOR}
+        sections={sections}
+      />
+    );
+  };
+
+  const renderContentNegative = (content, index, isActive) => {
+    return (
+      <ProgressContent
+        index={index}
+        isActive={isActive}
+        title={content.reasonName}
+        time={content.lostTimeSeconds}
+        percent={content.lostTimePercent}
+      />
+    );
+  };
+
+  const updateSectionsPositive = (items) => {
+    console.log('updateSectionsPositive', items);
+    setActiveSectionsPositive(items);
+  };
+
+  const updateSectionsNegative = (items) => {
+    setActiveSectionsNegative(items);
+  };
+
+  const renderDataPositive = (data) => {
+    const result = data.filter((item) => {
+      return item.lostTimePercent >= 0;
+    });
+    if (result.length > 0) {
+      return (
+        <Accordion
+          sections={result}
+          activeSections={activeSectionsPositive}
+          renderHeader={renderHeaderPositive}
+          renderContent={renderContentPositive}
+          onChange={updateSectionsPositive}
+          underlayColor={'transparent'}
+          containerStyle={styles.accordionContainerStyle}
+        />
+      );
+    } else {
+      return <Text style={styles.textEmpty}>No effect data</Text>;
+    }
+  };
+
+  const renderDataNegative = (data) => {
+    const result = data.filter((item) => {
+      return item.lostTimePercent <= 0;
+    });
+    if (result.length > 0) {
+      return (
+        <Accordion
+          sections={result}
+          activeSections={activeSectionsNegative}
+          renderHeader={renderHeaderNegative}
+          renderContent={renderContentNegative}
+          onChange={updateSectionsNegative}
+          underlayColor={'transparent'}
+          containerStyle={styles.accordionContainerStyle}
+        />
+      );
+    } else {
+      return <Text style={styles.textEmpty}>No effect data</Text>;
+    }
   };
 
   return (
@@ -94,24 +211,46 @@ export function CardDetailScreen({route}) {
             style={{marginTop: 'auto', marginBottom: 'auto'}}
           />
         ) : (
-          <ScrollView style={styles.container}>
+          <ScrollView
+            style={styles.container}
+            refreshControl={
+              <RefreshControl
+                tintColor={THEME.PRIMARY_COLOR}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }>
             <View>
               <View style={styles.block}>
                 <CardTitle title={runData?.lineName} />
                 <CardProductTitle title={runData?.productName} />
                 <Divider style={styles.divider} />
-                <CardTime startTime={runData?.runStartTime} endTime={runData?.runEndTime} />
+                <CardTime
+                  startTime={runData?.runStartTime}
+                  endTime={runData?.runEndTime}
+                />
               </View>
-              <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <CardOutput title={runData?.output} unit={runData?.displayableOutputUnit} />
+              <View
+                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <CardOutput
+                  title={runData?.output}
+                  unit={runData?.displayableOutputUnit}
+                />
               </View>
               <Divider style={styles.divider} />
-              <View style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <CardSpeed speed={runData?.averageSpeed} unit={runData?.displayableSpeedUnit} />
+              <View
+                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                <CardSpeed
+                  speed={runData?.averageSpeed}
+                  unit={runData?.displayableSpeedUnit}
+                />
               </View>
               <Divider style={styles.divider} />
               <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
-                <CardEfficiency efficiencyPercent={runData?.efficiencyPercent} efficiencyTarget={runData?.efficiencyTarget} />
+                <CardEfficiency
+                  efficiencyPercent={runData?.efficiencyPercent}
+                  efficiencyTarget={runData?.efficiencyTarget}
+                />
               </View>
               <View
                 style={[
@@ -133,19 +272,9 @@ export function CardDetailScreen({route}) {
                     activeTabTextStyle={styles.activeTabTextStyle}
                   />
                 </View>
-                {selectedIndex === 0 ? (
-                  <Accordion
-                    sections={runData?.lostTimeList}
-                    activeSections={activeSections}
-                    renderHeader={renderHeader}
-                    renderContent={renderContent}
-                    onChange={updateSections}
-                    underlayColor={'transparent'}
-                    containerStyle={styles.accordionContainerStyle}
-                  />
-                ) : (
-                  <Text>Not effect</Text>
-                )}
+                {selectedIndex === 0
+                  ? renderDataPositive(runData?.lostTimeList)
+                  : renderDataNegative(runData?.lostTimeList)}
               </View>
             </View>
           </ScrollView>
@@ -217,5 +346,9 @@ const styles = StyleSheet.create({
   accordionContainerStyle: {
     marginLeft: -30,
     marginRight: -30,
+  },
+  textEmpty: {
+    textAlign: 'center',
+    color: THEME.PRIMARY_COLOR,
   },
 });

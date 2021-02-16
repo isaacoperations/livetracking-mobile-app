@@ -1,10 +1,9 @@
 import React, {
   useContext,
-  useEffect,
   useState,
   useRef,
   useReducer,
-  useLayoutEffect,
+  useCallback,
 } from 'react';
 import {
   View,
@@ -13,12 +12,12 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
-  TouchableOpacity,
   FlatList,
-  Dimensions,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
+import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -40,6 +39,7 @@ import {CardComponent} from '../ReportScreen/components/CardComponent';
 import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
+
 import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
 
@@ -47,65 +47,90 @@ export function HomeScreen({navigation}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [nodeData, setNodeData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const refRBSheet = useRef();
   const numColumns = 2;
-  const WIDTH = Dimensions.get('window').width;
+  //const WIDTH = Dimensions.get('window').width;
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const user = useContext(UserContext);
   const {logout} = useContext(AuthContext);
   const {LiveView} = useData();
 
-  useEffect(() => {
-    (async () => {
-      await MaterialIcons.loadFont();
-      await MaterialCommunityIcons.loadFont();
-      // await AsyncStorage.removeItem('line');
-      console.log('home user data ', user);
-    })();
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        await MaterialIcons.loadFont();
+        await MaterialCommunityIcons.loadFont();
+        // await AsyncStorage.removeItem('line');
+        console.log('home user data ', user);
 
-    sleep(100).then(async () => {
-      try {
-        await AsyncStorage.getItem('line').then((line) => {
-          if (line) {
-            dispatch(createAction('SET_LINE', JSON.parse(line)));
-            const data = JSON.parse(line);
-            const uniqDataBy = _.uniqBy(data, 'selected');
-            const some = _.some(uniqDataBy, ['selected', true]);
-            if (some) {
-              setIsVisible(false);
-            } else {
-              setIsVisible(true);
-            }
+        await fetchData();
+      })();
+
+      const refreshID = setInterval(async () => {
+        await fetchData();
+      }, 10000);
+
+      console.log('isVisible', isVisible);
+
+      return () => {
+        clearInterval(refreshID);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isVisible]),
+  );
+
+  async function fetchData() {
+    try {
+      await AsyncStorage.getItem('line').then((line) => {
+        if (line) {
+          dispatch(createAction('SET_LINE', JSON.parse(line)));
+          const data = JSON.parse(line);
+          const uniqDataBy = _.uniqBy(data, 'selected');
+          const some = _.some(uniqDataBy, ['selected', true]);
+          if (some) {
+            setIsVisible(false);
           } else {
-            console.log('not found line ', line);
             setIsVisible(true);
           }
-        });
+        } else {
+          console.log('not found line ', line);
+          setIsVisible(true);
+        }
+      });
 
-        await LiveView.getAllLine().then(async ({data}) => {
-          console.log('response data  ', data?.liveviewInfo);
-          const nodes = data?.liveviewInfo;
-          setNodeData(nodes);
-          if (state.line.length > 0) {
-            console.log('Ystate line data ', state.line);
-          } else {
-            console.log('Xstate line not data ', state.line);
-            if ((await AsyncStorage.getItem('line')) === null) {
-              console.log('Tstate line not data ', state.line);
-              dispatch(createAction('SET_LINE', nodes));
-              await AsyncStorage.setItem('line', JSON.stringify(nodes));
-            }
-          }
-        });
-      } catch (e) {
-        console.log('error message', e);
-        logout();
-      }
+      await LiveView.getAllLine().then(async ({data}) => {
+        console.log('response data  ', data?.liveviewInfo);
+        const nodes = data?.liveviewInfo;
+        setNodeData(nodes);
+        if (state.line.length > 0) {
+          console.log('Ystate line data ', state.line);
+        } else {
+          console.log('Xstate line not data ', state.line);
+          // if (await AsyncStorage.getItem('line')) {
+          console.log('Tstate line not data ', state.line);
+          dispatch(createAction('SET_LINE', nodes));
+          await AsyncStorage.setItem('line', JSON.stringify(nodes));
+          //}
+        }
+      });
+    } catch (e) {
+      console.log('error message', e);
+      logout();
+    }
+  }
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    const refreshId = sleep(1000).then(async () => {
+      await fetchData().then(() => {
+        setRefreshing(false);
+      });
     });
-    console.log('isVisible', isVisible);
+    return () => clearTimeout(refreshId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isVisible]);
+  }, []);
 
   console.log('home line data ', state.line);
 
@@ -202,6 +227,13 @@ export function HomeScreen({navigation}) {
               horizontal={false}
               renderItem={renderCard}
               keyExtractor={(item) => item.lineId.toString()}
+              refreshControl={
+                <RefreshControl
+                  tintColor={THEME.PRIMARY_COLOR}
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }
             />
           ) : (
             <View
@@ -230,7 +262,7 @@ export function HomeScreen({navigation}) {
                       height: '100%',
                       width: '100%',
                     }}>
-                    {state?.line.map((item, i) => {
+                    {state?.line.map((item) => {
                       return item.selected ? renderCard({item}) : null;
                     })}
                   </View>

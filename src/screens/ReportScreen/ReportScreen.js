@@ -5,7 +5,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Platform,
   Pressable,
 } from 'react-native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -21,7 +20,7 @@ import {UserContext} from '../../context/context';
 import {ProgressLine} from '../../components/ProgressLine';
 import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
-import IconArrow from '../../components/icons/IconArrow';
+import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 
 const progressList = [
   {
@@ -169,71 +168,8 @@ export function ReportScreen({navigation}) {
         <ScrollView style={[styles.container, {marginTop: 0}]}>
           <View>
             <ReportHeaderInfo navigation={navigation} />
-            <View style={[styles.block, {paddingBottom: 30, height: 190}]}>
-              <Text style={styles.label}>EFFICIENCY</Text>
-              <View
-                style={{
-                  marginTop: 10,
-                  alignItems: 'center',
-                }}>
-                <View style={[styles.cardProgressRow, {marginTop: 35}]}>
-                  <View style={styles.cardProgressLineHead}>
-                    <View style={styles.cardProgressLineHeadText}>
-                      <Text style={styles.textBlue}>OEE</Text>
-                      <Text
-                        style={{
-                          fontSize: 22,
-                          fontFamily: FONT.Medium,
-                          color: THEME.PRIMARY_COLOR_DARK,
-                          marginTop: Platform.OS === 'ios' ? 0 : -10,
-                        }}>
-                        51%
-                      </Text>
-                      <IconArrow
-                        height={10}
-                        width={10}
-                        fill={THEME.DANGER_COLOR}
-                        style={{
-                          marginTop: Platform.OS === 'ios' ? 1 : -8,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.cardProgressLineMiddle}>
-                    <View style={styles.cardProgressLineMiddleText}>
-                      <IconArrow
-                        height={10}
-                        width={10}
-                        fill={'rgba(0, 68, 132, 0.4)'}
-                        style={{
-                          marginTop: Platform.OS === 'ios' ? 0 : -7,
-                          transform: [{rotate: '180deg'}],
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.textBlue,
-                          {
-                            color: 'rgba(0, 68, 132, 0.4)',
-                            marginTop: Platform.OS === 'ios' ? 0 : 0,
-                          },
-                        ]}>
-                        TARGET
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 22,
-                          fontFamily: FONT.Medium,
-                          color: 'rgba(0, 68, 132, 0.4)',
-                          marginTop: Platform.OS === 'ios' ? 0 : -15,
-                        }}>
-                        72%
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.cardProgressLineFooter} />
-                </View>
-              </View>
+            <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
+              <CardEfficiency efficiencyPercent={45} efficiencyTarget={70} />
             </View>
             <View
               style={[
@@ -264,7 +200,7 @@ export function ReportScreen({navigation}) {
                           activeOpacity={0.8}>
                           <ProgressLine
                             title={item.title}
-                            percent={item.percent}
+                            percent={5.5}
                             opacity={1}
                             info={item.description}
                             show={item.isShow}
@@ -279,7 +215,7 @@ export function ReportScreen({navigation}) {
                           activeOpacity={0.8}>
                           <ProgressLine
                             title={item.title}
-                            percent={item.percent}
+                            percent={5.5}
                             opacity={progressOpacity ? 1 : 0.3}
                             info={item.description}
                             show={item.isShow}
@@ -296,7 +232,7 @@ export function ReportScreen({navigation}) {
                           activeOpacity={0.8}>
                           <ProgressLine
                             title={item.title}
-                            percent={item.percent}
+                            percent={5.5}
                             opacity={1}
                             info={item.description}
                             show={item.isShow}
@@ -312,7 +248,7 @@ export function ReportScreen({navigation}) {
                           activeOpacity={0.8}>
                           <ProgressLine
                             title={item.title}
-                            percent={item.percent}
+                            percent={5.5}
                             opacity={progressOpacity2 ? 1 : 0.3}
                             info={item.description}
                             show={item.isShow}

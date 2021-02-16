@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet, SafeAreaView, ScrollView, View} from 'react-native';
 import {Divider} from 'react-native-elements';
 
@@ -39,17 +39,17 @@ export function SettingScreen({navigation}) {
             <Divider style={styles.divider} />
             <SettingBtn
               title={'Notification'}
-              onPress={() => console.log('Notification')}
+              onPress={() => navigation.navigate('NotifySetting')}
             />
             <Divider style={styles.divider} />
             <SettingBtn
               title={'Security'}
-              onPress={() => console.log('Security')}
+              onPress={() => navigation.navigate('Security')}
             />
             <Divider style={styles.divider} />
             <SettingBtn
               title={'Troubleshooting'}
-              onPress={() => console.log('Troubleshooting')}
+              onPress={() => navigation.navigate('Troubleshooting')}
             />
             <Divider style={styles.divider} />
           </View>
