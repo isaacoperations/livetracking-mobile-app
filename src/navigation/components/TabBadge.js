@@ -6,19 +6,16 @@ import {THEME} from '../../constants/theme';
 
 export function TabBadge({name, badgeCount, color = THEME.WHITE_COLOR, size}) {
   return (
-    <View style={{width: 24, height: 24, margin: 5}}>
+    <View>
+      {name}
       {badgeCount > 0 ? (
-        <View style={styles.badgeContainer}>
-          <Text
-            style={{
-              color: 'white',
-              fontSize: 10,
-            }}>
-            0
+        <View style={[styles.badgeContainer, styles.badgeContainerBig]}>
+          <Text style={styles.textStyle}>
+            {badgeCount}
           </Text>
         </View>
       ) : (
-        <View />
+        <View style={styles.badgeContainer} />
       )}
     </View>
   );
@@ -27,22 +24,24 @@ export function TabBadge({name, badgeCount, color = THEME.WHITE_COLOR, size}) {
 const styles = StyleSheet.create({
   badgeContainer: {
     position: 'absolute',
-    right: -6,
-    top: -3,
+    right: 0,
+    top: 1,
     backgroundColor: 'red',
     borderRadius: 20,
-    width: 12,
-    height: 12,
+    width: 7,
+    height: 7,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeStyle: {
-    minWidth: 44,
-    marginLeft: 'auto',
+  badgeContainerBig: {
+    right: -4,
+    top: -1,
+    width: 12,
+    height: 12,
   },
   textStyle: {
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: FONT.Regular,
-    textTransform: 'uppercase',
+    color: 'white',
   },
 });

@@ -1,14 +1,48 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, SafeAreaView, ScrollView, Dimensions} from 'react-native';
-import {Divider} from 'react-native-elements';
-import {THEME} from '../../constants/theme';
+import React, {useContext, useEffect, useReducer, useState} from 'react';
+import {StyleSheet, SafeAreaView, ScrollView} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import {THEME} from '../../constants/theme';
 import HeaderStatus from '../../components/HeaderStatus';
 import {ModalHeader} from '../../components/ModalHeader';
 import {SelectFactoryItem} from './components/SelectFactoryItem';
+import {UserContext} from '../../context/context';
+import reducer, {initialState} from '../../reducer/reducer';
+import {createAction} from '../../utils/createAction';
 
 export function SelectFactoryScreen({navigation}) {
-  const HEIGHT = Dimensions.get('window').height;
+  const user = useContext(UserContext);
+  const [{factory}, dispatch] = useReducer(reducer, initialState);
+  const {
+    app_metadata: {factories},
+  } = user;
+  console.log('factoryID nnnnnn', factory);
+  const [selected, setSelected] = useState(factory);
+  console.log('setSelected setSelected', selected);
+  useEffect(() => {
+    (async () => {
+      if (await AsyncStorage.getItem('factoryID')) {
+        await AsyncStorage.getItem('factoryID').then((id) => {
+          const num = Number(id);
+          console.log('ffafafaffa', num);
+          setSelected(num);
+          dispatch(createAction('SET_FACTORY', num));
+        });
+      } else {
+        console.log('not ffafafaffa');
+        setSelected(factory);
+      }
+      console.log('setSelected setSelected', selected);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  const requestFactoryId = async (id) => {
+    await AsyncStorage.setItem('factoryID', id.toString());
+    console.log('handleClick', id);
+    setSelected(id);
+    dispatch(createAction('SET_FACTORY', id));
+  };
 
   return (
     <>
@@ -24,16 +58,16 @@ export function SelectFactoryScreen({navigation}) {
           backgroundColor={'#EDF0F3'}
         />
         <ScrollView>
-          <SelectFactoryItem onPress={() => console.log('pressed')} />
-          <SelectFactoryItem
-            onPress={() => console.log('pressed')}
-            iconShow={true}
-          />
-          <SelectFactoryItem
-            onPress={() => console.log('pressed')}
-            iconShow={true}
-          />
-          <SelectFactoryItem onPress={() => console.log('pressed')} />
+          {factories.map((item, index) => (
+            <SelectFactoryItem
+              key={index}
+              id={index}
+              onPress={() => requestFactoryId(index)}
+              title={item.name}
+              description={item.id}
+              isActive={selected}
+            />
+          ))}
         </ScrollView>
       </SafeAreaView>
     </>

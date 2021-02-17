@@ -7,10 +7,12 @@ import {THEME} from '../../../constants/theme';
 import LogoMini from '../../../components/icons/LogoMini';
 
 export function SelectFactoryItem({
+  id = 0,
   title = 'Test Organization',
   description = 'Test Factory Etobicoke North',
   onPress,
   iconShow = false,
+  isActive = 1,
 }) {
   useEffect(() => {
     (async () => {
@@ -22,22 +24,53 @@ export function SelectFactoryItem({
       onPress={onPress}
       style={({pressed}) => [
         {
-          backgroundColor: pressed ? THEME.PRIMARY_COLOR_DARK : 'transparent',
+          backgroundColor:
+            id === isActive
+              ? THEME.PRIMARY_COLOR_DARK
+              : pressed
+              ? THEME.PRIMARY_COLOR_DARK
+              : 'transparent',
         },
         styles.wrapperCustom,
       ]}>
       {({pressed}) => (
         <>
           <View style={styles.closeContainer}>
-            {pressed && <LogoMini />}
+            {id === isActive ? <LogoMini /> : pressed ? <LogoMini /> : null}
           </View>
           <View
             style={{
               flex: 3,
               justifyContent: 'center',
             }}>
-            <Text style={[styles.headerTitle, {color: pressed ? THEME.WHITE_COLOR : THEME.PRIMARY_COLOR_DARK}]}>{title}</Text>
-            <Text style={[styles.headerDescription, {color: pressed ? THEME.WHITE_COLOR : THEME.PRIMARY_COLOR_DARK}]}>{description}</Text>
+            <Text
+              style={[
+                styles.headerTitle,
+                {
+                  color:
+                    id === isActive
+                      ? THEME.WHITE_COLOR
+                      : pressed
+                      ? THEME.WHITE_COLOR
+                      : THEME.PRIMARY_COLOR_DARK,
+                },
+              ]}>
+              {title}
+            </Text>
+            <Text
+              style={[
+                styles.headerDescription,
+                {
+                  color:
+                    id === isActive
+                      ? THEME.WHITE_COLOR
+                      : pressed
+                      ? THEME.WHITE_COLOR
+                      : THEME.PRIMARY_COLOR_DARK,
+                },
+              ]}>
+              {description}
+            </Text>
           </View>
           <View style={styles.settingContainer}>
             {iconShow && (

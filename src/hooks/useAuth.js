@@ -31,7 +31,9 @@ export function useAuth() {
                   token: data.accessToken,
                   authData: data,
                   userData: user,
-                  app_metadata: user['https://livetracking.ca/app_metadata'].organizations[0],
+                  app_metadata:
+                    user['https://livetracking.ca/app_metadata']
+                      .organizations[0],
                   user_metadata: user['https://livetracking.ca/user_metadata'],
                 };
                 await RNSInfo.setItem('user', JSON.stringify(userData), {});
@@ -50,9 +52,6 @@ export function useAuth() {
   );
   useEffect(() => {
     sleep(2000).then(async () => {
-        // await RNSInfo.deleteItem('user', {});
-        // await AsyncStorage.removeItem('line');
-        // dispatch(createAction('REMOVE_USER'));
       await RNSInfo.getItem('user', {}).then((user) => {
         if (user) {
           dispatch(createAction('SET_USER', JSON.parse(user)));

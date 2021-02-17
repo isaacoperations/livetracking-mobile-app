@@ -23,12 +23,12 @@ export function useLine() {
   );
   useEffect(() => {
     sleep(2000).then(async () => {
-      await RNSInfo.getItem('line', {}).then((line) => {
-        if (line) {
-          dispatch(createAction('SET_LINE', JSON.parse(line)));
+      await RNSInfo.getItem('line', {}).then((item) => {
+        if (item) {
+          dispatch(createAction('SET_LINE', JSON.parse(item)));
         }
       });
     });
   }, []);
-  return {line, state};
+  return {state, line};
 }

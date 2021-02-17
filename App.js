@@ -4,7 +4,12 @@ import SplashScreen from 'react-native-splash-screen';
 import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {AuthContext, LiveViewContext, UserContext} from './src/context/context';
+import {
+  AuthContext,
+  LiveViewContext,
+  UserContext,
+  FactoryContext,
+} from './src/context/context';
 import {fcmService} from './src/services/FCMServices';
 import {localNotificationService} from './src/services/LocalNotificationServices';
 
@@ -118,7 +123,9 @@ const App = () => {
         {state.user?.token ? (
           <UserContext.Provider value={state?.user}>
             <LiveViewContext.Provider value={state?.line}>
-              <MainTabNavigation />
+              <FactoryContext.Provider value={state?.factory}>
+                <MainTabNavigation />
+              </FactoryContext.Provider>
             </LiveViewContext.Provider>
           </UserContext.Provider>
         ) : (

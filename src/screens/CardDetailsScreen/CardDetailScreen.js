@@ -41,6 +41,7 @@ export function CardDetailScreen({route}) {
   const {LiveView} = useData();
 
   const {runId} = route.params;
+  console.log('runId', runId);
 
   useFocusEffect(
     useCallback(() => {
@@ -56,7 +57,7 @@ export function CardDetailScreen({route}) {
         }
       })();
 
-      console.log('runData?.lostTimeList', runData?.lostTimeList);
+      console.log('runData?.lostTimeList', runData?.lostTimeList, runData?.lost_time_list);
 
       const refreshID = setInterval(async () => {
         console.log('refreshID refreshID 10');
@@ -273,8 +274,12 @@ export function CardDetailScreen({route}) {
                   />
                 </View>
                 {selectedIndex === 0
-                  ? renderDataPositive(runData?.lostTimeList)
-                  : renderDataNegative(runData?.lostTimeList)}
+                  ? renderDataPositive(
+                      runData?.lostTimeList || runData?.lost_time_list,
+                    )
+                  : renderDataNegative(
+                      runData?.lostTimeList || runData?.lost_time_list,
+                    )}
               </View>
             </View>
           </ScrollView>

@@ -2,6 +2,7 @@ export const initialState = {
   loading: true,
   user: null,
   line: [],
+  factory: 1,
 };
 
 const reducer = (state, action) => {
@@ -33,6 +34,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         line: [],
+      };
+
+    case 'SET_FACTORY':
+      return {
+        ...state,
+        factory: action.payload,
       };
 
     default:

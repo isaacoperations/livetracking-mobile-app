@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState, useLayoutEffect} from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -9,10 +9,11 @@ import {
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useIsFocused} from '@react-navigation/native';
 
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
-import {UserContext} from '../context/context';
+import {FactoryContext, UserContext} from '../context/context';
 
 import IconReport from '../components/icons/IconReport';
 import IconNotification from '../components/icons/IconNotification';
@@ -30,6 +31,9 @@ import {TroubleShootingScreen} from '../screens/SettingScreen/screens/Troublesho
 import {SecurityScreen} from '../screens/SettingScreen/screens/SecurityScreen';
 import {NotifyScreen} from '../screens/SettingScreen/screens/NotifyScreen';
 import IconLiveview from '../components/icons/IconLiveView';
+import {TabBadge} from './components/TabBadge';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {createAction} from '../utils/createAction';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -41,12 +45,25 @@ const NotificationStack = createStackNavigator();
 
 const HomeStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
+  const factory = useContext(FactoryContext);
+  const [isActive, setIsActive] = useState(factory);
   const {app_metadata} = user;
+  const isFocused = useIsFocused();
+  console.log('isFocused home', isFocused);
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
+      if (await AsyncStorage.getItem('factoryID')) {
+        await AsyncStorage.getItem('factoryID').then((id) => {
+          const num = Number(id);
+          setIsActive(num);
+        });
+      } else {
+        setIsActive(factory);
+      }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, isFocused]);
   return (
     <>
       <HomeStack.Navigator screenOptions={screenOptions}>
@@ -54,7 +71,7 @@ const HomeStackNavigator = ({navigation}) => {
           name="Main"
           component={HomeScreen}
           options={() => ({
-            title: app_metadata?.factories[1]?.id || 'Test Factory',
+            title: app_metadata?.factories[isActive]?.id || 'Test Factory',
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}>
@@ -79,12 +96,25 @@ const HomeStackNavigator = ({navigation}) => {
 
 const ReportStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
+  const factory = useContext(FactoryContext);
+  const [isActive, setIsActive] = useState(factory);
   const {app_metadata} = user;
+  const isFocused = useIsFocused();
+  console.log('isFocused report', isFocused);
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
+      if (await AsyncStorage.getItem('factoryID')) {
+        await AsyncStorage.getItem('factoryID').then((id) => {
+          const num = Number(id);
+          setIsActive(num);
+        });
+      } else {
+        setIsActive(factory);
+      }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, isFocused]);
   return (
     <>
       <ReportStack.Navigator
@@ -109,7 +139,8 @@ const ReportStackNavigator = ({navigation}) => {
           component={ReportScreen}
           options={() => ({
             title:
-              app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[isActive]?.id ||
+              'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}>
@@ -140,7 +171,8 @@ const ReportStackNavigator = ({navigation}) => {
           component={RunLogScreen}
           options={() => ({
             title:
-              app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
+              app_metadata?.factories[isActive]?.id ||
+              'Test Factory Etobicoke South',
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}>
@@ -157,12 +189,25 @@ const ReportStackNavigator = ({navigation}) => {
 
 const NotificationStackNavigator = ({navigation}) => {
   const user = useContext(UserContext);
+  const factory = useContext(FactoryContext);
+  const [isActive, setIsActive] = useState(factory);
   const {app_metadata} = user;
-  useEffect(() => {
+  const isFocused = useIsFocused();
+  console.log('isFocused notify', isFocused);
+  useLayoutEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
+      if (await AsyncStorage.getItem('factoryID')) {
+        await AsyncStorage.getItem('factoryID').then((id) => {
+          const num = Number(id);
+          setIsActive(num);
+        });
+      } else {
+        setIsActive(factory);
+      }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, isFocused]);
   return (
     <NotificationStack.Navigator screenOptions={screenOptions}>
       <NotificationStack.Screen
@@ -170,7 +215,7 @@ const NotificationStackNavigator = ({navigation}) => {
         component={NotificationScreen}
         options={() => ({
           title:
-            app_metadata?.factories[1]?.id || 'Test Factory Etobicoke South',
+            app_metadata?.factories[isActive]?.id || 'Test Factory Etobicoke South',
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('SelectFactoryTab')}>
@@ -184,12 +229,16 @@ const NotificationStackNavigator = ({navigation}) => {
   );
 };
 
+function NotificationWithBadge(props) {
+  return <TabBadge {...props} />; // badgeCount={3}
+}
+
 function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarVisible: true,
-        tabBarIcon: ({focused}) => {
+        tabBarIcon: ({focused, color, size}) => {
           let iconName;
           if (route.name === 'Liveview') {
             iconName = (
@@ -213,6 +262,13 @@ function TabNavigator() {
                 color={
                   focused ? THEME.PRIMARY_COLOR : THEME.PRIMARY_COLOR_HOVER
                 }
+              />
+            );
+            return (
+              <NotificationWithBadge
+                name={iconName}
+                size={size}
+                color={color}
               />
             );
           }
@@ -247,8 +303,6 @@ function TabNavigator() {
         component={NotificationStackNavigator}
         options={{
           title: 'Notification',
-          tabBarBadgeStyle: styles.tabBarBadgeStyle,
-          tabBarBadge: '',
         }}
       />
     </Tab.Navigator>
@@ -266,7 +320,10 @@ function SettingNavigator() {
         component={SelectFactoryScreen}
       />
       <SettingStack.Screen name="Setting" component={SettingScreen} />
-      <SettingStack.Screen name="Troubleshooting" component={TroubleShootingScreen} />
+      <SettingStack.Screen
+        name="Troubleshooting"
+        component={TroubleShootingScreen}
+      />
       <SettingStack.Screen name="Security" component={SecurityScreen} />
       <SettingStack.Screen name="NotifySetting" component={NotifyScreen} />
     </SettingStack.Navigator>
