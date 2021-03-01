@@ -1,8 +1,7 @@
 #import "AppDelegate.h"
 
-#import <RNCPushNotificationIOS.h>
 #import <UserNotifications/UNUserNotificationCenter.h>
-#import <UserNotifications/UserNotifications.h>
+#import <RNCPushNotificationIOS.h>
 #import <Firebase.h>
 #import "RNFBMessagingModule.h"
 #import "FirebaseMessaging.h"
@@ -36,14 +35,17 @@ static void InitializeFlipper(UIApplication *application) {
 
 @implementation AppDelegate
 
+NSString *const kGCMMessageIDKey = @"gcm.message_id";
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
+  
+  [FIRMessaging messaging].delegate = self;
 
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
-
-  [FIRApp configure];
 
   // Start I added
 
@@ -69,20 +71,26 @@ static void InitializeFlipper(UIApplication *application) {
 
    [application registerForRemoteNotifications];
 
-   [FIRMessaging messaging].delegate = self;
-
-   [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
-                                                       NSError * _Nullable error) {
-     if (error != nil) {
-       NSLog(@"Error fetching remote instance ID: %@", error);
-     } else {
-       NSLog(@"Remote instance ID token: %@", result.token);
-     }
-   }];
-
-   [FIRMessaging messaging].autoInitEnabled = YES;
+//   [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
+//                                                       NSError * _Nullable error) {
+//     if (error != nil) {
+//       NSLog(@"Error fetching remote instance ID: %@", error);
+//     } else {
+//       NSLog(@"Remote instance ID token: %@", result.token);
+//     }
+//   }];
+//
+//   [FIRMessaging messaging].autoInitEnabled = YES;
 
  // End I added
+  
+  [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
+    if (error != nil) {
+      NSLog(@"Error getting FCM registration token: %@", error);
+    } else {
+      NSLog(@"FCM registration token: %@", token);
+    }
+  }];
 
     // Define UNUserNotificationCenter
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -126,7 +134,6 @@ static void InitializeFlipper(UIApplication *application) {
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   NSLog(@"DEVICE DID REGISTER:");
   NSLog(@"DEVICE TOKEN: %@", deviceToken);
-  NSLog(@"%@", deviceToken);
   [FIRMessaging messaging].APNSToken = deviceToken;
   [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
@@ -140,8 +147,18 @@ static void InitializeFlipper(UIApplication *application) {
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+    NSLog(@"push-notification received: %@", userInfo);
+  if (userInfo[kGCMMessageIDKey]) {
+      NSLog(@"Message ID: %@", userInfo[kGCMMessageIDKey]);
+    }
+  
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
   [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  
+  // Print full message.
+    NSLog(@"%@", userInfo);
+
+    completionHandler(UIBackgroundFetchResultNewData);
 }
 
 // Required for the registrationError event.
@@ -162,6 +179,12 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
     NSDictionary *userInfo = notification.request.content.userInfo;
     [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+    [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo
+                                    fetchCompletionHandler:^void (UIBackgroundFetchResult result){}];
+    // allow showing foreground notifications
+      completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+    // or if you wish to hide all notification while in foreground replace it with
+      // completionHandler(UNNotificationPresentationOptionNone);
   }
 
 // End I added
@@ -172,6 +195,64 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
              withCompletionHandler:(void (^)(void))completionHandler {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
   completionHandler();
+}
+
+- (NSString*) createDeviceTokenString:(NSData*) deviceToken {
+    const unsigned char *tokenChars = deviceToken.bytes;
+    
+    NSMutableString *tokenString = [NSMutableString string];
+    for (int i=0; i < deviceToken.length; i++) {
+        NSString *hex = [NSString stringWithFormat:@"%02x", tokenChars[i]];
+        [tokenString appendString:hex];
+    }
+    return tokenString;
+}
+
+-(void) registerDevice:(NSData *) deviceToken identity:(NSString *) identity {
+  // Create a POST request to the /register endpoint with device variables to register for Twilio Notifications
+    
+  NSString *deviceTokenString = [self createDeviceTokenString:deviceToken];
+
+
+  NSURLSession *session = [NSURLSession sharedSession];
+
+  NSURL *url = [NSURL URLWithString:@""];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0];
+  request.HTTPMethod = @"POST";
+
+  [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
+  [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+
+  NSDictionary *params = @{@"identity": identity,
+                        @"BindingType": @"apn",
+                            @"Address": deviceTokenString};
+
+  NSError* err=nil;
+  //NSString *endpoint = [Keychain readEndpoint:"AAA" error:err];
+  if (err == nil){
+    [params objectForKey:@"endpoint"];
+  }
+
+  NSError *error;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:&error];
+  request.HTTPBody = jsonData;
+
+  NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+
+    NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"Response: %@", responseString);
+
+    if (error == nil) {
+      NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      NSLog(@"JSON: %@", response);
+
+      //[KeychainAccess saveEndpoint:identity endpoint:response["endpoint"]]
+
+    } else {
+      NSLog(@"Error: %@", error);
+    }
+  }];
+  [task resume];
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url

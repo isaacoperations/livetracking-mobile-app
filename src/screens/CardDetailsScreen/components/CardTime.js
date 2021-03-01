@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Text, StyleSheet, View} from 'react-native';
+import {Text, StyleSheet, View, Platform} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 
@@ -8,7 +8,6 @@ import {FONT} from '../../../constants/fonts';
 import IconCheck from '../../../components/icons/IconCheck';
 
 export function CardTime({startTime = null, endTime = null}) {
-  console.log('endTime', endTime);
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -35,21 +34,24 @@ export function CardTime({startTime = null, endTime = null}) {
             />
             <Text style={styles.textBlue}>
               {startTime
-                ? moment(startTime).format('h:mm:ss a')
+                ? moment.utc(startTime).format('h:mm:ss a')
                 : 'In progress'}
             </Text>
           </View>
         </View>
         <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
           <Text style={[styles.label, {marginBottom: 7}]}>End time</Text>
-          <View style={styles.timeBlock}>
+          <View
+            style={[
+              styles.timeBlock,
+              {marginTop: Platform.OS === 'ios' ? 10 : 6},
+            ]}>
             <IconCheck />
             <View style={{marginLeft: 15}}>
-              <Text style={[styles.textBlue, styles.textTop]}>
-                {moment(new Date()).format('Do MM YYYY')}
-              </Text>
               <Text style={styles.textBlue}>
-                {endTime ? moment(endTime).format('h:mm:ss a') : 'In progress'}
+                {endTime
+                  ? moment.utc(startTime).format('h:mm:ss a')
+                  : 'In progress'}
               </Text>
             </View>
           </View>

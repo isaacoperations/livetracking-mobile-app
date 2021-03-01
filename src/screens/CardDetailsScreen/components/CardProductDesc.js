@@ -3,12 +3,12 @@ import {Text, StyleSheet} from 'react-native';
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
 
-export function CardTitle({title = ''}) {
+export function CardProductDesc({description}) {
   return (
     <>
-      <Text style={styles.label}>Line</Text>
-      <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
-        {title}
+      <Text style={styles.label}>Description</Text>
+      <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
+        {description}
       </Text>
     </>
   );

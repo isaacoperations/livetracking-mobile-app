@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, StyleSheet, View, Platform} from 'react-native';
+import {Text, StyleSheet, View, Platform, ScrollView} from 'react-native';
 import _ from 'lodash';
 
 import {THEME} from '../../../constants/theme';
@@ -22,7 +22,12 @@ export function CardEfficiency({
           <View
             style={[
               styles.cardProgressLineHead,
-              {width: `${_.floor(efficiencyPercent, 1)}%`},
+              {
+                width:
+                  efficiencyPercent > 100
+                    ? '100%'
+                    : `${_.floor(efficiencyPercent, 1)}%`,
+              },
             ]}>
             <View style={styles.cardProgressLineHeadText}>
               <Text style={styles.textBlue}>OEE</Text>
@@ -33,7 +38,10 @@ export function CardEfficiency({
                   color: THEME.PRIMARY_COLOR_DARK,
                   marginTop: Platform.OS === 'ios' ? 0 : -10,
                 }}>
-                {_.floor(efficiencyPercent, 1)}%
+                {efficiencyPercent > 100
+                  ? _.floor(efficiencyPercent)
+                  : _.floor(efficiencyPercent, 1)}
+                %
               </Text>
               <IconArrow
                 height={10}
@@ -48,7 +56,12 @@ export function CardEfficiency({
           <View
             style={[
               styles.cardProgressLineMiddle,
-              {width: `${_.floor(efficiencyTarget, 1)}%`},
+              {
+                width:
+                  efficiencyTarget > 100
+                    ? '100%'
+                    : `${_.floor(efficiencyTarget, 1)}%`,
+              },
             ]}>
             <View style={styles.cardProgressLineMiddleText}>
               <IconArrow

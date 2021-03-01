@@ -1,12 +1,10 @@
-import React, {useContext, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Platform,
-  Pressable,
 } from 'react-native';
 import {Divider} from 'react-native-elements';
 
@@ -14,15 +12,9 @@ import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import {UserContext} from '../../context/context';
 import {DownTimeComponent} from './components/DownTimeComponent';
 
-export function DownTimeScreen({navigation}) {
-  const user = useContext(UserContext);
-  useEffect(() => {
-    console.log('home user', user?.token);
-  }, []);
-
+export function DownTimeScreen() {
   return (
     <>
       <HeaderStatus ios={'light'} />

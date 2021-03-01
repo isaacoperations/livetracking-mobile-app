@@ -1,5 +1,7 @@
 import React from 'react';
 import {Text, StyleSheet, View} from 'react-native';
+import _ from 'lodash';
+
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
 import IconCubes from '../../../components/icons/IconCubes';
@@ -24,7 +26,7 @@ export function CardOutput({title = '', unit = ''}) {
           }}>
           {title}
         </Text>
-        <Text style={styles.textBlue}>{unit}</Text>
+        <Text style={styles.textBlue}>{_.floor(unit)}</Text>
       </View>
     </>
   );

@@ -27,5 +27,6 @@ const styles = StyleSheet.create({
     fontFamily: FONT.Medium,
     color: THEME.DARK_COLOR,
     marginBottom: 20,
+    marginTop: -5,
   },
 });

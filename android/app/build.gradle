@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 import com.android.build.OutputFile
 
@@ -180,6 +181,13 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            /* Add the firebaseCrashlytics extension (by default,
+            * it's disabled to improve build speeds) and set
+            * nativeSymbolUploadEnabled to true. */
+//             firebaseCrashlytics {
+//                 nativeSymbolUploadEnabled false
+//             }
         }
     }
 
@@ -208,7 +216,7 @@ dependencies {
 
     //implementation platform('com.google.firebase:firebase-bom:26.3.0')
 
-    implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    //implementation 'com.google.firebase:firebase-analytics:17.3.0'
     //implementation project(':react-native-push-notification')
 
     implementation project(':react-native-vector-icons')

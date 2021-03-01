@@ -18,6 +18,7 @@ import {BadgeComponent} from '../../../components/BadgeComponent';
 import IconE from '../../../components/icons/IconE';
 import IconMoon from '../../../components/icons/IconMoon';
 import IconDanger from '../../../components/icons/IconDanger';
+import {CountDownLabel} from '../../CardDetailsScreen/components/CountDownLabel';
 
 const numColumns = 2;
 const WIDTH = Dimensions.get('window').width;
@@ -25,7 +26,8 @@ const WIDTH = Dimensions.get('window').width;
 export function CardComponent({
   progressLine = '50',
   progressRun = '80',
-  description,
+  productName,
+  productDesc,
   status,
   title,
   onPress,
@@ -37,41 +39,62 @@ export function CardComponent({
       containerStyle={[
         styles.cardContainer,
         {width: progressLine ? 'auto' : '46%'},
-      ]}>
+      ]}
+    >
       <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
         <View style={styles.cardImage}>
           <BadgeComponent status={status} />
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.cardTitle}>
             {title}
           </Text>
-          {description ? (
+          {productName ? (
             <Text
               numberOfLines={2}
               ellipsizeMode="tail"
-              style={styles.cardDescription}>
-              {description}
+              style={styles.cardName}>
+              {productName}
             </Text>
-          ) : (
-            <Text style={{marginTop: 15}} />
-          )}
-          <View style={[styles.cardProgress, {marginBottom: 20}]}>
+          ) : null}
+          {productDesc ? (
+            <Text
+              numberOfLines={3}
+              ellipsizeMode="tail"
+              style={styles.cardDescription}>
+              {productDesc}
+            </Text>
+          ) : null}
+          {status === 'notrunning' ? <View style={{height: 30}} /> : null}
+          <View style={[styles.cardProgress, {marginBottom: 10}]}>
             <IconE />
             {progressLine ? (
               <>
                 <Text style={styles.cardProgressTitle}>
-                  {_.floor(progressRun, 1)}%
+                  {progressRun > 100
+                    ? _.floor(progressRun)
+                    : _.floor(progressRun, 1)}
+                  %
                 </Text>
                 <View style={styles.cardProgressRow}>
                   <View
                     style={[
                       styles.cardProgressLineHead,
-                      {width: `${_.floor(progressRun)}%`},
+                      {
+                        width:
+                          progressRun > 100
+                            ? '100%'
+                            : `${_.floor(progressRun)}%`,
+                      },
                     ]}
                   />
                   <View
                     style={[
                       styles.cardProgressLineMiddle,
-                      {width: `${_.floor(progressLine)}%`},
+                      {
+                        width:
+                          progressLine > 100
+                            ? '100%'
+                            : `${_.floor(progressLine)}%`,
+                      },
                     ]}
                   />
                   <View style={styles.cardProgressLineFooter} />
@@ -86,7 +109,8 @@ export function CardComponent({
               <IconMoon style={{marginBottom: 4}} />
             )}
             {status !== 'notrunning' ? (
-              <>
+              <View>
+                <CountDownLabel />
                 <CountDown
                   size={15}
                   until={
@@ -117,11 +141,12 @@ export function CardComponent({
                     marginTop: 'auto',
                     marginBottom: 1,
                   }}
-                  timeLabels={{h: 'HR', m: 'MIN', s: 'SEC'}}
+                  style={{flexDirection: 'row'}}
+                  timeLabels={{h: null, m: null, s: null}} //h: 'HR', m: 'MIN', s: 'SEC'
                   timeToShow={['H', 'M', 'S']}
                   showSeparator
                 />
-              </>
+              </View>
             ) : null}
           </View>
         </View>
@@ -137,11 +162,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15,
     marginBottom: 5,
-    height: '100%',
-    maxHeight: Platform.OS === 'ios' ? 176 : 180,
+    maxHeight: Platform.OS === 'ios' ? 246 : 250,
   },
   cardImage: {
-    backgroundColor: THEME.WHITE_COLOR,
+    backgroundColor: THEME.WHITE_COLOR, //red
   },
   cardTitle: {
     color: THEME.DARK_COLOR,
@@ -150,10 +174,16 @@ const styles = StyleSheet.create({
     marginBottom: Platform.OS === 'ios' ? 7 : 0,
     textTransform: 'uppercase',
   },
-  cardDescription: {
+  cardName: {
     color: THEME.DARK_COLOR,
     fontSize: 12,
     fontFamily: FONT.Bold,
+  },
+  cardDescription: {
+    color: THEME.CHAR_COLOR,
+    fontSize: 11,
+    fontFamily: FONT.Regular,
+    marginTop: Platform.OS === 'android' ? -5: 0,
   },
   cardProgress: {
     flexDirection: 'row',

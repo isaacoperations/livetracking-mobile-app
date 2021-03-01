@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {StyleSheet, SafeAreaView, ScrollView, View} from 'react-native';
+import {StyleSheet, SafeAreaView, ScrollView, View, Platform} from 'react-native';
 import {Divider} from 'react-native-elements';
 
 import {THEME} from '../../constants/theme';
@@ -87,6 +87,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
     marginTop: 'auto',
-    marginBottom: 50,
+    marginBottom: Platform.OS === 'ios' ? 50 : 20,
   },
 });

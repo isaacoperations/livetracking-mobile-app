@@ -7,10 +7,14 @@ import {
   Text,
   Switch,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import {Divider, ButtonGroup} from 'react-native-elements';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
@@ -20,18 +24,44 @@ import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
 
 export function NotifyScreen({navigation}) {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isEnabledTime, setIsEnabledTime] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabledTime, setIsEnabledTime] = useState(false);
   const [isEnabledTimeFrom, setIsEnabledTimeFrom] = useState(false);
   const [isEnabledTimeTo, setIsEnabledTimeTo] = useState(false);
   const [dateFrom, setDateFrom] = useState(new Date());
   const [dateTo, setDateTo] = useState(new Date());
+  const [dateMin, setDateMin] = useState(new Date());
   const [selectedIndex, setSelectedIndex] = useState([]);
+  const [selectedDays, setSelectedDays] = useState([]);
 
   useEffect(() => {
-    console.log('selectedIndex', selectedIndex);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIndex]);
+    (async () => {
+      await AsyncStorage.getItem('formNotify')
+        .then((data) => {
+          console.log('data', data);
+          if (data) {
+            const formData = JSON.parse(data);
+            const setTimeFrom = moment(formData?.timeFrom, 'HH:mm');
+            const setTimeTo = moment(formData?.timeTo, 'HH:mm');
+            setIsEnabled(formData.showInNotify);
+            setIsEnabledTime(formData.showInDisturb);
+            setSelectedDays(formData.daysText);
+            setSelectedIndex(formData.daysIndex);
+            setDateFrom(setTimeFrom._d);
+            setDateTo(setTimeTo._d);
+          }
+        })
+        .catch((error) => {
+          setIsEnabled(false);
+          setIsEnabledTime(false);
+          setSelectedDays([]);
+          setSelectedIndex([]);
+          setDateFrom(new Date());
+          setDateTo(new Date());
+          console.log('NotifyScreen error', error);
+        });
+    })();
+  }, []);
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -40,13 +70,14 @@ export function NotifyScreen({navigation}) {
     setIsEnabledTime((previousState) => !previousState);
   };
 
-  const onChangeFrom = (event, selectedDate) => {
+  const onChangeFrom = (selectedDate) => {
     const currentDate = selectedDate || dateFrom;
     setIsEnabledTimeFrom(false);
     setDateFrom(currentDate);
+    setDateMin(currentDate);
   };
 
-  const onChangeTo = (event, selectedDate) => {
+  const onChangeTo = (selectedDate) => {
     const currentDate = selectedDate || dateTo;
     setIsEnabledTimeTo(false);
     setDateTo(currentDate);
@@ -55,7 +86,7 @@ export function NotifyScreen({navigation}) {
   function dataWeek() {
     const date = new Date();
     const DAY = 1000 * 60 * 60 * 24;
-    console.log('DAY ', DAY);
+    console.log('DAY timestamp', DAY);
     let i;
     for (i = 0; i < 7; i++) {
       console.log(date);
@@ -64,7 +95,41 @@ export function NotifyScreen({navigation}) {
     }
   }
 
-  const days = ['S', 'M', 'T', 'W', 'R', 'F', 'S'];
+  const week = moment.weekdaysShort();
+  const weekMini = week.map((s) => {
+    return s.charAt(0);
+  });
+
+  const showDays = (data) => {
+    let tempArray = [];
+    data.map((item) => {
+      week.map((day, index) => {
+        if (item === index) {
+          return tempArray.push(day);
+        }
+      });
+    });
+    setSelectedDays(tempArray);
+  };
+
+  const handleSave = async () => {
+    const form = {
+      daysText: selectedDays,
+      daysIndex: selectedIndex,
+      showInNotify: isEnabled,
+      showInDisturb: isEnabledTime,
+      timeFrom: moment(dateFrom).format('HH:mm'),
+      timeTo: moment(dateTo).format('HH:mm'),
+    };
+    await AsyncStorage.setItem('formNotify', JSON.stringify(form));
+    Toast.show({
+      type: 'success',
+      position: 'top',
+      text1: 'Save',
+      topOffset: Platform.OS === 'ios' ? 80 : 30,
+      visibilityTime: 300,
+    });
+  };
 
   return (
     <>
@@ -121,17 +186,31 @@ export function NotifyScreen({navigation}) {
                     </View>
                   </TouchableOpacity>
                   <Divider style={styles.divider} />
-                  {isEnabledTimeFrom && (
-                    <RNDateTimePicker
-                      locale="es-ES"
-                      value={dateFrom}
-                      mode={'time'}
-                      is24Hour={true}
-                      display="spinner"
-                      onChange={onChangeFrom}
-                      textColor="black"
-                    />
-                  )}
+                  {isEnabledTimeFrom ? (
+                    Platform.OS === 'ios' ? (
+                      <RNDateTimePicker
+                        locale="es-ES"
+                        value={dateFrom}
+                        mode={'time'}
+                        is24Hour={true}
+                        display="spinner"
+                        onChange={onChangeFrom}
+                        textColor="black"
+                      />
+                    ) : (
+                      <View style={{alignItems: 'center'}}>
+                        <DatePicker
+                          locale="es"
+                          date={dateFrom}
+                          androidVariant={'nativeAndroid'}
+                          is24hourSource="locale"
+                          mode={'time'}
+                          textColor="black"
+                          onDateChange={onChangeFrom}
+                        />
+                      </View>
+                    )
+                  ) : null}
                   <TouchableOpacity
                     onPress={() => {
                       setIsEnabledTimeTo(!isEnabledTimeTo);
@@ -155,33 +234,69 @@ export function NotifyScreen({navigation}) {
                     </View>
                   </TouchableOpacity>
                   <Divider style={styles.divider} />
-                  {isEnabledTimeTo && (
-                    <RNDateTimePicker
-                      locale="es-ES"
-                      value={dateTo}
-                      mode={'time'}
-                      is24Hour={true}
-                      display="spinner"
-                      onChange={onChangeTo}
-                      textColor="black"
-                    />
-                  )}
+                  {isEnabledTimeTo ? (
+                    Platform.OS === 'ios' ? (
+                      <RNDateTimePicker
+                        locale="es-ES"
+                        value={dateTo}
+                        mode={'time'}
+                        minimumDate={dateMin}
+                        is24Hour={true}
+                        display="spinner"
+                        onChange={onChangeTo}
+                        textColor="black"
+                      />
+                    ) : (
+                      <View style={{alignItems: 'center'}}>
+                        <DatePicker
+                          locale="es"
+                          date={dateTo}
+                          androidVariant={'nativeAndroid'}
+                          is24hourSource="locale"
+                          mode={'time'}
+                          minimumDate={dateMin}
+                          textColor="black"
+                          onDateChange={onChangeTo}
+                        />
+                      </View>
+                    )
+                  ) : null}
                 </View>
               </View>
               <View style={styles.timeBlock}>
                 <Text style={styles.labelTime}>Day</Text>
                 <View style={styles.weekRow}>
-                  <Text style={styles.dayOn}>On</Text>
-                  <Text style={styles.week}>Tue, Wed, Thur, Fri, Weekend</Text>
+                  <Text style={styles.dayOn}>
+                    {selectedDays.length > 0 ? 'On' : 'Off'}
+                  </Text>
+                  {selectedDays.length > 0 ? (
+                    selectedDays.map((item, index) => {
+                      if (selectedDays.length === index + 1) {
+                        return (
+                          <Text key={index} style={styles.week}>
+                            {item}
+                          </Text>
+                        );
+                      } else {
+                        return (
+                          <Text key={index} style={styles.week}>
+                            {item},{' '}
+                          </Text>
+                        );
+                      }
+                    })
+                  ) : (
+                    <Text style={styles.week}>Not selected days</Text>
+                  )}
                 </View>
                 <View>
                   <ButtonGroup
                     onPress={(prevState) => {
                       setSelectedIndex([...prevState]);
-                      dataWeek();
+                      showDays([...prevState]);
                     }}
                     selectedIndexes={selectedIndex}
-                    buttons={days}
+                    buttons={weekMini}
                     selectMultiple={true}
                     containerStyle={{height: 48, width: '100%', marginLeft: 0}}
                     selectedButtonStyle={{
@@ -205,7 +320,7 @@ export function NotifyScreen({navigation}) {
         <View style={styles.containerBottom}>
           <Btn
             title={'Save'}
-            onPress={() => console.log('Save')}
+            onPress={handleSave}
             icon={false}
             navigation={navigation}
             borderColor={THEME.PRIMARY_COLOR}
@@ -257,7 +372,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
     marginTop: 'auto',
-    marginBottom: 50,
+    marginBottom: Platform.OS === 'ios' ? 50 : 20,
   },
   timeBlock: {
     paddingHorizontal: 30,
@@ -270,9 +385,9 @@ const styles = StyleSheet.create({
     color: THEME.DARK_COLOR,
     fontSize: 15,
     fontFamily: FONT.Regular,
+    marginRight: 22,
   },
   week: {
-    marginLeft: 22,
     color: THEME.PEW_COLOR,
     fontSize: 15,
     fontFamily: FONT.Regular,

@@ -6,10 +6,12 @@ import {
   SafeAreaView,
   ScrollView,
   Pressable,
+  Button,
 } from 'react-native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -133,6 +135,7 @@ export function ReportScreen({navigation}) {
   const [progressOpacity2, setProgressOpacity2] = useState(true);
 
   useEffect(() => {
+    crashlytics().log('Report Screen mounted.');
     console.log('home user', user?.token);
     (async () => {
       await MaterialIcons.loadFont();
@@ -166,6 +169,7 @@ export function ReportScreen({navigation}) {
       <SafeAreaView style={styles.container}>
         <ReportHeaderFilter navigation={navigation} />
         <ScrollView style={[styles.container, {marginTop: 0}]}>
+          <Button title="Crash" onPress={() => crashlytics().crash()} />
           <View>
             <ReportHeaderInfo navigation={navigation} />
             <View style={[styles.block, {paddingBottom: 30, height: 220}]}>

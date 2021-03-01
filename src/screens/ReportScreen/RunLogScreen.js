@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, Fragment} from 'react';
+import React, {useEffect, useState, Fragment} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,6 @@ import {
   Pressable,
 } from 'react-native';
 import {Divider, SearchBar} from 'react-native-elements';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -17,47 +15,42 @@ import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import HeaderStatus from '../../components/HeaderStatus';
-import {UserContext} from '../../context/context';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {ReportHeaderBack} from './components/ReportHeaderBack';
+import IconAscDesc from '../../components/icons/IconAscDesc';
 
 const nodeList = [
   {
     id: 1,
     title: 'Ippolito DXM Node 1',
-    sku: 'ABlueberry Muffins w/ whole wheat flour and other long name',
+    sku: 'Blueberry Muffins w/ whole wheat flour and other long name',
+    code: 'DBCB00657',
+    desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
     date: 'Sun Jan 16 2021 22:33:48 GMT+0600',
   },
   {
     id: 2,
     title: 'Ippolito DXM Line 2',
-    sku: 'BBlueberry Muffins w/ whole wheat flour and other long name 2',
+    sku: 'ABlueberry Muffins w/ whole wheat flour and other long name 2',
+    code: 'BACB00657',
+    desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
     date: 'Mon Jan 15 2021 22:33:48 GMT+0600',
   },
   {
     id: 3,
     title: 'Ippolito DXM Node 3',
     sku: 'CBlueberry Muffins w/ whole wheat flour and other long name 3',
+    desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+    code: 'ACB00657',
     date: 'Fri Jan 17 2021 22:33:48 GMT+0600',
   },
 ];
 
 export function RunLogScreen({navigation}) {
-  const user = useContext(UserContext);
   const [search, setSearch] = useState('');
   const [nodeData, setNodeData] = useState(nodeList || []);
   const [sortShownDate, setSortShownDate] = useState(true);
-  const [sortShownLine, setSortShownLine] = useState(true);
-  const [sortShownSku, setSortShownSku] = useState(true);
-  useEffect(() => {
-    console.log('home user', user?.token);
-    console.log('search result', search);
-    (async () => {
-      await MaterialCommunityIcons.loadFont();
-      await MaterialIcons.loadFont();
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortShownLine, nodeData]);
+  const [sortShownProduct, setSortShownProduct] = useState(true);
 
   const updateSearch = (text) => {
     setSearch(text);
@@ -65,28 +58,8 @@ export function RunLogScreen({navigation}) {
 
   const handleSortShowDate = () => {
     setSortShownDate(!sortShownDate);
-    sortAscDescDate(sortShownDate);
-  };
-  const handleSortShowLine = () => {
-    setSortShownLine(!sortShownLine);
-    sortAscDescTitle(sortShownLine);
-  };
-  const handleSortShowSku = () => {
-    setSortShownSku(!sortShownSku);
-    sortAscDesSKU(sortShownSku);
-  };
-
-  const items = nodeData.filter((data) => {
-    if (search === null) {
-      return data;
-    } else if (data.title.toLowerCase().includes(search.toLowerCase())) {
-      return data;
-    }
-  });
-
-  const sortAscDescDate = (bool) => {
     let data;
-    if (bool) {
+    if (sortShownDate) {
       data = _.orderBy(
         nodeData,
         function (dateObj) {
@@ -105,18 +78,24 @@ export function RunLogScreen({navigation}) {
     }
     setNodeData(data);
   };
-
-  const sortAscDescTitle = (bool) => {
-    bool
-      ? nodeData.sort((a, b) => a.title > b.title)
-      : nodeData.sort((a, b) => a.title < b.title);
+  const handleSortShowProduct = () => {
+    setSortShownProduct(!sortShownProduct);
+    let data;
+    if (sortShownProduct) {
+      data = _.orderBy(nodeData, ['code'], ['asc']);
+    } else {
+      data = _.orderBy(nodeData, ['code'], ['desc']);
+    }
+    setNodeData(data);
   };
 
-  const sortAscDesSKU = (bool) => {
-    bool
-      ? nodeData.sort((a, b) => a.sku > b.sku)
-      : nodeData.sort((a, b) => a.sku < b.sku);
-  };
+  const items = nodeData.filter((data) => {
+    if (search === null) {
+      return data;
+    } else if (data.title.toLowerCase().includes(search.toLowerCase())) {
+      return data;
+    }
+  });
 
   return (
     <>
@@ -136,132 +115,174 @@ export function RunLogScreen({navigation}) {
           }}
           inputStyle={styles.searchInputStyle}
         />
-        <ScrollView style={styles.container}>
-          <View>
-            <View style={styles.block}>
-              <View style={{flex: 1}}>
-                <Pressable
-                  onPress={() => {
-                    handleSortShowDate('Date');
-                  }}>
-                  {({pressed}) => (
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={[
-                          styles.title,
-                          styles.uppercase,
-                          {
-                            color: pressed
-                              ? THEME.PRIMARY_COLOR
-                              : THEME.DARK_COLOR,
-                            marginRight: 5,
-                          },
-                        ]}>
-                        Date
-                      </Text>
-                      {sortShownDate ? (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-ascending'}
-                        />
-                      ) : (
-                        <MaterialCommunityIcons
-                          size={15}
-                          color={
-                            pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
-                          }
-                          name={'sort-descending'}
-                        />
-                      )}
-                    </View>
-                  )}
-                </Pressable>
+        <ScrollView nestedScrollEnabled={true}>
+          <ScrollView nestedScrollEnabled={true} horizontal={true}>
+            <View>
+              <View style={styles.headerBlock}>
+                <View style={{width: 70}}>
+                  <Pressable onPress={handleSortShowDate}>
+                    {({pressed}) => (
+                      <View style={styles.flexCenter}>
+                        <Text
+                          style={[
+                            styles.title,
+                            styles.uppercase,
+                            {
+                              color: pressed
+                                ? THEME.PRIMARY_COLOR
+                                : THEME.DARK_COLOR,
+                              marginRight: 5,
+                            },
+                          ]}>
+                          Date
+                        </Text>
+                        {!sortShownDate ? (
+                          <IconAscDesc
+                            color={
+                              pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
+                            }
+                          />
+                        ) : (
+                          <IconAscDesc
+                            color={
+                              pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
+                            }
+                            style={{transform: [{rotateX: '180deg'}]}}
+                          />
+                        )}
+                      </View>
+                    )}
+                  </Pressable>
+                </View>
+                <Text style={[styles.uppercase, styles.title, {width: 130, paddingLeft: 10}]}>
+                  Line
+                </Text>
+                <View style={{width: 100}}>
+                  <Pressable onPress={handleSortShowProduct}>
+                    {({pressed}) => (
+                      <View style={styles.flexCenter}>
+                        <Text
+                          style={[
+                            styles.title,
+                            styles.uppercase,
+                            {
+                              color: pressed
+                                ? THEME.PRIMARY_COLOR
+                                : THEME.DARK_COLOR,
+                              marginRight: 5,
+                            },
+                          ]}>
+                          Product
+                        </Text>
+                        {!sortShownProduct ? (
+                          <IconAscDesc
+                            color={
+                              pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
+                            }
+                          />
+                        ) : (
+                          <IconAscDesc
+                            color={
+                              pressed ? THEME.PRIMARY_COLOR : THEME.DARK_COLOR
+                            }
+                            style={{transform: [{rotateX: '180deg'}]}}
+                          />
+                        )}
+                      </View>
+                    )}
+                  </Pressable>
+                </View>
+                <Text style={[styles.uppercase, styles.title, {width: 130}]}>
+                  Description
+                </Text>
+                <Text style={[styles.uppercase, styles.title, {width: 130}]}>SKU</Text>
               </View>
-              <View style={{flex: 2, paddingLeft: 20}} />
-              <View style={{flex: 2}} />
+              <Divider style={styles.divider} />
+              {items?.map((item) => (
+                <Fragment key={item.id}>
+                  <Divider style={styles.divider} />
+                  <Pressable onPress={() => console.log('123')}>
+                    {({pressed}) => (
+                      <View
+                        style={[
+                          styles.block,
+                          {
+                            backgroundColor: pressed
+                              ? THEME.PRIMARY_COLOR_DARK
+                              : THEME.WHITE_COLOR,
+                          },
+                        ]}>
+                        <Text
+                          style={[
+                            styles.title,
+                            {
+                              width: 70,
+                              color: pressed
+                                ? THEME.WHITE_COLOR
+                                : THEME.DARK_COLOR,
+                            },
+                          ]}>
+                          {moment(item.date)
+                            .add(1, 'day')
+                            .format('dddd YYYY-MM-DD')}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.title,
+                            {
+                              width: 130,
+                              paddingLeft: 10,
+                              color: pressed
+                                ? THEME.WHITE_COLOR
+                                : THEME.DARK_COLOR,
+                            },
+                          ]}>
+                          {item.title}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.title,
+                            {
+                              width: 100,
+                              color: pressed
+                                ? THEME.WHITE_COLOR
+                                : THEME.DARK_COLOR,
+                            },
+                          ]}>
+                          {item.code}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.title,
+                            {
+                              width: 130,
+                              color: pressed
+                                ? THEME.WHITE_COLOR
+                                : THEME.DARK_COLOR,
+                            },
+                          ]}>
+                          {item.desc}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.title,
+                            {
+                              width: 130,
+                              color: pressed
+                                ? THEME.WHITE_COLOR
+                                : THEME.DARK_COLOR,
+                            },
+                          ]}>
+                          {item.sku}
+                        </Text>
+                      </View>
+                    )}
+                  </Pressable>
+                  <Divider style={styles.divider} />
+                </Fragment>
+              ))}
             </View>
-
-            {items?.map((item) => (
-              <Fragment key={item.id}>
-                <Divider style={styles.divider} />
-                <Pressable
-                  onPress={() =>
-                    navigation.navigate('CardDetailReport', {
-                      id: item.lineId || 1,
-                      title: item.lineName || 1,
-                      description: item.productName || 1,
-                      status: item.lineStatus || 1,
-                      progressLine: item.lineTargetEfficiency || 1,
-                      progressRun: item.runEfficiency || 1,
-                      currentDowntimeDurationSeconds:
-                        item.currentDowntimeDurationSeconds || 1,
-                      currentDowntimeStartTime:
-                        item.currentDowntimeStartTime || 1,
-                      currentDowntimeStatus: item.currentDowntimeStatus || 1,
-                      runDurationSeconds: item.runDurationSeconds || 1,
-                      runStartTime: item.runStartTime || 1,
-                      targetSpeed: item.targetSpeed || 1,
-                    })
-                  }>
-                  {({pressed}) => (
-                    <View
-                      style={[
-                        styles.block,
-                        {
-                          backgroundColor: pressed
-                            ? THEME.PRIMARY_COLOR_DARK
-                            : THEME.WHITE_COLOR,
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          styles.title,
-                          {
-                            flex: 1,
-                            color: pressed
-                              ? THEME.WHITE_COLOR
-                              : THEME.DARK_COLOR,
-                          },
-                        ]}>
-                        {moment(item.date)
-                          .add(1, 'day')
-                          .format('dddd YYYY-MM-DD')}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.title,
-                          {
-                            flex: 2,
-                            paddingLeft: 20,
-                            color: pressed
-                              ? THEME.WHITE_COLOR
-                              : THEME.DARK_COLOR,
-                          },
-                        ]}>
-                        {item.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.title,
-                          {
-                            flex: 2,
-                            color: pressed
-                              ? THEME.WHITE_COLOR
-                              : THEME.DARK_COLOR,
-                          },
-                        ]}>
-                        {item.sku}
-                      </Text>
-                    </View>
-                  )}
-                </Pressable>
-                <Divider style={styles.divider} />
-              </Fragment>
-            ))}
-          </View>
+          </ScrollView>
         </ScrollView>
       </SafeAreaView>
     </>
@@ -274,11 +295,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     height: '100%',
   },
-  block: {
+  headerBlock: {
+    flexDirection: 'row',
     paddingVertical: 10,
     paddingHorizontal: 20,
+  },
+  block: {
     flex: 1,
     flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  flexCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   title: {
     color: THEME.DARK_COLOR,
@@ -307,5 +337,8 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.GRAY_COLOR,
     marginLeft: -30,
     marginRight: -30,
+  },
+  textUppercase: {
+    textTransform: 'uppercase',
   },
 });

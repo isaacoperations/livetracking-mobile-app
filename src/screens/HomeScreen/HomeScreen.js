@@ -4,6 +4,7 @@ import React, {
   useRef,
   useReducer,
   useCallback,
+  useEffect,
 } from 'react';
 import {
   View,
@@ -14,6 +15,8 @@ import {
   Platform,
   FlatList,
   Alert,
+  TouchableOpacity,
+  Button,
   RefreshControl,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
@@ -22,7 +25,7 @@ import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import crashlytics from '@react-native-firebase/crashlytics';
 import Clipboard from 'react-native-advanced-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import _ from 'lodash';
@@ -30,7 +33,7 @@ import _ from 'lodash';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import {AuthContext, UserContext} from '../../context/context';
+import {AuthContext, FactoryContext, UserContext} from '../../context/context';
 import {useData} from '../../services/ApiService';
 import reducer, {initialState} from '../../reducer/reducer';
 
@@ -44,6 +47,14 @@ import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
 
 export function HomeScreen({navigation}) {
+  const user = useContext(UserContext);
+  const factory = useContext(FactoryContext);
+  const {logout} = useContext(AuthContext);
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {LiveView} = useData();
+
+  const [isSelectedFactory, setIsSelectedFactory] = useState(factory);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [nodeData, setNodeData] = useState([]);
@@ -52,18 +63,27 @@ export function HomeScreen({navigation}) {
   const numColumns = 2;
   //const WIDTH = Dimensions.get('window').width;
 
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const user = useContext(UserContext);
-  const {logout} = useContext(AuthContext);
-  const {LiveView} = useData();
+  const {
+    app_metadata: {factories},
+  } = user;
 
   useFocusEffect(
     useCallback(() => {
+      crashlytics().log('Home mounted.');
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
         // await AsyncStorage.removeItem('line');
         console.log('home user data ', user);
+
+        if (await AsyncStorage.getItem('factoryID')) {
+          await AsyncStorage.getItem('factoryID').then((id) => {
+            const num = Number(id);
+            setIsSelectedFactory(num);
+          });
+        } else {
+          setIsSelectedFactory(factory);
+        }
 
         await fetchData();
       })();
@@ -72,28 +92,28 @@ export function HomeScreen({navigation}) {
         await fetchData();
       }, 10000);
 
-      console.log('isVisible', isVisible);
-
       return () => {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isVisible]),
+    }, [isVisible, isSelectedFactory]),
   );
+
 
   async function fetchData() {
     try {
       await AsyncStorage.getItem('line').then((line) => {
         if (line) {
-          dispatch(createAction('SET_LINE', JSON.parse(line)));
           const data = JSON.parse(line);
-          const uniqDataBy = _.uniqBy(data, 'selected');
-          const some = _.some(uniqDataBy, ['selected', true]);
-          if (some) {
-            setIsVisible(false);
-          } else {
-            setIsVisible(true);
-          }
+          console.log('line -----?', data);
+          dispatch(createAction('SET_LINE', data));
+          // const uniqDataBy = _.uniqBy(data, 'selected');
+          // const some = _.some(uniqDataBy, ['selected', true]);
+          // if (some) {
+          //   setIsVisible(false);
+          // } else {
+          //   setIsVisible(true);
+          // }
         } else {
           console.log('not found line ', line);
           setIsVisible(true);
@@ -101,18 +121,35 @@ export function HomeScreen({navigation}) {
       });
 
       await LiveView.getAllLine().then(async ({data}) => {
-        console.log('response data  ', data?.liveviewInfo);
         const nodes = data?.liveviewInfo;
         setNodeData(nodes);
         if (state.line.length > 0) {
           console.log('Ystate line data ', state.line);
         } else {
+          // await AsyncStorage.removeItem('line');
           console.log('Xstate line not data ', state.line);
-          // if (await AsyncStorage.getItem('line')) {
-          console.log('Tstate line not data ', state.line);
-          dispatch(createAction('SET_LINE', nodes));
-          await AsyncStorage.setItem('line', JSON.stringify(nodes));
-          //}
+
+          let newArrayFactory = [];
+          const tempFactory = factories.filter((item, index) => {
+            newArrayFactory.push(item.id);
+            if (index === isSelectedFactory) {
+              return item;
+            }
+          });
+          // const factoryData = {
+          //   [tempFactory[0].id]: {
+          //     nodes,
+          //   },
+          // };
+          console.log('newArrayFactory', newArrayFactory);
+          const factoryData = {
+            factoryId: tempFactory,
+            factoryIds: newArrayFactory,
+            factoryItems: nodes,
+          };
+          console.log('factoryData', factoryData);
+          dispatch(createAction('SET_LINE', factoryData));
+          await AsyncStorage.setItem('line', JSON.stringify(factoryData));
         }
       });
     } catch (e) {
@@ -140,7 +177,8 @@ export function HomeScreen({navigation}) {
       id={item.lineId}
       runId={item.runId}
       title={item.lineName}
-      description={item.productName}
+      productName={item.productName}
+      productDesc={item.productDescription}
       status={item.lineStatus}
       progressLine={item.lineTargetEfficiency}
       progressRun={item.runEfficiency}
@@ -159,8 +197,10 @@ export function HomeScreen({navigation}) {
   );
 
   const handleChecked = async (idx) => {
-    if (state.line.length > 0) {
-      const data = state?.line.map((item) => {
+    console.log('asdasd', state.line);
+    if (state.line?.factoryItems.length > 0) {
+      console.log('asdasd', state.line?.factoryItems);
+      const data = state.line?.factoryItems.map((item) => {
         if (item.lineId === idx) {
           return {
             ...item,
@@ -173,8 +213,19 @@ export function HomeScreen({navigation}) {
         };
       });
 
-      dispatch(createAction('SET_LINE', data));
-      await AsyncStorage.setItem('line', JSON.stringify(data));
+      const tempData = factories.filter((item, index) => {
+        if (index === isSelectedFactory) {
+          return item;
+        }
+      });
+      console.log('tempFACTROY', tempData);
+      const factoryData = {
+        factoryId: tempData,
+        factoryItems: data,
+      };
+
+      dispatch(createAction('SET_LINE', factoryData));
+      await AsyncStorage.setItem('line', JSON.stringify(factoryData));
 
       const uniqDataBy = _.uniqBy(data, 'selected');
       const some = _.some(uniqDataBy, ['selected', true]);
@@ -193,12 +244,21 @@ export function HomeScreen({navigation}) {
     Clipboard.setString(tokenDevice);
   };
 
+  const copyToClipboard2 = async () => {
+    const tokenDevice = await AsyncStorage.getItem('tokenDeviceAPNs');
+    Clipboard.setString(tokenDevice);
+  };
+
   return (
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
         {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to copy to Token Device </Text>*/}
+        {/*  <Text>Click here to copy to Token Device FCM </Text>*/}
+        {/*</TouchableOpacity>*/}
+
+        {/*<TouchableOpacity onPress={copyToClipboard2} style={{marginTop: 20}}>*/}
+        {/*  <Text>Click here to copy to Token Device APN </Text>*/}
         {/*</TouchableOpacity>*/}
 
         <View style={styles.tabContainer}>
@@ -262,7 +322,7 @@ export function HomeScreen({navigation}) {
                       height: '100%',
                       width: '100%',
                     }}>
-                    {state?.line.map((item) => {
+                    {state.line?.factoryItems.map((item) => {
                       return item.selected ? renderCard({item}) : null;
                     })}
                   </View>
@@ -288,7 +348,7 @@ export function HomeScreen({navigation}) {
                   iconName={'close'}
                 />
                 <ScrollView>
-                  {state?.line.map((item) => (
+                  {state.line?.factoryItems.map((item) => (
                     <ListItem
                       key={item.lineId}
                       containerStyle={{

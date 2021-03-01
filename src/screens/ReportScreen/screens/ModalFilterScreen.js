@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, Fragment} from 'react';
 import {
   View,
   Text,
@@ -549,7 +549,7 @@ export function ModalFilterScreen({navigation}) {
             {/* ScrollView Container for Node list */}
             <ScrollView nestedScrollEnabled={true}>
               {checkData.map((item, i) => (
-                <>
+                <Fragment key={item.id}>
                   <ListItem
                     key={i}
                     containerStyle={{
@@ -590,7 +590,7 @@ export function ModalFilterScreen({navigation}) {
                     </ListItem.Content>
                   </ListItem>
                   <Divider style={styles.divider} />
-                </>
+                </Fragment>
               ))}
             </ScrollView>
           </View>

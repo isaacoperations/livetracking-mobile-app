@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useReducer} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,12 +8,17 @@ import {
   View,
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+import {useFocusEffect} from '@react-navigation/native';
 
 import {NotificationComponent} from './components/NotificationComponent';
 import IconBox from '../../components/icons/IconBox';
 import {FONT} from '../../constants/fonts';
 import {THEME} from '../../constants/theme';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import reducer, {initialState} from '../../reducer/reducer';
+import {createAction} from '../../utils/createAction';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {localNotificationService} from '../../services/LocalNotificationServices';
 const data = [
   {
     id: 1,
@@ -98,16 +103,29 @@ const data = [
 ];
 
 export function NotificationScreen() {
-  useEffect(() => {
-    if (Platform.OS === 'ios') {
-      messaging()
-        .getIsHeadless()
-        .then((isHeadless) => {
-          // do sth with isHeadless
-          console.log('getIsHeadless isHeadless', isHeadless);
-        });
-    }
-  }, []);
+  const [, dispatch] = useReducer(reducer, initialState);
+  useFocusEffect(
+    useCallback(() => {
+      crashlytics().log('Notification Screen mounted.');
+      if (Platform.OS === 'ios') {
+        messaging()
+          .getIsHeadless()
+          .then((isHeadless) => {
+            // do sth with isHeadless
+            console.log('getIsHeadless isHeadless', isHeadless);
+          });
+      }
+      localNotificationService.getApplicationIconBadgeNumber();
+      const intervalID2 = setInterval(async () => {
+        console.log('intervalID2');
+        await AsyncStorage.setItem('notifyIcon', 'false');
+        dispatch(createAction('SET_BADGE', false));
+      }, 1000);
+      return () => {
+        clearInterval(intervalID2);
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.container}>

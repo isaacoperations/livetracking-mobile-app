@@ -30,8 +30,9 @@ import {CardEfficiency} from './components/CardEfficiency';
 
 import {useData} from '../../services/ApiService';
 import {sleep} from '../../utils/sleep';
+import {CardProductDesc} from './components/CardProductDesc';
 
-export function CardDetailScreen({route}) {
+export function CardDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,7 +61,6 @@ export function CardDetailScreen({route}) {
       console.log('runData?.lostTimeList', runData?.lostTimeList, runData?.lost_time_list);
 
       const refreshID = setInterval(async () => {
-        console.log('refreshID refreshID 10');
         setActiveSectionsPositive([]);
         setActiveSectionsNegative([]);
         await fetchData();
@@ -85,6 +85,7 @@ export function CardDetailScreen({route}) {
       .catch((error) => {
         setIsLoading(true);
         console.log('error run', error);
+        navigation.navigate('Home'); // goBack()
       });
   }
 
@@ -225,6 +226,7 @@ export function CardDetailScreen({route}) {
               <View style={styles.block}>
                 <CardTitle title={runData?.lineName} />
                 <CardProductTitle title={runData?.productName} />
+                <CardProductDesc description={runData?.productDescription} />
                 <Divider style={styles.divider} />
                 <CardTime
                   startTime={runData?.runStartTime}

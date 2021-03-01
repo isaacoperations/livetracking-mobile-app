@@ -4,19 +4,23 @@ import {StyleSheet, View, Text} from 'react-native';
 import {FONT} from '../../constants/fonts';
 import {THEME} from '../../constants/theme';
 
-export function TabBadge({name, badgeCount, color = THEME.WHITE_COLOR, size}) {
+export function TabBadge({
+  name,
+  badgeCount,
+  color = THEME.WHITE_COLOR,
+  size,
+  isShow,
+}) {
   return (
     <View>
       {name}
       {badgeCount > 0 ? (
         <View style={[styles.badgeContainer, styles.badgeContainerBig]}>
-          <Text style={styles.textStyle}>
-            {badgeCount}
-          </Text>
+          <Text style={styles.textStyle}>{badgeCount}</Text>
         </View>
-      ) : (
+      ) : isShow ? (
         <View style={styles.badgeContainer} />
-      )}
+      ) : null}
     </View>
   );
 }

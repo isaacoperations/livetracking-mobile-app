@@ -1,5 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
 import {Platform} from 'react-native';
+import {localNotificationService} from './LocalNotificationServices';
 
 class FCMService {
   register = (onRegister, onNotification, onOpenNotification) => {
@@ -18,8 +19,8 @@ class FCMService {
     }
   };
 
-  checkPermission = (onRegister) => {
-    messaging()
+  checkPermission = async (onRegister) => {
+    await messaging()
       .hasPermission()
       .then((enabled) => {
         if (enabled) {
@@ -36,8 +37,8 @@ class FCMService {
       });
   };
 
-  getToken = (onRegister) => {
-    messaging()
+  getToken = async (onRegister) => {
+    await messaging()
       .getToken()
       .then((fcmToken) => {
         if (fcmToken) {
@@ -51,21 +52,15 @@ class FCMService {
       });
   };
 
-  getAPNsToken = (onRegisterAPNS) => {
-    messaging()
+  getAPNsToken = async (onRegisterAPNS) => {
+    await messaging()
       .getAPNSToken()
       .then((fcmToken) => {
         if (fcmToken) {
           console.log('[FCMService] getAPNSToken ', fcmToken);
           onRegisterAPNS(fcmToken);
-          // Alert.alert(
-          //   'Notification Token Device',
-          //   fcmToken,
-          //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          //   {cancelable: false},
-          // );
         } else {
-          console.log('[FCMService] User does not have a device token');
+          console.log('[FCMService] User does not have a device apn token');
         }
       })
       .catch((error) => {
@@ -73,10 +68,11 @@ class FCMService {
       });
   };
 
-  requestPermission = (onRegister) => {
-    messaging()
+  requestPermission = async (onRegister) => {
+    await messaging()
       .requestPermission({
         announcement: true,
+        provisional: true,
       })
       .then(() => {
         this.getToken(onRegister);
@@ -86,27 +82,29 @@ class FCMService {
       });
   };
 
-  deleteToken = () => {
+  deleteToken = async () => {
     console.log('[FCMService] deleteToken ');
-    messaging()
+    await messaging()
       .deleteToken()
       .catch((error) => {
         console.log('[FCMService] Delete token error ', error);
       });
   };
 
-  createNotificationListeners = (
+  createNotificationListeners = async (
     onRegister,
     onNotification,
     onOpenNotification,
   ) => {
     // When the application is running, but in the background
-    messaging().onNotificationOpenedApp((remoteMessage) => {
+    await messaging().onNotificationOpenedApp((remoteMessage) => {
       console.log(
         '[FCMService] onNotificationOpenedApp Notification caused app to open from background state:',
         remoteMessage,
       );
       if (remoteMessage) {
+        console.log('[FCMService] onNotificationOpenedApp:', remoteMessage);
+        localNotificationService.setApplicationIconBadgeNumber(1);
         const notification = remoteMessage.notification;
         onOpenNotification(notification);
         // this.removeDeliveredNotification(notification.notificationId)
@@ -114,7 +112,7 @@ class FCMService {
     });
 
     // When the application is opened from a quit state.
-    messaging()
+    await messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
         console.log(
@@ -123,6 +121,7 @@ class FCMService {
         );
 
         if (remoteMessage) {
+          localNotificationService.setApplicationIconBadgeNumber(1);
           const notification = remoteMessage.notification;
           onOpenNotification(notification);
           //  this.removeDeliveredNotification(notification.notificationId)
@@ -130,21 +129,24 @@ class FCMService {
       });
 
     // Foreground state messages
-    this.messageListener = messaging().onMessage(async (remoteMessage) => {
-      console.log('[FCMService] A new FCM message arrived!', remoteMessage);
-      if (remoteMessage) {
-        let notification = null;
-        if (Platform.OS === 'ios') {
-          notification = remoteMessage.notification;
-        } else {
-          notification = remoteMessage.data;
+    this.messageListener = await messaging().onMessage(
+      async (remoteMessage) => {
+        console.log('[FCMService] A new FCM message arrived!', remoteMessage);
+        if (remoteMessage) {
+          localNotificationService.setApplicationIconBadgeNumber(1);
+          let notification = null;
+          if (Platform.OS === 'ios') {
+            notification = remoteMessage.notification;
+          } else {
+            notification = remoteMessage.data;
+          }
+          onNotification(notification);
         }
-        onNotification(notification);
-      }
-    });
+      },
+    );
 
     // Triggered when have new token
-    messaging().onTokenRefresh((fcmToken) => {
+    await messaging().onTokenRefresh((fcmToken) => {
       console.log('[FCMService] New token refresh: ', fcmToken);
       onRegister(fcmToken);
     });
