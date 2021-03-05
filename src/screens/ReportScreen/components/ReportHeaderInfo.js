@@ -1,11 +1,12 @@
 import React, {useEffect} from 'react';
-import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import _ from 'lodash';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-export function ReportHeaderInfo({navigation, runItems = 89}) {
+export function ReportHeaderInfo({navigation, runData = [], filtersData}) {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -16,10 +17,17 @@ export function ReportHeaderInfo({navigation, runItems = 89}) {
       <TouchableOpacity
         onPress={() => console.log('downtime')}
         activeOpacity={1}>
-        <Text style={styles.textLeft}>{runItems} Runs found</Text>
+        <Text style={styles.textLeft}>
+          {_.size(runData)} Runs found
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => navigation.navigate('RunLog')}
+        onPress={() =>
+          navigation.navigate('RunLog', {
+            logData: runData,
+            filterData: filtersData
+          })
+        }
         style={{flexDirection: 'row', alignItems: 'center'}}
         activeOpacity={0.8}>
         <Text style={styles.textRight}>View Run Log</Text>

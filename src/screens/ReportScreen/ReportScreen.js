@@ -1,269 +1,285 @@
-import React, {useContext, useEffect, useState, Fragment} from 'react';
+import React, {useContext, useState, useCallback} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Pressable,
   Button,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
+import Accordion from 'react-native-collapsible/Accordion';
+import Toast from 'react-native-toast-message';
+import moment from 'moment';
+import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import HeaderStatus from '../../components/HeaderStatus';
+import {useData} from '../../services/ApiService';
+import {AuthContext} from '../../context/context';
 
-import {UserContext} from '../../context/context';
+import HeaderStatus from '../../components/HeaderStatus';
 import {ProgressLine} from '../../components/ProgressLine';
 import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
+import {ProgressContent} from '../../components/ProgressContent';
 
-const progressList = [
-  {
-    id: 1,
-    title: 'Slow Running',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 100,
-    isShow: false,
-  },
-  {
-    id: 2,
-    title: 'Break / Lunch',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 90,
-    isShow: false,
-  },
-  {
-    id: 3,
-    title: 'No Feed',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 80,
-    isShow: false,
-  },
-  {
-    id: 4,
-    title: 'Uncategorized',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 70,
-    isShow: false,
-  },
-  {
-    id: 5,
-    title: 'Changeover',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 60,
-    isShow: false,
-  },
-  {
-    id: 6,
-    title: 'Short Stop',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 50,
-    isShow: false,
-  },
-  {
-    id: 7,
-    title: 'Cleaning',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 40,
-    isShow: false,
-  },
-  {
-    id: 8,
-    title: 'Slow Startup',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 30,
-    isShow: false,
-  },
-  {
-    id: 9,
-    title: 'Gap',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 20,
-    isShow: false,
-  },
-  {
-    id: 10,
-    title: 'Printing',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 10,
-    isShow: false,
-  },
-];
-
-const progressList2 = [
-  {
-    id: 1,
-    title: 'Uncategorized',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 100,
-    isShow: false,
-  },
-  {
-    id: 2,
-    title: 'Uncategorized 2',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. ',
-    percent: 90,
-    isShow: false,
-  },
-];
-
-export function ReportScreen({navigation}) {
-  const user = useContext(UserContext);
+export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [progressShown, setProgressShown] = useState(0);
-  const [progressShown2, setProgressShown2] = useState(0);
-  const [progressOpacity, setProgressOpacity] = useState(true);
-  const [progressOpacity2, setProgressOpacity2] = useState(true);
+  const [activeSectionsPositive, setActiveSectionsPositive] = useState([]);
+  const [activeSectionsNegative, setActiveSectionsNegative] = useState([]);
+  const [reportData, setReportData] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
-  useEffect(() => {
-    crashlytics().log('Report Screen mounted.');
-    console.log('home user', user?.token);
-    (async () => {
-      await MaterialIcons.loadFont();
-      await MaterialCommunityIcons.loadFont();
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const {ApiService} = useData();
+  const {logout} = useContext(AuthContext);
 
-  const toggleProgress = (id) => {
-    let data = progressList.slice();
-    const index = data.findIndex((x) => x.id === id);
-    data[index].isShow = !data[index].isShow;
-    setProgressShown(index + 1);
-    setProgressOpacity(!progressOpacity);
-    console.log(progressShown);
+  useFocusEffect(
+    useCallback(() => {
+      crashlytics().log('Report Screen mounted.');
+      (async () => {
+        await MaterialIcons.loadFont();
+        await MaterialCommunityIcons.loadFont();
+
+        if (typeof route.params !== 'undefined') {
+          setLoading(true);
+          const {
+            filterData: {lineData, productData, date, dateFrom, dateTo},
+          } = route.params;
+          console.log(
+            'filterData -------- 1',
+            lineData,
+            productData,
+            date,
+            dateFrom,
+            dateTo,
+          );
+          await fetchData(lineData, productData, date, dateFrom, dateTo);
+        } else {
+          console.log('filterData -------- 0');
+          await fetchData();
+        }
+      })();
+
+      return () => {
+        setActiveSectionsPositive([]);
+        setActiveSectionsNegative([]);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [route]),
+  );
+
+  const yesterday = moment()
+    .subtract(1, 'days')
+    .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+  const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+
+  async function fetchData(
+    line = null,
+    product = null,
+    date = today,
+    fromDate = yesterday,
+    toDate = today,
+  ) {
+    const resData = {
+      line_id_list: line,
+      product_id_list: product,
+      start_date: fromDate,
+      end_date: toDate,
+    };
+    console.log('resDataresData', resData);
+    await ApiService.postReport(resData)
+      .then(async ({data}) => {
+        setLoading(false);
+        setReportData(data);
+        console.log('reportData 111', data);
+      })
+      .catch((err) => {
+        const {status, data} = err.response;
+        console.log('datadatadata', data);
+        if (status === 401) {
+          logout();
+        } else {
+          setLoading(true);
+          Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: data.error,
+            topOffset: Platform.OS === 'ios' ? 80 : 30,
+            visibilityTime: 1500,
+          });
+        }
+      });
+  }
+
+  const renderHeaderPositive = (content, index, isActive, sections) => {
+    return (
+      <ProgressLine
+        index={index}
+        title={content.reasonName}
+        percent={content.lostTimePercent}
+        isActive={isActive}
+        sections={sections}
+      />
+    );
   };
 
-  const toggleProgress2 = (id) => {
-    let data = progressList2.slice();
-    const index = data.findIndex((x) => x.id === id);
-    data[index].isShow = !data[index].isShow;
-    console.log(index);
-    setProgressShown2(index + 1);
-    setProgressOpacity2(!progressOpacity2);
-    console.log(progressShown2);
+  const renderContentPositive = (content, index, isActive) => {
+    return (
+      <ProgressContent
+        index={index}
+        isActive={isActive}
+        title={content.reasonName}
+        time={content.lostTimeSeconds}
+        percent={content.lostTimePercent}
+      />
+    );
+  };
+
+  const renderHeaderNegative = (content, index, isActive, sections) => {
+    return (
+      <ProgressLine
+        index={index}
+        title={content.reasonName}
+        percent={content.lostTimePercent}
+        isActive={isActive}
+        backgroundColor={THEME.GREEN_COLOR}
+        sections={sections}
+      />
+    );
+  };
+
+  const renderContentNegative = (content, index, isActive) => {
+    return (
+      <ProgressContent
+        index={index}
+        isActive={isActive}
+        title={content.reasonName}
+        time={content.lostTimeSeconds}
+        percent={content.lostTimePercent}
+      />
+    );
+  };
+
+  const updateSectionsPositive = (items) => {
+    console.log('updateSectionsPositive', items);
+    setActiveSectionsPositive(items);
+  };
+
+  const updateSectionsNegative = (items) => {
+    setActiveSectionsNegative(items);
+  };
+
+  const renderDataPositive = (data) => {
+    const result = data.filter((item) => {
+      return item.lostTimePercent >= 0;
+    });
+    if (result.length > 0) {
+      return (
+        <Accordion
+          sections={result}
+          activeSections={activeSectionsPositive}
+          renderHeader={renderHeaderPositive}
+          renderContent={renderContentPositive}
+          onChange={updateSectionsPositive}
+          underlayColor={'transparent'}
+          containerStyle={styles.accordionContainerStyle}
+        />
+      );
+    } else {
+      return <Text style={styles.textEmpty}>No effect data</Text>;
+    }
+  };
+
+  const renderDataNegative = (data) => {
+    const result = data.filter((item) => {
+      return item.lostTimePercent <= 0;
+    });
+    if (result.length > 0) {
+      return (
+        <Accordion
+          sections={result}
+          activeSections={activeSectionsNegative}
+          renderHeader={renderHeaderNegative}
+          renderContent={renderContentNegative}
+          onChange={updateSectionsNegative}
+          underlayColor={'transparent'}
+          containerStyle={styles.accordionContainerStyle}
+        />
+      );
+    } else {
+      return <Text style={styles.textEmpty}>No effect data</Text>;
+    }
   };
 
   return (
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        <ReportHeaderFilter navigation={navigation} />
-        <ScrollView style={[styles.container, {marginTop: 0}]}>
-          <Button title="Crash" onPress={() => crashlytics().crash()} />
-          <View>
-            <ReportHeaderInfo navigation={navigation} />
-            <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
-              <CardEfficiency efficiencyPercent={45} efficiencyTarget={70} />
-            </View>
-            <View
-              style={[
-                styles.block,
-                {paddingBottom: 30, marginBottom: 0, height: '100%'},
-              ]}>
-              <Text style={styles.label}>Downtime Pareto</Text>
-              <View style={styles.tabContainer}>
-                <SegmentedControlTab
-                  values={['Positive effect', 'Negative effect']}
-                  selectedIndex={selectedIndex}
-                  onTabPress={(index) => setSelectedIndex(index)}
-                  tabsContainerStyle={styles.tabsContainerStyle}
-                  tabStyle={styles.tabStyle}
-                  firstTabStyle={styles.firstTabStyle}
-                  borderRadius={0}
-                  tabTextStyle={styles.tabTextStyle}
-                  activeTabStyle={styles.activeTabStyle}
-                  activeTabTextStyle={styles.activeTabTextStyle}
+        <ReportHeaderFilter
+          navigation={navigation}
+          filterResult={
+            typeof route.params !== 'undefined' ? route.params?.filterData : {}
+          }
+        />
+        <ScrollView>
+          {isLoading ? (
+            <ActivityIndicator
+              size={50}
+              color={THEME.PRIMARY_COLOR}
+              style={{marginTop: 200}}
+            />
+          ) : (
+            <View>
+              <ReportHeaderInfo
+                navigation={navigation}
+                filtersData={
+                  typeof route.params !== 'undefined'
+                    ? route.params?.filterData
+                    : {}
+                }
+                runData={reportData?.tableInfoList}
+              />
+              <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
+                <CardEfficiency
+                  efficiencyPercent={reportData.efficiencyPercent}
+                  efficiencyTarget={70}
                 />
               </View>
-              {selectedIndex === 0
-                ? progressList.map((item) => {
-                    return progressShown === item.id ? (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          onPress={() => toggleProgress(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={5.5}
-                            opacity={1}
-                            info={item.description}
-                            show={item.isShow}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    ) : (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          disabled={!progressOpacity}
-                          onPress={() => toggleProgress(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={5.5}
-                            opacity={progressOpacity ? 1 : 0.3}
-                            info={item.description}
-                            show={item.isShow}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    );
-                  })
-                : progressList2.map((item) => {
-                    return progressShown2 === item.id ? (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          onPress={() => toggleProgress2(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={5.5}
-                            opacity={1}
-                            info={item.description}
-                            show={item.isShow}
-                            backgroundColor={THEME.GREEN_COLOR}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    ) : (
-                      <Fragment key={item.id}>
-                        <Pressable
-                          disabled={!progressOpacity2}
-                          onPress={() => toggleProgress2(item.id)}
-                          activeOpacity={0.8}>
-                          <ProgressLine
-                            title={item.title}
-                            percent={5.5}
-                            opacity={progressOpacity2 ? 1 : 0.3}
-                            info={item.description}
-                            show={item.isShow}
-                            backgroundColor={THEME.GREEN_COLOR}
-                          />
-                        </Pressable>
-                      </Fragment>
-                    );
-                  })}
+              <View
+                style={[
+                  styles.block,
+                  {paddingBottom: 30, marginBottom: 0, height: '100%'},
+                ]}>
+                <Text style={styles.label}>Downtime Pareto</Text>
+                <View style={styles.tabContainer}>
+                  <SegmentedControlTab
+                    values={['Positive effect', 'Negative effect']}
+                    selectedIndex={selectedIndex}
+                    onTabPress={(index) => setSelectedIndex(index)}
+                    tabsContainerStyle={styles.tabsContainerStyle}
+                    tabStyle={styles.tabStyle}
+                    firstTabStyle={styles.firstTabStyle}
+                    borderRadius={0}
+                    tabTextStyle={styles.tabTextStyle}
+                    activeTabStyle={styles.activeTabStyle}
+                    activeTabTextStyle={styles.activeTabTextStyle}
+                  />
+                </View>
+                {selectedIndex === 0
+                  ? renderDataPositive(reportData?.lostTimeList || [])
+                  : renderDataNegative(reportData?.lostTimeList || [])}
+              </View>
             </View>
-          </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </>
@@ -274,7 +290,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E5E5E5',
-    height: '100%',
   },
   block: {
     position: 'relative',
@@ -398,5 +413,13 @@ const styles = StyleSheet.create({
   },
   activeTabTextStyle: {
     color: THEME.DARK_COLOR,
+  },
+  accordionContainerStyle: {
+    marginLeft: -30,
+    marginRight: -30,
+  },
+  textEmpty: {
+    textAlign: 'center',
+    color: THEME.PRIMARY_COLOR,
   },
 });

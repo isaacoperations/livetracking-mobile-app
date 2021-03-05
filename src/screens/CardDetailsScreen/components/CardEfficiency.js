@@ -7,8 +7,8 @@ import {FONT} from '../../../constants/fonts';
 import IconArrow from '../../../components/icons/IconArrow';
 
 export function CardEfficiency({
-  efficiencyPercent = null,
-  efficiencyTarget = null,
+  efficiencyPercent = 45,
+  efficiencyTarget = 70,
 }) {
   return (
     <>

@@ -24,9 +24,9 @@ export function CardOutput({title = '', unit = ''}) {
             color: THEME.PRIMARY_COLOR_DARK,
             marginRight: 10,
           }}>
-          {title}
+          {_.floor(title, 2)}
         </Text>
-        <Text style={styles.textBlue}>{_.floor(unit)}</Text>
+        <Text style={styles.textBlue}>{unit}</Text>
       </View>
     </>
   );

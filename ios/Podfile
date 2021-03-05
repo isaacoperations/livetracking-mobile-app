@@ -34,7 +34,3 @@ target 'livetracking-tvOS' do
     # Pods for testing
   end
 end
-
-target 'ImageNotification' do
-  pod 'Firebase/Messaging'
-end

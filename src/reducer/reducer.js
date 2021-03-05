@@ -1,7 +1,6 @@
 export const initialState = {
   loading: true,
   user: null,
-  line: {},
   factory: 1,
   badge: false,
 };
@@ -23,18 +22,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         loading: action.payload,
-      };
-
-    case 'SET_LINE':
-      return {
-        ...state,
-        line: {...action.payload}, // ...state.line,
-      };
-
-    case 'REMOVE_LINE':
-      return {
-        ...state,
-        line: [],
       };
 
     case 'SET_FACTORY':

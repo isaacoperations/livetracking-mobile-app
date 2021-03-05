@@ -61,14 +61,14 @@ const HomeStackNavigator = ({navigation}) => {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
-      if (await AsyncStorage.getItem('factoryID')) {
-        await AsyncStorage.getItem('factoryID').then((id) => {
+      await AsyncStorage.getItem('factoryID').then((id) => {
+        if (id) {
           const num = Number(id);
           setIsActive(num);
-        });
-      } else {
-        setIsActive(factory);
-      }
+        } else {
+          setIsActive(factory);
+        }
+      });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isFocused]);
@@ -305,6 +305,7 @@ function TabNavigator() {
       tabBarOptions={{
         activeTintColor: THEME.PRIMARY_COLOR,
         inactiveTintColor: THEME.PRIMARY_COLOR_HOVER,
+        keyboardHidesTabBar: true,
         labelStyle: {
           fontFamily: FONT.Medium,
           fontSize: 12,

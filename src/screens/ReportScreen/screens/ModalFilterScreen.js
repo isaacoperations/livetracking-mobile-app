@@ -1,20 +1,22 @@
-import React, {useEffect, useState, useRef, Fragment} from 'react';
+import React, {useEffect, useState, useRef, Fragment, useContext} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Modal,
   Platform,
   Pressable,
   TouchableOpacity,
   Dimensions,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {Divider, ListItem, CheckBox} from 'react-native-elements';
-import RNDateTimePicker from '@react-native-community/datetimepicker';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import ModalDropdown from 'react-native-modal-dropdown';
-//import DateRangePicker from 'react-native-daterange-picker';
+import CalendarPicker from 'react-native-calendar-picker';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,74 +25,89 @@ import _ from 'lodash';
 
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
-import {NodeLine, ProductLine} from '../../../utils/db/db';
+
+import {sleep} from '../../../utils/sleep';
+import {useData} from '../../../services/ApiService';
+import {AuthContext} from '../../../context/context';
 
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
 import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
+import {EmptyComponent} from '../components/EmptyComponent';
 
 export function ModalFilterScreen({navigation}) {
-  const parent = navigation.dangerouslyGetParent();
   const [modalValueText, setModalValueText] = useState('One day');
   const [isCheckVisibleLine, setIsCheckVisibleLine] = useState(false);
   const [isCheckVisibleProduct, setIsCheckVisibleProduct] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleDate, setModalVisibleDate] = useState(false);
   const [countCheckProduct, setCountCheckProduct] = useState('All Products');
-  const [checkData, setCheckData] = useState(NodeLine || []);
+  const [lineData, setLineData] = useState([]);
   const [checkAllLine, setCheckAllLine] = useState(false);
+  const [productData, setProductData] = useState([]);
   const [checkAllProduct, setCheckAllProduct] = useState(false);
-  const [checkDataProduct, setCheckDataProduct] = useState(ProductLine || []);
-  const [showAndroid, setShowAndroid] = useState(false);
-  const [showAndroidTo, setShowAndroidTo] = useState(false);
-  const [showAndroidFrom, setShowAndroidFrom] = useState(false);
-  const [minDate, setMinDate] = useState(new Date(2020, 0, 1));
-  const [maxDate, setMaxDate] = useState(new Date(2050, 11, 30));
+  const [date, setDate] = useState(moment());
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [displayedDate, setDisplayedDate] = useState(moment());
-  const [date, setDate] = useState(new Date());
-  const [dateTo, setDateTo] = useState(new Date());
-  const [dateFrom, setDateFrom] = useState(new Date());
-  const refRBSheetDate = useRef();
-  const refRBSheetTo = useRef();
-  const refRBSheetFrom = useRef();
   const refRBSheetProduct = useRef();
+
   const HEIGHT = Dimensions.get('window').height;
+  const WIDTH = Dimensions.get('window').width;
+  const minDate = new Date(2020, 0, 1);
+  const maxDate = new Date(2050, 11, 30);
+
+  const {ApiService} = useData();
+  const {logout} = useContext(AuthContext);
 
   useEffect(() => {
     (async () => {
       await MaterialCommunityIcons.loadFont();
       await MaterialIcons.loadFont();
+
+      await fetchLineData();
+      await fetchProductData();
     })();
-    console.log('date', date);
-    console.log('dateTo', dateTo);
-    console.log('dateFrom', dateFrom);
-    console.log('checkData', checkData);
-    console.log('checkDataProduct', checkDataProduct);
-    //
-    // parent.setOptions({
-    //   tabBarVisible: false,
-    // });
-    // return () =>
-    //   parent.setOptions({
-    //     tabBarVisible: true,
-    //   });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkData, checkDataProduct, isCheckVisibleLine, isCheckVisibleProduct]);
+  }, []);
 
   // ==== LINE ==== //
 
-  const handleChecked = (id) => {
-    const data = checkData.map((item) => {
+  async function fetchLineData() {
+    try {
+      await ApiService.getLines().then(async ({data}) => {
+        setLineData(data);
+      });
+    } catch (e) {
+      console.log('error message line', e);
+      logout();
+    }
+  }
+
+  async function fetchProductData() {
+    try {
+      await ApiService.getProducts().then(async ({data}) => {
+        setProductData(data);
+      });
+    } catch (e) {
+      console.log('error message product', e);
+      logout();
+    }
+  }
+
+  const handleCheckedLine = (id) => {
+    const data = lineData.map((item) => {
       if (item.id === id) {
         return {
-          ...item,
+          id: item.id,
+          name: item.name,
           selected: !item.selected || false,
         };
       }
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: item.selected || false,
       };
     });
@@ -101,32 +118,79 @@ export function ModalFilterScreen({navigation}) {
     } else {
       setIsCheckVisibleLine(false);
     }
-    setCheckData(data);
+    setLineData(data);
   };
 
   const handleAllLine = () => {
-    const data = checkData.map((item) => {
+    const data = lineData.map((item) => {
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: !checkAllLine,
       };
     });
-    setCheckData(data);
+    setLineData(data);
     setIsCheckVisibleLine(false);
   };
+
+  const renderLineItem = ({item}) => (
+    <>
+      <ListItem
+        containerStyle={{
+          paddingLeft: 30,
+          backgroundColor: 'white',
+        }}
+        activeOpacity={1}
+        onPress={() => handleCheckedLine(item.id)}>
+        <ListItem.Content
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+            {item.name}
+          </ListItem.Title>
+          <View>
+            <CheckBox
+              checkedIcon={
+                <MaterialIcons
+                  name={'check-circle'}
+                  size={24}
+                  color={THEME.PRIMARY_COLOR}
+                />
+              }
+              uncheckedIcon={
+                <MaterialCommunityIcons
+                  name={'circle-outline'}
+                  size={24}
+                  color={THEME.PRIMARY_COLOR}
+                />
+              }
+              checked={item.selected || false}
+              onPress={() => handleCheckedLine(item.id)}
+            />
+          </View>
+        </ListItem.Content>
+      </ListItem>
+      <Divider style={styles.divider} />
+    </>
+  );
 
   // ==== PRODUCT ==== //
 
   const handleCheckedProduct = (id) => {
-    const data = checkDataProduct.map((item) => {
+    const data = productData.map((item) => {
       if (item.id === id) {
         return {
-          ...item,
+          id: item.id,
+          name: item.name,
           selected: !item.selected || false,
         };
       }
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: item.selected || false,
       };
     });
@@ -141,13 +205,14 @@ export function ModalFilterScreen({navigation}) {
     });
     const size = _.size(reject);
     setCountCheckProduct(`Products (${size})`);
-    setCheckDataProduct(data);
+    setProductData(data);
   };
 
   const handleAllProduct = () => {
-    const data = checkDataProduct.map((item) => {
+    const data = productData.map((item) => {
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: !checkAllProduct,
       };
     });
@@ -156,83 +221,150 @@ export function ModalFilterScreen({navigation}) {
     });
     const size = _.size(reject);
     setCountCheckProduct(`Products (${size})`);
-    setCheckDataProduct(data);
+    setProductData(data);
     setIsCheckVisibleProduct(false);
   };
 
+  const renderProductItem = ({item}) => (
+    <ListItem
+      key={item.id}
+      containerStyle={{
+        paddingLeft: 30,
+        backgroundColor: 'white',
+      }}
+      activeOpacity={1}
+      onPress={() => handleCheckedProduct(item.id)}>
+      <ListItem.Content
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+        <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+          {item.name}
+        </ListItem.Title>
+        <View>
+          <CheckBox
+            checkedIcon={
+              <MaterialIcons
+                name={'check-circle'}
+                size={24}
+                style={{color: THEME.PRIMARY_COLOR}}
+              />
+            }
+            uncheckedIcon={
+              <MaterialCommunityIcons
+                name={'circle-outline'}
+                size={24}
+                style={{color: THEME.PRIMARY_COLOR}}
+              />
+            }
+            checked={item.selected || false}
+            onPress={() => handleCheckedProduct(item.id)}
+          />
+        </View>
+      </ListItem.Content>
+    </ListItem>
+  );
+
   // ==== DATE ==== //
 
-  const onChangeDate = (event, selectedDate) => {
-    if (Platform.OS === 'android') {
-      setShowAndroid(false);
-    }
-    const currentDate = selectedDate || date;
-    setDate(currentDate);
+  const setDates = (dates) => {
+    setDate(dates);
+    sleep(500).then(() => {
+      setModalVisibleDate(false);
+    });
   };
 
-  const onChangeFrom = (event, selectedDate) => {
-    if (Platform.OS === 'android') {
-      setShowAndroidFrom(false);
+  const setDatesRange = (dates, type) => {
+    if (type === 'END_DATE') {
+      setEndDate(dates);
+      sleep(500).then(() => {
+        setModalVisible(false);
+      });
+    } else {
+      setStartDate(dates);
+      setEndDate(null);
     }
-    const currentDate = selectedDate || dateFrom;
-    setDateFrom(currentDate);
-    setDateTo(currentDate);
-    setMinDate(currentDate);
   };
 
-  const onChangeTo = (event, selectedDate) => {
-    if (Platform.OS === 'android') {
-      setShowAndroidTo(false);
-    }
-    const currentDate = selectedDate || dateTo;
-    console.log('currentDate', currentDate);
-    setDateTo(currentDate);
-  };
-
-  const setDatesRange = (dates) => {
-    console.log('setDatesRange', dates);
-  };
+  // ==== SUBMIT FORM ==== //
 
   const handleSubmit = () => {
+    const filterLine = _.filter(lineData, ['selected', true]);
+    const filterProduct = _.filter(productData, ['selected', true]);
+    const lineSelected = _.map(filterLine, 'id');
+    const productSelected = _.map(filterProduct, 'id');
+    const yesterday = moment()
+      .subtract(1, 'days')
+      .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+    const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const data = {
-      date: date,
-      dateTo: dateTo,
-      dateFrom: dateFrom,
+      lineData: lineSelected.length > 0 ? lineSelected : null,
+      lineDataFull: filterLine.length > 0 ? filterLine : [],
+      productData: productSelected.length > 0 ? productSelected : null,
+      productDataFull: filterProduct.length > 0 ? filterProduct : [],
+      date: date ? date.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
+      dateFrom: startDate
+        ? startDate.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
+        : yesterday,
+      dateTo: endDate ? endDate.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
     };
-    console.log('handleSubmit', JSON.stringify(data, 2, null));
-    navigation.navigate('ReportScreen');
+    navigation.navigate('ReportScreen', {
+      filterData: data,
+    });
   };
 
   const handleReset = () => {
-    console.log('handleReset');
-    setDate(new Date());
-    setDateTo(new Date());
-    setDateFrom(new Date());
+    setDate(moment().subtract(1, 'days'));
+    setStartDate(moment());
+    setEndDate(moment());
+    setModalVisibleDate(false);
+    setModalVisible(false);
 
-    const dataLine = checkData.map((item) => {
+    const dataLine = lineData.map((item) => {
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: false,
       };
     });
     setIsCheckVisibleLine(false);
-    setCheckData(dataLine);
+    setLineData(dataLine);
 
-    const dataProduct = checkDataProduct.map((item) => {
+    const dataProduct = productData.map((item) => {
       return {
-        ...item,
+        id: item.id,
+        name: item.name,
         selected: false,
       };
     });
     setCountCheckProduct('All products');
-    setCheckDataProduct(dataProduct);
+    setProductData(dataProduct);
     setIsCheckVisibleProduct(false);
+
+    const yesterday = moment()
+      .subtract(1, 'days')
+      .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+    const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+    const data = {
+      lineData: null,
+      lineDataFull: [],
+      productData: null,
+      productDataFull: [],
+      date: today,
+      dateFrom: yesterday,
+      dateTo: today,
+    };
+    navigation.navigate('ReportScreen', {
+      filterData: data,
+    });
   };
 
   return (
     <>
       <HeaderStatus ios={'dark'} />
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container]}>
         <ModalHeader
           title={'Filters'}
           onPressClose={() => navigation.goBack()}
@@ -248,15 +380,9 @@ export function ModalFilterScreen({navigation}) {
               dropdownTextHighlightStyle={styles.dropdownTextHighlightStyle}
               textStyle={styles.text}
               style={{width: 170, height: 60}}
-              onSelect={(idx, value) => {
-                if (idx === 0) {
-                  console.log(value);
-                  setModalValueText(value);
-                } else {
-                  console.log(value);
-                  setModalValueText(value);
-                }
-              }}>
+              onSelect={(idx, value) =>
+                idx === 0 ? setModalValueText(value) : setModalValueText(value)
+              }>
               <View style={{flexDirection: 'row'}}>
                 <Text style={styles.modalValueText}>{modalValueText}</Text>
                 <MaterialIcons
@@ -271,231 +397,141 @@ export function ModalFilterScreen({navigation}) {
               {modalValueText && modalValueText === 'One day' ? (
                 <>
                   <DatePickerComponent
-                    date={moment(date).format('MMM DD, YYYY')}
+                    date={
+                      date
+                        ? date.format('MMM DD, YYYY')
+                        : moment().format('MMM DD, YYYY')
+                    }
                     title={'Date'}
-                    onPress={() => {
-                      Platform.OS === 'ios'
-                        ? refRBSheetDate.current.open()
-                        : setShowAndroid(true);
-                    }}
+                    onPress={() => setModalVisibleDate(true)}
                   />
-                  {Platform.OS === 'ios' ? (
-                    <RBSheet
-                      ref={refRBSheetDate}
-                      closeOnDragDown={false}
-                      height={Platform.OS === 'ios' ? 300 : 200}
-                      closeOnPressMask={false}
-                      customStyles={{
-                        wrapper: {
-                          backgroundColor: 'transparent',
-                        },
-                        container: {
-                          borderTopRightRadius: 20,
-                          borderTopLeftRadius: 20,
-                        },
-                      }}>
-                      <View style={styles.sheetCustomHeader}>
-                        <TouchableOpacity
-                          onPress={() => refRBSheetDate.current.close()}
-                          style={styles.sheetCustomClose}>
-                          <MaterialIcons
-                            name="close"
-                            size={20}
-                            color={'black'}
-                          />
-                        </TouchableOpacity>
-                        <View style={styles.sheetCustomTitle}>
-                          <Text style={{fontSize: 17, fontFamily: FONT.Medium}}>
-                            Datepicker
-                          </Text>
-                        </View>
-                        <View style={{flex: 1}} />
-                      </View>
-                      <RNDateTimePicker
-                        value={date}
-                        mode={'date'}
-                        display={'spinner'}
-                        dateFormat="month day year"
-                        onChange={onChangeDate}
-                        minimumDate={minDate}
-                        maximumDate={maxDate}
-                        textColor="black"
-                      />
-                    </RBSheet>
-                  ) : (
-                    showAndroid && (
-                      <>
-                        <RNDateTimePicker
-                          value={date}
-                          mode={'date'}
-                          display={'default'}
-                          dateFormat="month day year"
-                          onChange={onChangeDate}
-                          minimumDate={minDate}
-                          maximumDate={maxDate}
-                          textColor="black"
+                  <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={modalVisibleDate}
+                    onRequestClose={() => setModalVisibleDate(false)}>
+                    <View style={styles.modalCentered}>
+                      <TouchableOpacity
+                        onPress={() => setModalVisibleDate(false)}
+                        style={styles.modalClose}>
+                        <MaterialIcons
+                          name={'close'}
+                          size={20}
+                          color={THEME.DARK_COLOR}
                         />
-                        {/*<DateRangePicker*/}
-                        {/*  onChange={setDatesRange}*/}
-                        {/*  endDate={endDate}*/}
-                        {/*  startDate={startDate}*/}
-                        {/*  displayedDate={displayedDate}*/}
-                        {/*  range={true}>*/}
-                        {/*  <Text>Click me!</Text>*/}
-                        {/*</DateRangePicker>*/}
-                      </>
-                    )
-                  )}
+                      </TouchableOpacity>
+                      <View style={styles.modalCalendarContainer}>
+                        <CalendarPicker
+                          testID={1}
+                          startFromMonday={true}
+                          allowRangeSelection={false}
+                          minDate={minDate}
+                          maxDate={maxDate}
+                          todayTextStyle={THEME.WHITE_COLOR}
+                          todayBackgroundColor={THEME.WHITE_COLOR}
+                          selectedDayColor={THEME.PRIMARY_COLOR}
+                          selectedDayTextColor="#fff"
+                          width={WIDTH - 70}
+                          onDateChange={setDates}
+                          previousComponent={
+                            <MaterialIcons
+                              name={'arrow-back-ios'}
+                              size={20}
+                              color={THEME.DARK_COLOR}
+                            />
+                          }
+                          nextComponent={
+                            <MaterialIcons
+                              name={'arrow-forward-ios'}
+                              size={20}
+                              color={THEME.DARK_COLOR}
+                            />
+                          }
+                        />
+                      </View>
+                    </View>
+                  </Modal>
                 </>
               ) : (
-                <View style={{flexDirection: 'row'}}>
-                  <View style={{flex: 1, marginRight: 10}}>
-                    <DatePickerComponent
-                      date={moment(dateFrom).format('MMM DD, YYYY')}
-                      title={'From'}
-                      onPress={() => {
-                        Platform.OS === 'ios'
-                          ? refRBSheetFrom.current.open()
-                          : setShowAndroidFrom(true);
-                      }}
-                    />
-                    {Platform.OS === 'ios' ? (
-                      <RBSheet
-                        ref={refRBSheetFrom}
-                        closeOnDragDown={false}
-                        height={Platform.OS === 'ios' ? 300 : 200}
-                        closeOnPressMask={false}
-                        customStyles={{
-                          wrapper: {
-                            backgroundColor: 'transparent',
-                          },
-                          container: {
-                            borderTopRightRadius: 20,
-                            borderTopLeftRadius: 20,
-                          },
-                        }}>
-                        <View style={styles.sheetCustomHeader}>
-                          <TouchableOpacity
-                            onPress={() => refRBSheetFrom.current.close()}
-                            style={styles.sheetCustomClose}>
-                            <MaterialIcons
-                              name="close"
-                              size={20}
-                              color={'black'}
-                            />
-                          </TouchableOpacity>
-                          <View style={styles.sheetCustomTitle}>
-                            <Text
-                              style={{fontSize: 17, fontFamily: FONT.Medium}}>
-                              Datepicker
-                            </Text>
-                          </View>
-                          <View style={{flex: 1}} />
-                        </View>
-                        <RNDateTimePicker
-                          value={dateFrom}
-                          mode={'date'}
-                          display={'spinner'}
-                          dateFormat="month day year"
-                          minimumDate={new Date(2020, 0, 1)}
-                          maximumDate={maxDate}
-                          onChange={onChangeFrom}
-                          textColor="black"
-                        />
-                      </RBSheet>
-                    ) : (
-                      showAndroidFrom && (
-                        <RNDateTimePicker
-                          value={dateFrom}
-                          mode={'date'}
-                          display={'default'}
-                          dateFormat="month day year"
-                          minimumDate={minDate}
-                          maximumDate={maxDate}
-                          onChange={onChangeFrom}
-                          textColor="black"
-                        />
-                      )
-                    )}
+                <>
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flex: 1, marginRight: 10}}>
+                      <DatePickerComponent
+                        date={
+                          startDate
+                            ? startDate.format('MMM DD, YYYY')
+                            : moment().format('MMM DD, YYYY')
+                        }
+                        title={'From'}
+                        onPress={() => setModalVisible(true)}
+                      />
+                    </View>
+                    <View style={{flex: 1, marginLeft: 10}}>
+                      <DatePickerComponent
+                        date={
+                          endDate
+                            ? endDate.format('MMM DD, YYYY')
+                            : moment().format('MMM DD, YYYY')
+                        }
+                        title={'To'}
+                        onPress={() => setModalVisible(true)}
+                      />
+                    </View>
                   </View>
-                  <View style={{flex: 1, marginLeft: 10}}>
-                    <DatePickerComponent
-                      date={moment(dateTo).format('MMM DD, YYYY')}
-                      title={'To'}
-                      onPress={() => {
-                        Platform.OS === 'ios'
-                          ? refRBSheetTo.current.open()
-                          : setShowAndroidTo(true);
-                      }}
-                    />
-                    {Platform.OS === 'ios' ? (
-                      <RBSheet
-                        ref={refRBSheetTo}
-                        closeOnDragDown={false}
-                        height={Platform.OS === 'ios' ? 300 : 200}
-                        closeOnPressMask={false}
-                        customStyles={{
-                          wrapper: {
-                            backgroundColor: 'transparent',
-                          },
-                          container: {
-                            borderTopRightRadius: 20,
-                            borderTopLeftRadius: 20,
-                          },
-                        }}>
-                        <View style={styles.sheetCustomHeader}>
-                          <TouchableOpacity
-                            onPress={() => refRBSheetTo.current.close()}
-                            style={styles.sheetCustomClose}>
+                  <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}>
+                    <View style={styles.modalCentered}>
+                      <TouchableOpacity
+                        onPress={() => setModalVisible(false)}
+                        style={styles.modalClose}>
+                        <MaterialIcons
+                          name={'close'}
+                          size={20}
+                          color={THEME.DARK_COLOR}
+                        />
+                      </TouchableOpacity>
+                      <View style={styles.modalCalendarContainer}>
+                        <CalendarPicker
+                          testID={2}
+                          startFromMonday={true}
+                          allowRangeSelection={true}
+                          minDate={minDate}
+                          maxDate={maxDate}
+                          todayTextStyle={THEME.WHITE_COLOR}
+                          todayBackgroundColor={THEME.WHITE_COLOR}
+                          selectedDayColor={THEME.PRIMARY_COLOR}
+                          selectedDayTextColor="#fff"
+                          width={WIDTH - 70}
+                          onDateChange={setDatesRange}
+                          previousComponent={
                             <MaterialIcons
-                              name="close"
+                              name={'arrow-back-ios'}
                               size={20}
-                              color={'black'}
+                              color={THEME.DARK_COLOR}
                             />
-                          </TouchableOpacity>
-                          <View style={styles.sheetCustomTitle}>
-                            <Text
-                              style={{fontSize: 17, fontFamily: FONT.Medium}}>
-                              Datepicker
-                            </Text>
-                          </View>
-                          <View style={{flex: 1}} />
-                        </View>
-                        <RNDateTimePicker
-                          value={dateTo}
-                          mode={'date'}
-                          display={'spinner'}
-                          dateFormat="month day year"
-                          onChange={onChangeTo}
-                          minimumDate={minDate}
-                          maximumDate={maxDate}
-                          textColor="black"
+                          }
+                          nextComponent={
+                            <MaterialIcons
+                              name={'arrow-forward-ios'}
+                              size={20}
+                              color={THEME.DARK_COLOR}
+                            />
+                          }
                         />
-                      </RBSheet>
-                    ) : (
-                      showAndroidTo && (
-                        <RNDateTimePicker
-                          value={dateTo}
-                          mode={'date'}
-                          display={'default'}
-                          dateFormat="month day year"
-                          minimumDate={minDate}
-                          maximumDate={maxDate}
-                          onChange={onChangeTo}
-                          textColor="black"
-                        />
-                      )
-                    )}
-                  </View>
-                </View>
+                      </View>
+                    </View>
+                  </Modal>
+                </>
               )}
             </View>
           </View>
           <Divider style={styles.divider} />
-          {/* Container for Node list Title */}
+          {/* Container for Line list */}
           <View style={{height: 350}}>
             <ListItem
-              key={123123123123}
               containerStyle={{
                 paddingLeft: 30,
                 backgroundColor: 'white',
@@ -537,7 +573,6 @@ export function ModalFilterScreen({navigation}) {
                     }
                     checked={checkAllLine}
                     onPress={() => {
-                      console.log('check line');
                       handleAllLine();
                       setCheckAllLine(!checkAllLine);
                     }}
@@ -546,52 +581,77 @@ export function ModalFilterScreen({navigation}) {
               </ListItem.Content>
             </ListItem>
             <Divider style={styles.divider} />
-            {/* ScrollView Container for Node list */}
+            {/* ScrollView Container for Line list */}
+            {/*<FlatList*/}
+            {/*  nestedScrollEnabled={true}*/}
+            {/*  keyExtractor={(item) => item.id.toString()}*/}
+            {/*  data={lineData}*/}
+            {/*  renderItem={renderLineItem}*/}
+            {/*  ListEmptyComponent={*/}
+            {/*    <EmptyComponent*/}
+            {/*      title={'You have no lines in your watch list'}*/}
+            {/*    />*/}
+            {/*  }*/}
+            {/*  removeClippedSubviews={true} // Unmount components when outside of window*/}
+            {/*  initialNumToRender={2} // Reduce initial render amount*/}
+            {/*  maxToRenderPerBatch={10} // Reduce number in each render batch*/}
+            {/*  updateCellsBatchingPeriod={100} // Increase time between renders*/}
+            {/*  windowSize={20}*/}
+            {/*  // ListFooterComponent={*/}
+            {/*  //   <ActivityIndicator size={30} color={THEME.PRIMARY_COLOR} />*/}
+            {/*  // }*/}
+            {/*/>*/}
             <ScrollView nestedScrollEnabled={true}>
-              {checkData.map((item, i) => (
-                <Fragment key={item.id}>
-                  <ListItem
-                    key={i}
-                    containerStyle={{
-                      paddingLeft: 30,
-                      backgroundColor: 'white',
-                    }}
-                    activeOpacity={1}
-                    onPress={() => handleChecked(item.id)}>
-                    <ListItem.Content
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                      <ListItem.Title style={{color: THEME.DARK_COLOR}}>
-                        {item.title}
-                      </ListItem.Title>
-                      <View>
-                        <CheckBox
-                          checkedIcon={
-                            <MaterialIcons
-                              name={'check-circle'}
-                              size={24}
-                              color={THEME.PRIMARY_COLOR}
-                            />
-                          }
-                          uncheckedIcon={
-                            <MaterialCommunityIcons
-                              name={'circle-outline'}
-                              size={24}
-                              color={THEME.PRIMARY_COLOR}
-                            />
-                          }
-                          checked={item.selected || false}
-                          onPress={() => handleChecked(item.id)}
-                        />
-                      </View>
-                    </ListItem.Content>
-                  </ListItem>
-                  <Divider style={styles.divider} />
-                </Fragment>
-              ))}
+              {lineData.length > 0 ? (
+                lineData.map((item, i) => (
+                  <Fragment key={item.id}>
+                    <ListItem
+                      key={i}
+                      containerStyle={{
+                        paddingLeft: 30,
+                        backgroundColor: 'white',
+                      }}
+                      activeOpacity={1}
+                      onPress={() => handleCheckedLine(item.id)}>
+                      <ListItem.Content
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+                          {item.name}
+                        </ListItem.Title>
+                        <View>
+                          <CheckBox
+                            checkedIcon={
+                              <MaterialIcons
+                                name={'check-circle'}
+                                size={24}
+                                color={THEME.PRIMARY_COLOR}
+                              />
+                            }
+                            uncheckedIcon={
+                              <MaterialCommunityIcons
+                                name={'circle-outline'}
+                                size={24}
+                                color={THEME.PRIMARY_COLOR}
+                              />
+                            }
+                            checked={item.selected || false}
+                            onPress={() => handleCheckedLine(item.id)}
+                          />
+                        </View>
+                      </ListItem.Content>
+                    </ListItem>
+                    <Divider style={styles.divider} />
+                  </Fragment>
+                ))
+              ) : (
+                <EmptyComponent
+                  title={'You have no lines in your watch list'}
+                />
+              )}
             </ScrollView>
           </View>
           {/* product Container */}
@@ -673,104 +733,77 @@ export function ModalFilterScreen({navigation}) {
               iconName={'keyboard-arrow-left'}
               iconSize={30}
             />
-            <ScrollView>
-              <ListItem
-                key={123123123123}
-                containerStyle={{
-                  paddingLeft: 30,
-                  backgroundColor: 'white',
-                }}
-                activeOpacity={1}>
-                <ListItem.Content
+            <ListItem
+              containerStyle={{
+                paddingLeft: 30,
+                backgroundColor: 'white',
+              }}
+              activeOpacity={1}>
+              <ListItem.Content
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <ListItem.Title
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    color: THEME.DARK_COLOR,
+                    fontSize: 15,
+                    fontFamily: FONT.SemiBold,
                   }}>
-                  <ListItem.Title
-                    style={{
-                      color: THEME.DARK_COLOR,
-                      fontSize: 15,
-                      fontFamily: FONT.SemiBold,
-                    }}>
-                    All Products
-                  </ListItem.Title>
-                  <View>
-                    <CheckBox
-                      checkedIcon={
-                        <MaterialIcons
-                          name={
-                            isCheckVisibleProduct
-                              ? 'remove-circle'
-                              : 'check-circle'
-                          }
-                          size={24}
-                          color={THEME.PRIMARY_COLOR}
-                        />
-                      }
-                      uncheckedIcon={
-                        <MaterialCommunityIcons
-                          name={
-                            isCheckVisibleProduct
-                              ? 'minus-circle'
-                              : 'circle-outline'
-                          }
-                          size={24}
-                          color={THEME.PRIMARY_COLOR}
-                        />
-                      }
-                      checked={checkAllProduct}
-                      onPress={() => {
-                        console.log('check product');
-                        handleAllProduct();
-                        setCheckAllProduct(!checkAllProduct);
-                      }}
-                    />
-                  </View>
-                </ListItem.Content>
-              </ListItem>
-              {checkDataProduct.map((item, i) => (
-                <ListItem
-                  key={i}
-                  containerStyle={{
-                    paddingLeft: 30,
-                    backgroundColor: 'white',
-                  }}
-                  activeOpacity={1}
-                  onPress={() => handleCheckedProduct(item.id)}>
-                  <ListItem.Content
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}>
-                    <ListItem.Title style={{color: THEME.DARK_COLOR}}>
-                      {item.title}
-                    </ListItem.Title>
-                    <View>
-                      <CheckBox
-                        checkedIcon={
-                          <MaterialIcons
-                            name={'check-circle'}
-                            size={24}
-                            style={{color: THEME.PRIMARY_COLOR}}
-                          />
+                  All Products
+                </ListItem.Title>
+                <View>
+                  <CheckBox
+                    checkedIcon={
+                      <MaterialIcons
+                        name={
+                          isCheckVisibleProduct
+                            ? 'remove-circle'
+                            : 'check-circle'
                         }
-                        uncheckedIcon={
-                          <MaterialCommunityIcons
-                            name={'circle-outline'}
-                            size={24}
-                            style={{color: THEME.PRIMARY_COLOR}}
-                          />
-                        }
-                        checked={item.selected || false}
-                        onPress={() => handleCheckedProduct(item.id)}
+                        size={24}
+                        color={THEME.PRIMARY_COLOR}
                       />
-                    </View>
-                  </ListItem.Content>
-                </ListItem>
-              ))}
-            </ScrollView>
+                    }
+                    uncheckedIcon={
+                      <MaterialCommunityIcons
+                        name={
+                          isCheckVisibleProduct
+                            ? 'minus-circle'
+                            : 'circle-outline'
+                        }
+                        size={24}
+                        color={THEME.PRIMARY_COLOR}
+                      />
+                    }
+                    checked={checkAllProduct}
+                    onPress={() => {
+                      handleAllProduct();
+                      setCheckAllProduct(!checkAllProduct);
+                    }}
+                  />
+                </View>
+              </ListItem.Content>
+            </ListItem>
+            <FlatList
+              keyExtractor={(item) => item.id.toString()}
+              data={productData}
+              renderItem={renderProductItem}
+              ListEmptyComponent={
+                <EmptyComponent
+                  title={'You have no product in your watch list'}
+                />
+              }
+              removeClippedSubviews={true} // Unmount components when outside of window
+              initialNumToRender={2} // Reduce initial render amount
+              maxToRenderPerBatch={10} // Reduce number in each render batch
+              updateCellsBatchingPeriod={100} // Increase time between renders
+              windowSize={20}
+              // ListFooterComponent={
+              //   <ActivityIndicator size={30} color={THEME.PRIMARY_COLOR} />
+              // }
+            />
           </RBSheet>
         </View>
       </SafeAreaView>
@@ -915,5 +948,48 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     fontSize: 14,
     fontFamily: FONT.SemiBold,
+  },
+  modalCentered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+    elevation: 3,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 20,
+  },
+  modalCalendarContainer: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 30,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    zIndex: 4,
+    elevation: 5,
+  },
+  modalClose: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 100,
+    marginLeft: 'auto',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
 });

@@ -3,8 +3,6 @@ import React, {
   useRef,
   useReducer,
   useState,
-  useCallback,
-  useMemo,
 } from 'react';
 import {Alert, Platform} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
@@ -16,7 +14,6 @@ import _ from 'lodash';
 
 import {
   AuthContext,
-  LiveViewContext,
   UserContext,
   FactoryContext,
   NotificationContext,
@@ -81,11 +78,11 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeSlots]);
 
-  useInterval(() => {
-    (async () => {
-      await getFormNotify();
-    })();
-  }, 5000);
+  // useInterval(() => {
+  //   (async () => {
+  //     await getFormNotify();
+  //   })();
+  // }, 5000);
 
   function onRegister(token) {
     AsyncStorage.setItem('tokenDevice', token);
@@ -133,18 +130,15 @@ const App = () => {
               notify, //data
               options, //options
             );
+          } else if (!includeMinute) {
+            localNotificationService.showNotification(
+              title,
+              message,
+              notify, //data
+              options, //options
+            );
           } else {
             console.log('[onNotification] Dont Disturb', isEnableDisturb);
-            if (!includeMinute) {
-              localNotificationService.showNotification(
-                title,
-                message,
-                notify, //data
-                options, //options
-              );
-            } else {
-              console.log('[onNotification] Dont includeMinute', includeMinute);
-            }
           }
         } else {
           localNotificationService.showNotification(
@@ -280,13 +274,10 @@ const App = () => {
             console.log('includeToday -------------', includeToday);
             if (!includeToday) {
               await getForeground(runID, title, message);
+            } else if (!includeMinute) {
+              await getForeground(runID, title, message);
             } else {
               console.log('[onOpenNotification] dont Disturb');
-              if (!includeMinute) {
-                await getForeground(runID, title, message);
-              } else {
-                console.log('[onOpenNotification] dont includeMinute');
-              }
             }
           } else {
             await getForeground(runID, title, message);
@@ -307,14 +298,12 @@ const App = () => {
       <NavigationContainer ref={navigationRef}>
         {state.user?.token ? (
           <UserContext.Provider value={state.user}>
-            <LiveViewContext.Provider value={state.line}>
-              <FactoryContext.Provider value={state.factory}>
-                <NotificationContext.Provider value={state.badge}>
-                  <MainTabNavigation />
-                  <Toast ref={(ref) => Toast.setRef(ref)} />
-                </NotificationContext.Provider>
-              </FactoryContext.Provider>
-            </LiveViewContext.Provider>
+            <FactoryContext.Provider value={state.factory}>
+              <NotificationContext.Provider value={state.badge}>
+                <MainTabNavigation />
+                <Toast ref={(ref) => Toast.setRef(ref)} />
+              </NotificationContext.Provider>
+            </FactoryContext.Provider>
           </UserContext.Provider>
         ) : (
           <AuthStackNavigator />

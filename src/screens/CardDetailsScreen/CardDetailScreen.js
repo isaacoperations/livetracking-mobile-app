@@ -39,7 +39,7 @@ export function CardDetailScreen({navigation, route}) {
   const [activeSectionsPositive, setActiveSectionsPositive] = useState([]);
   const [activeSectionsNegative, setActiveSectionsNegative] = useState([]);
   const [runData, setRunData] = useState({});
-  const {LiveView} = useData();
+  const {ApiService} = useData();
 
   const {runId} = route.params;
   console.log('runId', runId);
@@ -76,7 +76,7 @@ export function CardDetailScreen({navigation, route}) {
   );
 
   async function fetchData() {
-    await LiveView.getByLineId(runId)
+    await ApiService.getByRunId(runId)
       .then(({data}) => {
         console.log('response run data', data);
         setRunData(data);

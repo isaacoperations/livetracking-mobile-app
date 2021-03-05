@@ -1,11 +1,4 @@
-import React, {
-  useContext,
-  useState,
-  useRef,
-  useReducer,
-  useCallback,
-  useEffect,
-} from 'react';
+import React, {useContext, useState, useRef, useCallback} from 'react';
 import {
   View,
   Text,
@@ -14,9 +7,7 @@ import {
   ScrollView,
   Platform,
   FlatList,
-  Alert,
   TouchableOpacity,
-  Button,
   RefreshControl,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
@@ -33,9 +24,8 @@ import _ from 'lodash';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import {AuthContext, FactoryContext, UserContext} from '../../context/context';
+import {AuthContext, UserContext} from '../../context/context';
 import {useData} from '../../services/ApiService';
-import reducer, {initialState} from '../../reducer/reducer';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {CardComponent} from '../ReportScreen/components/CardComponent';
@@ -43,29 +33,21 @@ import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 
-import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
-  const factory = useContext(FactoryContext);
   const {logout} = useContext(AuthContext);
+  const {ApiService} = useData();
 
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const {LiveView} = useData();
-
-  const [isSelectedFactory, setIsSelectedFactory] = useState(factory);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [nodeData, setNodeData] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const refRBSheet = useRef();
   const numColumns = 2;
   //const WIDTH = Dimensions.get('window').width;
-
-  const {
-    app_metadata: {factories},
-  } = user;
 
   useFocusEffect(
     useCallback(() => {
@@ -73,20 +55,21 @@ export function HomeScreen({navigation}) {
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
-        // await AsyncStorage.removeItem('line');
         console.log('home user data ', user);
 
-        if (await AsyncStorage.getItem('factoryID')) {
-          await AsyncStorage.getItem('factoryID').then((id) => {
-            const num = Number(id);
-            setIsSelectedFactory(num);
-          });
-        } else {
-          setIsSelectedFactory(factory);
-        }
-
         await fetchData();
+
+        await AsyncStorage.getItem('favorites').then((favorite) => {
+          let data = [];
+          if (favorite !== null) {
+            data = JSON.parse(favorite) || [];
+          }
+          console.log('data fffff', data);
+          setFavorites(data);
+        });
       })();
+
+      console.log('favorites data', favorites);
 
       const refreshID = setInterval(async () => {
         await fetchData();
@@ -96,61 +79,14 @@ export function HomeScreen({navigation}) {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isVisible, isSelectedFactory]),
+    }, [isVisible]),
   );
-
 
   async function fetchData() {
     try {
-      await AsyncStorage.getItem('line').then((line) => {
-        if (line) {
-          const data = JSON.parse(line);
-          console.log('line -----?', data);
-          dispatch(createAction('SET_LINE', data));
-          // const uniqDataBy = _.uniqBy(data, 'selected');
-          // const some = _.some(uniqDataBy, ['selected', true]);
-          // if (some) {
-          //   setIsVisible(false);
-          // } else {
-          //   setIsVisible(true);
-          // }
-        } else {
-          console.log('not found line ', line);
-          setIsVisible(true);
-        }
-      });
-
-      await LiveView.getAllLine().then(async ({data}) => {
+      await ApiService.getLiveview().then(async ({data}) => {
         const nodes = data?.liveviewInfo;
         setNodeData(nodes);
-        if (state.line.length > 0) {
-          console.log('Ystate line data ', state.line);
-        } else {
-          // await AsyncStorage.removeItem('line');
-          console.log('Xstate line not data ', state.line);
-
-          let newArrayFactory = [];
-          const tempFactory = factories.filter((item, index) => {
-            newArrayFactory.push(item.id);
-            if (index === isSelectedFactory) {
-              return item;
-            }
-          });
-          // const factoryData = {
-          //   [tempFactory[0].id]: {
-          //     nodes,
-          //   },
-          // };
-          console.log('newArrayFactory', newArrayFactory);
-          const factoryData = {
-            factoryId: tempFactory,
-            factoryIds: newArrayFactory,
-            factoryItems: nodes,
-          };
-          console.log('factoryData', factoryData);
-          dispatch(createAction('SET_LINE', factoryData));
-          await AsyncStorage.setItem('line', JSON.stringify(factoryData));
-        }
       });
     } catch (e) {
       console.log('error message', e);
@@ -168,8 +104,6 @@ export function HomeScreen({navigation}) {
     return () => clearTimeout(refreshId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  console.log('home line data ', state.line);
 
   const renderCard = ({item}) => (
     <CardComponent
@@ -197,45 +131,36 @@ export function HomeScreen({navigation}) {
   );
 
   const handleChecked = async (idx) => {
-    console.log('asdasd', state.line);
-    if (state.line?.factoryItems.length > 0) {
-      console.log('asdasd', state.line?.factoryItems);
-      const data = state.line?.factoryItems.map((item) => {
-        if (item.lineId === idx) {
-          return {
-            ...item,
-            selected: !item.selected || false,
-          };
-        }
-        return {
-          ...item,
-          selected: item.selected || false,
-        };
-      });
-
-      const tempData = factories.filter((item, index) => {
-        if (index === isSelectedFactory) {
-          return item;
-        }
-      });
-      console.log('tempFACTROY', tempData);
-      const factoryData = {
-        factoryId: tempData,
-        factoryItems: data,
-      };
-
-      dispatch(createAction('SET_LINE', factoryData));
-      await AsyncStorage.setItem('line', JSON.stringify(factoryData));
-
-      const uniqDataBy = _.uniqBy(data, 'selected');
-      const some = _.some(uniqDataBy, ['selected', true]);
-      if (some) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
+    let data = [];
+    await AsyncStorage.getItem('favorites').then((line) => {
+      if (line) {
+        data = JSON.parse(line);
       }
+      console.log('logged', data, idx);
+      console.log('logged true', data.indexOf(idx));
+      if (data.indexOf(idx) === -1) {
+        data.push(idx);
+      } else {
+        data = data.filter((item) => item !== idx);
+      }
+      AsyncStorage.setItem('favorites', JSON.stringify(data));
+      setFavorites(data);
+      console.log('saved', data);
+    });
+
+    let tempArr = [];
+    nodeData.map((item) => {
+      tempArr.push(item.lineId);
+    });
+
+    const includes = _.includes(data, tempArr);
+    console.log('includes', includes);
+    console.log('tempArr', tempArr);
+
+    if (includes) {
+      setIsVisible(false);
     } else {
-      Alert.alert('Not data');
+      setIsVisible(true);
     }
   };
 
@@ -305,29 +230,37 @@ export function HomeScreen({navigation}) {
                   flex: 1,
                 },
               ]}>
-              {isVisible ? (
-                <>
-                  <IconBox style={{marginTop: 'auto', marginBottom: 15}} />
-                  <Text style={styles.subtitle}>
-                    You have no lines in your watch list
-                  </Text>
-                </>
-              ) : (
-                <ScrollView
-                  style={[styles.containerScrollView, {paddingHorizontal: 10}]}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      flexWrap: 'wrap',
-                      height: '100%',
-                      width: '100%',
-                    }}>
-                    {state.line?.factoryItems.map((item) => {
-                      return item.selected ? renderCard({item}) : null;
-                    })}
-                  </View>
-                </ScrollView>
-              )}
+              {/*{isVisible ? (*/}
+              {/*  <>*/}
+              {/*    <IconBox style={{marginTop: 'auto', marginBottom: 15}} />*/}
+              {/*    <Text style={styles.subtitle}>*/}
+              {/*      You have no lines in your watch list*/}
+              {/*    </Text>*/}
+              {/*  </>*/}
+              {/*) : null}*/}
+              <ScrollView
+                style={[styles.containerScrollView, {paddingHorizontal: 10}]}
+                refreshControl={
+                  <RefreshControl
+                    tintColor={THEME.PRIMARY_COLOR}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                  />
+                }>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    height: '100%',
+                    width: '100%',
+                  }}>
+                  {nodeData.map((item) => {
+                    return favorites.indexOf(item.lineId) !== -1
+                      ? renderCard({item})
+                      : null;
+                  })}
+                </View>
+              </ScrollView>
               <RBSheet
                 ref={refRBSheet}
                 closeOnDragDown={false}
@@ -348,7 +281,7 @@ export function HomeScreen({navigation}) {
                   iconName={'close'}
                 />
                 <ScrollView>
-                  {state.line?.factoryItems.map((item) => (
+                  {nodeData.map((item) => (
                     <ListItem
                       key={item.lineId}
                       containerStyle={{
@@ -382,7 +315,7 @@ export function HomeScreen({navigation}) {
                                 color={THEME.PRIMARY_COLOR}
                               />
                             }
-                            checked={item.selected || false}
+                            checked={favorites.indexOf(item.lineId) !== -1}
                             onPress={() => handleChecked(item.lineId)}
                           />
                         </View>

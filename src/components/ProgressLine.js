@@ -17,7 +17,6 @@ export function ProgressLine({
   const sectionAll = sections?.length || 5;
 
   let number = 100 / sectionAll + 10 * percent + 20;
-  console.log('asdasd', number, index);
   let indexWidth;
   if (index === 0) {
     indexWidth = 100;
@@ -33,7 +32,7 @@ export function ProgressLine({
   }
 
   return (
-    <View style={[styles.progressContainer, {marginBottom: isActive ? 0 : 10}]}>
+    <View key={index} style={[styles.progressContainer, {marginBottom: isActive ? 0 : 10}]}>
       <Text style={styles.progressTitle}>{title}</Text>
       <View style={{flex: 3, flexDirection: 'row', alignItems: 'center'}}>
         <View

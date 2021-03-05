@@ -107,10 +107,13 @@ export function useData() {
   };
 
   // TODO: could be expanded on further to handle .then()s
-  const LiveView = {
-    getByLineId: (runId) => requests.get(`/mobile/reporting/run/${runId}`),
-    getAllLine: () => requests.get('/mobile/liveview/all'),
+  const ApiService = {
+    getByRunId: (runId) => requests.get(`/mobile/reporting/run/${runId}`),
+    getLiveview: () => requests.get('/mobile/liveview/all'),
+    getLines: () => requests.get('/line'),
+    getProducts: () => requests.get('/product'),
+    postReport: (data) => requests.post('/mobile/reporting/daily/range', data),
   };
 
-  return {LiveView};
+  return {ApiService};
 }

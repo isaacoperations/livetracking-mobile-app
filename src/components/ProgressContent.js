@@ -6,6 +6,7 @@ import {FONT} from '../constants/fonts';
 import {THEME} from '../constants/theme';
 
 export function ProgressContent({
+  index,
   title = '',
   percent = 100,
   time = '',
@@ -15,6 +16,7 @@ export function ProgressContent({
   const second = moment().startOf('hour').seconds(time).format('ss');
   return (
     <View
+      key={index}
       style={[
         styles.progressInfo,
         {
@@ -34,9 +36,7 @@ export function ProgressContent({
       </View>
       <View style={{justifyContent: 'space-between'}}>
         <Text style={styles.progressInfoText}>{title}</Text>
-        <Text style={styles.progressInfoText}>
-          {`${minute}m ${second}s`}
-        </Text>
+        <Text style={styles.progressInfoText}>{`${minute}m ${second}s`}</Text>
         <Text style={styles.progressInfoText}>{percent} %</Text>
       </View>
     </View>
