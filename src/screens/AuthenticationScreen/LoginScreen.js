@@ -21,6 +21,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -46,6 +47,7 @@ export function LoginScreen({navigation}) {
       await MaterialCommunityIcons.loadFont();
       await AntDesign.loadFont();
       await Ionicons.loadFont();
+      crashlytics().log('Login - screen');
     })();
   }, []);
 
@@ -69,10 +71,12 @@ export function LoginScreen({navigation}) {
         validationSchema={LoginSchema}
         onSubmit={async (values, actions) => {
           try {
+            crashlytics().log('Login - form');
             setIsLoading(true);
             actions.resetForm();
             await login(values.email.toLowerCase(), values.password);
           } catch (e) {
+            crashlytics().recordError(e.message);
             setIsError(e.message);
             setIsLoading(false);
           }
@@ -178,48 +182,48 @@ export function LoginScreen({navigation}) {
                       <Text style={THEME.ERROR_TEXT}>{errors.password}</Text>
                     ) : null}
 
-                    <View style={{margin: 0, padding: 0}}>
-                      <CheckBox
-                        left
-                        title="Remember Me"
-                        iconLeft
-                        containerStyle={{
-                          borderWidth: 0,
-                          backgroundColor: THEME.WHITE_COLOR,
-                          padding: 0,
-                          marginLeft: 0,
-                          left: 0,
-                          opacity: 1,
-                        }}
-                        textStyle={{
-                          color: THEME.DARK_COLOR,
-                          fontSize: 12,
-                          fontWeight: '400',
-                          marginTop: 2,
-                        }}
-                        checkedIcon={
-                          <MaterialIcons
-                            style={{color: THEME.PRIMARY_COLOR}}
-                            name="check-box"
-                            size={26}
-                          />
-                        }
-                        uncheckedIcon={
-                          <MaterialIcons
-                            style={{color: THEME.PRIMARY_COLOR}}
-                            name="check-box-outline-blank"
-                            size={26}
-                          />
-                        }
-                        activeOpacity={1}
-                        uncheckedColor={THEME.PRIMARY_COLOR}
-                        checkedColor={THEME.PRIMARY_COLOR}
-                        checked={values.check}
-                        onPress={(e) => {
-                          setFieldValue('check', !values.check);
-                        }}
-                      />
-                    </View>
+                    {/*<View style={{margin: 0, padding: 0}}>*/}
+                    {/*  <CheckBox*/}
+                    {/*    left*/}
+                    {/*    title="Remember Me"*/}
+                    {/*    iconLeft*/}
+                    {/*    containerStyle={{*/}
+                    {/*      borderWidth: 0,*/}
+                    {/*      backgroundColor: THEME.WHITE_COLOR,*/}
+                    {/*      padding: 0,*/}
+                    {/*      marginLeft: 0,*/}
+                    {/*      left: 0,*/}
+                    {/*      opacity: 1,*/}
+                    {/*    }}*/}
+                    {/*    textStyle={{*/}
+                    {/*      color: THEME.DARK_COLOR,*/}
+                    {/*      fontSize: 12,*/}
+                    {/*      fontWeight: '400',*/}
+                    {/*      marginTop: 2,*/}
+                    {/*    }}*/}
+                    {/*    checkedIcon={*/}
+                    {/*      <MaterialIcons*/}
+                    {/*        style={{color: THEME.PRIMARY_COLOR}}*/}
+                    {/*        name="check-box"*/}
+                    {/*        size={26}*/}
+                    {/*      />*/}
+                    {/*    }*/}
+                    {/*    uncheckedIcon={*/}
+                    {/*      <MaterialIcons*/}
+                    {/*        style={{color: THEME.PRIMARY_COLOR}}*/}
+                    {/*        name="check-box-outline-blank"*/}
+                    {/*        size={26}*/}
+                    {/*      />*/}
+                    {/*    }*/}
+                    {/*    activeOpacity={1}*/}
+                    {/*    uncheckedColor={THEME.PRIMARY_COLOR}*/}
+                    {/*    checkedColor={THEME.PRIMARY_COLOR}*/}
+                    {/*    checked={values.check}*/}
+                    {/*    onPress={(e) => {*/}
+                    {/*      setFieldValue('check', !values.check);*/}
+                    {/*    }}*/}
+                    {/*  />*/}
+                    {/*</View>*/}
                   </View>
                   <View style={styles.containerBottom}>
                     <Pressable
@@ -255,7 +259,10 @@ export function LoginScreen({navigation}) {
                       )}
                     </Pressable>
                     <TouchableOpacity
-                      onPress={() => navigation.navigate('ForgotPassword')}
+                      onPress={() => {
+                        crashlytics().log('ForgotPassword - button');
+                        navigation.navigate('ForgotPassword');
+                      }}
                       activeOpacity={1}>
                       <Text style={[{color: THEME.PRIMARY_COLOR}, styles.text]}>
                         I forgot my password
@@ -332,11 +339,12 @@ const styles = StyleSheet.create({
   maskPassword: {
     position: 'absolute',
     right: 0,
-    top: Platform.OS === 'ios' ? 25 : 37,
-    width: 50,
-    height: 40,
-    //backgroundColor: 'red',
+    top: Platform.OS === 'ios' ? 20 : 27,
+    width: 60,
+    height: Platform.OS === 'ios' ? 50 : 60,
+    // backgroundColor: 'red',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 2,
   },
 });

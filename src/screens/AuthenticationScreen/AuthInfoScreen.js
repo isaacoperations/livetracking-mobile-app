@@ -1,23 +1,31 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Linking} from 'react-native';
+import crashlytics from '@react-native-firebase/crashlytics';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 import {Btn} from '../../components/Button';
 import HeaderStatus from '../../components/HeaderStatus';
 
 export function AuthInfoScreen({navigation}) {
+  const supportedURL = 'https://www.livetracking.io/';
   return (
     <>
       <HeaderStatus ios={'dark'} />
       <View style={styles.container}>
         <Text style={styles.title}>
-          You need to have an <Text style={{fontFamily: FONT.Bold}}>existing LiveTracking account</Text> to use this app. If
-          your company uses LiveTracking, ask your administrator to add you
-          user.
+          You need to have an{' '}
+          <Text style={{fontFamily: FONT.Bold}}>
+            existing LiveTracking account
+          </Text>{' '}
+          to use this app. If your company uses LiveTracking, ask your
+          administrator to add you user.
         </Text>
         <Btn
           title={'Learn more about LiveTracking'}
-          onPress={() => navigation.navigate('Onboarding')}
+          onPress={async () => {
+            crashlytics().log('Learn more about LiveTracking - button');
+            await Linking.openURL(supportedURL);
+          }}
           icon={false}
           navigation={navigation}
           borderColor={THEME.PRIMARY_COLOR}
@@ -46,7 +54,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: FONT.Regular,
     color: THEME.DARK_COLOR,
-    marginBottom: 60,
+    marginBottom: 112,
     letterSpacing: 0.01,
   },
 });

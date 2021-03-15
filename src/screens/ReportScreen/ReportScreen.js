@@ -5,7 +5,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Button,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -14,7 +13,7 @@ import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
-import Accordion from 'react-native-collapsible/Accordion';
+import {AccordionList} from 'accordion-collapse-react-native';
 import Toast from 'react-native-toast-message';
 import moment from 'moment';
 import _ from 'lodash';
@@ -34,8 +33,6 @@ import {ProgressContent} from '../../components/ProgressContent';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [activeSectionsPositive, setActiveSectionsPositive] = useState([]);
-  const [activeSectionsNegative, setActiveSectionsNegative] = useState([]);
   const [reportData, setReportData] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
@@ -54,25 +51,12 @@ export function ReportScreen({navigation, route}) {
           const {
             filterData: {lineData, productData, date, dateFrom, dateTo},
           } = route.params;
-          console.log(
-            'filterData -------- 1',
-            lineData,
-            productData,
-            date,
-            dateFrom,
-            dateTo,
-          );
+          console.log(lineData, productData, date, dateFrom, dateTo);
           await fetchData(lineData, productData, date, dateFrom, dateTo);
         } else {
-          console.log('filterData -------- 0');
           await fetchData();
         }
       })();
-
-      return () => {
-        setActiveSectionsPositive([]);
-        setActiveSectionsNegative([]);
-      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route]),
   );
@@ -100,10 +84,10 @@ export function ReportScreen({navigation, route}) {
       .then(async ({data}) => {
         setLoading(false);
         setReportData(data);
-        console.log('reportData 111', data);
       })
       .catch((err) => {
         const {status, data} = err.response;
+        crashlytics().recordError(err);
         console.log('datadatadata', data);
         if (status === 401) {
           logout();
@@ -120,78 +104,73 @@ export function ReportScreen({navigation, route}) {
       });
   }
 
-  const renderHeaderPositive = (content, index, isActive, sections) => {
+  const renderHeaderPositive = (item, index, isExpanded) => {
+    const result = reportData?.lostTimeList.filter((list) => {
+      return list.lostTimePercent > 0;
+    });
     return (
       <ProgressLine
         index={index}
-        title={content.reasonName}
-        percent={content.lostTimePercent}
-        isActive={isActive}
-        sections={sections}
+        title={item.reasonName}
+        percent={item.lostTimePercent}
+        isActive={isExpanded}
+        sections={result}
       />
     );
   };
 
-  const renderContentPositive = (content, index, isActive) => {
+  const renderContentPositive = (item, index, isExpanded) => {
     return (
       <ProgressContent
         index={index}
-        isActive={isActive}
-        title={content.reasonName}
-        time={content.lostTimeSeconds}
-        percent={content.lostTimePercent}
+        isActive={isExpanded}
+        title={item.reasonName}
+        time={item.lostTimeSeconds}
+        percent={item.lostTimePercent}
       />
     );
   };
 
-  const renderHeaderNegative = (content, index, isActive, sections) => {
+  const renderHeaderNegative = (item, index, isExpanded) => {
+    const result = reportData?.lostTimeList.filter((list) => {
+      return list.lostTimePercent < 0;
+    });
     return (
       <ProgressLine
         index={index}
-        title={content.reasonName}
-        percent={content.lostTimePercent}
-        isActive={isActive}
+        title={item.reasonName}
+        percent={item.lostTimePercent}
+        isActive={isExpanded}
+        sections={result}
         backgroundColor={THEME.GREEN_COLOR}
-        sections={sections}
       />
     );
   };
 
-  const renderContentNegative = (content, index, isActive) => {
+  const renderContentNegative = (item, index, isExpanded) => {
     return (
       <ProgressContent
         index={index}
-        isActive={isActive}
-        title={content.reasonName}
-        time={content.lostTimeSeconds}
-        percent={content.lostTimePercent}
+        isActive={isExpanded}
+        title={item.reasonName}
+        time={item.lostTimeSeconds}
+        percent={item.lostTimePercent}
       />
     );
-  };
-
-  const updateSectionsPositive = (items) => {
-    console.log('updateSectionsPositive', items);
-    setActiveSectionsPositive(items);
-  };
-
-  const updateSectionsNegative = (items) => {
-    setActiveSectionsNegative(items);
   };
 
   const renderDataPositive = (data) => {
     const result = data.filter((item) => {
-      return item.lostTimePercent >= 0;
+      return item.lostTimePercent > 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
       return (
-        <Accordion
-          sections={result}
-          activeSections={activeSectionsPositive}
-          renderHeader={renderHeaderPositive}
-          renderContent={renderContentPositive}
-          onChange={updateSectionsPositive}
-          underlayColor={'transparent'}
-          containerStyle={styles.accordionContainerStyle}
+        <AccordionList
+          list={resultSort}
+          header={renderHeaderPositive}
+          body={renderContentPositive}
+          keyExtractor={(item) => `${item.reasonName}`}
         />
       );
     } else {
@@ -201,18 +180,16 @@ export function ReportScreen({navigation, route}) {
 
   const renderDataNegative = (data) => {
     const result = data.filter((item) => {
-      return item.lostTimePercent <= 0;
+      return item.lostTimePercent < 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
       return (
-        <Accordion
-          sections={result}
-          activeSections={activeSectionsNegative}
-          renderHeader={renderHeaderNegative}
-          renderContent={renderContentNegative}
-          onChange={updateSectionsNegative}
-          underlayColor={'transparent'}
-          containerStyle={styles.accordionContainerStyle}
+        <AccordionList
+          list={resultSort}
+          header={renderHeaderNegative}
+          body={renderContentNegative}
+          keyExtractor={(item) => `${item.reasonName}`}
         />
       );
     } else {
@@ -233,7 +210,7 @@ export function ReportScreen({navigation, route}) {
         <ScrollView>
           {isLoading ? (
             <ActivityIndicator
-              size={50}
+              size={Platform.OS === 'android' ? 50 : 'large'}
               color={THEME.PRIMARY_COLOR}
               style={{marginTop: 200}}
             />

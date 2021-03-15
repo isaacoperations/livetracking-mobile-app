@@ -22,6 +22,7 @@ import {FONT} from '../../../constants/fonts';
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 export function NotifyScreen({navigation}) {
   const [isEnabled, setIsEnabled] = useState(true);
@@ -36,13 +37,15 @@ export function NotifyScreen({navigation}) {
 
   useEffect(() => {
     (async () => {
+      crashlytics().log('Notify setting - screen');
       await AsyncStorage.getItem('formNotify')
         .then((data) => {
-          console.log('data', data);
           if (data) {
             const formData = JSON.parse(data);
+            console.log('data', formData);
             const setTimeFrom = moment(formData?.timeFrom, 'HH:mm');
             const setTimeTo = moment(formData?.timeTo, 'HH:mm');
+            console.log('data', setTimeTo, setTimeFrom);
             setIsEnabled(formData.showInNotify);
             setIsEnabledTime(formData.showInDisturb);
             setSelectedDays(formData.daysText);
@@ -52,47 +55,61 @@ export function NotifyScreen({navigation}) {
           }
         })
         .catch((error) => {
+          crashlytics().recordError(error);
           setIsEnabled(false);
           setIsEnabledTime(false);
           setSelectedDays([]);
           setSelectedIndex([]);
           setDateFrom(new Date());
           setDateTo(new Date());
-          console.log('NotifyScreen error', error);
         });
     })();
   }, []);
 
   const toggleSwitch = () => {
+    crashlytics().log('Notify setting - toggleSwitch');
     setIsEnabled((previousState) => !previousState);
   };
   const toggleSwitchTime = () => {
+    crashlytics().log('Notify setting - toggleSwitchTime');
     setIsEnabledTime((previousState) => !previousState);
   };
 
-  const onChangeFrom = (selectedDate) => {
-    const currentDate = selectedDate || dateFrom;
-    setIsEnabledTimeFrom(false);
-    setDateFrom(currentDate);
-    setDateMin(currentDate);
-  };
+  let onChangeFrom;
 
-  const onChangeTo = (selectedDate) => {
-    const currentDate = selectedDate || dateTo;
-    setIsEnabledTimeTo(false);
-    setDateTo(currentDate);
-  };
+  if (Platform.OS === 'ios') {
+    onChangeFrom = (event, selectedDate) => {
+      console.log('onChangeFrom', selectedDate);
+      const currentDate = selectedDate || dateFrom;
+      setIsEnabledTimeFrom(false);
+      setDateFrom(currentDate);
+      setDateMin(currentDate);
+    };
+  } else {
+    onChangeFrom = (selectedDate) => {
+      console.log('onChangeFrom', selectedDate);
+      const currentDate = selectedDate || dateFrom;
+      setIsEnabledTimeFrom(false);
+      setDateFrom(currentDate);
+      setDateMin(currentDate);
+    };
+  }
 
-  function dataWeek() {
-    const date = new Date();
-    const DAY = 1000 * 60 * 60 * 24;
-    console.log('DAY timestamp', DAY);
-    let i;
-    for (i = 0; i < 7; i++) {
-      console.log(date);
-      date.setTime(date.getTime() + DAY);
-      console.log('setTime', date.setTime(date.getTime() + DAY));
-    }
+  let onChangeTo;
+  if (Platform.OS === 'ios') {
+    onChangeTo = (event, selectedDate) => {
+      console.log('onChangeTo', selectedDate);
+      const currentDate = selectedDate || dateTo;
+      setIsEnabledTimeTo(false);
+      setDateTo(currentDate);
+    };
+  } else {
+    onChangeTo = (selectedDate) => {
+      console.log('onChangeTo', selectedDate);
+      const currentDate = selectedDate || dateTo;
+      setIsEnabledTimeTo(false);
+      setDateTo(currentDate);
+    };
   }
 
   const week = moment.weekdaysShort();
@@ -113,6 +130,7 @@ export function NotifyScreen({navigation}) {
   };
 
   const handleSave = async () => {
+    crashlytics().log('Notify setting - save button');
     const form = {
       daysText: selectedDays,
       daysIndex: selectedIndex,

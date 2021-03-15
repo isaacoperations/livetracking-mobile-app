@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {Text, StyleSheet, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import _ from 'lodash';
 
@@ -7,6 +7,7 @@ import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
 
 export function CardSpeed({speed = null, unit = ''}) {
+  const [visible, setVisible] = useState(true);
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -36,7 +37,16 @@ export function CardSpeed({speed = null, unit = ''}) {
           }}>
           {_.floor(speed, 1)}
         </Text>
-        <Text style={styles.textBlue}>{unit}</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setVisible(!visible)}>
+          <Text
+            numberOfLines={visible ? 1 : undefined}
+            ellipsizeMode={'tail'}
+            style={styles.textBlue}>
+            {unit}
+          </Text>
+        </TouchableOpacity>
       </View>
     </>
   );

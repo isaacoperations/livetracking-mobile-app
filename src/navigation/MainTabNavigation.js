@@ -61,10 +61,10 @@ const HomeStackNavigator = ({navigation}) => {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
-      await AsyncStorage.getItem('factoryID').then((id) => {
-        if (id) {
-          const num = Number(id);
-          setIsActive(num);
+      await AsyncStorage.getItem('factoryID').then((data) => {
+        if (data) {
+          const {factoryId} = JSON.parse(data);
+          setIsActive(factoryId);
         } else {
           setIsActive(factory);
         }
@@ -112,14 +112,14 @@ const ReportStackNavigator = ({navigation}) => {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
-      if (await AsyncStorage.getItem('factoryID')) {
-        await AsyncStorage.getItem('factoryID').then((id) => {
-          const num = Number(id);
-          setIsActive(num);
-        });
-      } else {
-        setIsActive(factory);
-      }
+      await AsyncStorage.getItem('factoryID').then((data) => {
+        if (data) {
+          const {factoryId} = JSON.parse(data);
+          setIsActive(factoryId);
+        } else {
+          setIsActive(factory);
+        }
+      });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isFocused]);
@@ -206,14 +206,14 @@ const NotificationStackNavigator = ({navigation}) => {
   useLayoutEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
-      if (await AsyncStorage.getItem('factoryID')) {
-        await AsyncStorage.getItem('factoryID').then((id) => {
-          const num = Number(id);
-          setIsActive(num);
-        });
-      } else {
-        setIsActive(factory);
-      }
+      await AsyncStorage.getItem('factoryID').then((data) => {
+        if (data) {
+          const {factoryId} = JSON.parse(data);
+          setIsActive(factoryId);
+        } else {
+          setIsActive(factory);
+        }
+      });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isFocused]);

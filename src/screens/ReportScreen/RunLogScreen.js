@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {Divider, SearchBar} from 'react-native-elements';
+import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -29,13 +30,13 @@ export function RunLogScreen({navigation, route}) {
   const [sortShownProduct, setSortShownProduct] = useState(true);
   const WIDTH = Dimensions.get('window').width;
 
-  console.log('logData --------', logData);
-
   const updateSearch = (text) => {
+    crashlytics().log('search text - run log screen');
     setSearch(text);
   };
 
   const handleSortShowDate = () => {
+    crashlytics().log('SortShowDate - run log button');
     setSortShownDate(!sortShownDate);
     let data;
     if (sortShownDate) {
@@ -58,6 +59,7 @@ export function RunLogScreen({navigation, route}) {
     setNodeData(data);
   };
   const handleSortShowProduct = () => {
+    crashlytics().log('SortShowProduct - run log button');
     setSortShownProduct(!sortShownProduct);
     let data;
     if (sortShownProduct) {

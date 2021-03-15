@@ -1,6 +1,5 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import {
-  Dimensions,
   Platform,
   StyleSheet,
   Text,
@@ -20,9 +19,6 @@ import IconMoon from '../../../components/icons/IconMoon';
 import IconDanger from '../../../components/icons/IconDanger';
 import {CountDownLabel} from '../../CardDetailsScreen/components/CountDownLabel';
 
-const numColumns = 2;
-const WIDTH = Dimensions.get('window').width;
-
 export function CardComponent({
   progressLine = '50',
   progressRun = '80',
@@ -34,6 +30,8 @@ export function CardComponent({
   currentDowntimeDurationSeconds,
   runDurationSeconds,
 }) {
+  const [runSeconds, setRunSeconds] = useState(runDurationSeconds);
+  const [currentSeconds, setCurrentSeconds] = useState(currentDowntimeDurationSeconds);
   return (
     <Card
       containerStyle={[
@@ -115,9 +113,9 @@ export function CardComponent({
                   size={15}
                   until={
                     status === 'slow' || status === 'normal'
-                      ? runDurationSeconds
+                      ? runSeconds
                       : status === 'down'
-                      ? currentDowntimeDurationSeconds
+                      ? currentSeconds
                       : null
                   }
                   onFinish={() => console.log('Finished')}

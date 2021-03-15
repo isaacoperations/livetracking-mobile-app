@@ -35,7 +35,7 @@ export function CardTime({startTime = null, endTime = null}) {
             <Text style={styles.textBlue}>
               {startTime
                 ? moment.utc(startTime).format('h:mm:ss a')
-                : 'In progress'}
+                : 'In Progress'}
             </Text>
           </View>
         </View>
@@ -51,7 +51,7 @@ export function CardTime({startTime = null, endTime = null}) {
               <Text style={styles.textBlue}>
                 {endTime
                   ? moment.utc(startTime).format('h:mm:ss a')
-                  : 'In progress'}
+                  : 'In Progress'}
               </Text>
             </View>
           </View>

@@ -1,7 +1,7 @@
 export const initialState = {
   loading: true,
   user: null,
-  factory: 1,
+  factory: '',
   badge: false,
 };
 

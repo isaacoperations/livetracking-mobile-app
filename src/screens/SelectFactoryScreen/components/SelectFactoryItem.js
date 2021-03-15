@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {StyleSheet, Text, Pressable, View} from 'react-native';
+import {StyleSheet, Text, Pressable, View, Platform} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {FONT} from '../../../constants/fonts';
@@ -7,7 +7,7 @@ import {THEME} from '../../../constants/theme';
 import LogoMini from '../../../components/icons/LogoMini';
 
 export function SelectFactoryItem({
-  id = 0,
+  id = '',
   title = 'Test Organization',
   description = 'Test Factory Etobicoke North',
   onPress,
@@ -97,18 +97,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: FONT.Regular,
     textAlign: 'left',
+    textTransform: 'uppercase',
   },
   headerDescription: {
     color: THEME.PRIMARY_COLOR_DARK,
     fontSize: 14,
-    fontFamily: FONT.SemiBold,
+    fontFamily: Platform.OS === 'ios' ? FONT.SemiBold : FONT.Bold,
     textAlign: 'left',
   },
   closeContainer: {
+    marginTop: Platform.OS === 'ios' ? 5 : 12,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderTopLeftRadius: 20,
   },
   settingContainer: {
     flex: 1,

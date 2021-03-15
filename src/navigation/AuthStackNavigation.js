@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import {HomeScreen} from '../screens/HomeScreen/HomeScreen';
 import {AuthenticationScreen} from '../screens/AuthenticationScreen/AuthenticationScreen';
 import {LoginScreen} from '../screens/AuthenticationScreen/LoginScreen';
 import {ForgotPasswordScreen} from '../screens/AuthenticationScreen/ForgotPasswordScreen';
@@ -47,11 +46,6 @@ const AuthStackNavigator = () => {
   });
   return (
     <AuthStack.Navigator initialRouteName="Authentication">
-      <AuthStack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={options('Home')}
-      />
       <AuthStack.Screen
         name="Authentication"
         component={AuthenticationScreen}

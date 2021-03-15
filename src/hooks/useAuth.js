@@ -43,8 +43,27 @@ export function useAuth() {
       },
       logout: async () => {
         await RNSInfo.deleteItem('user', {});
-        await AsyncStorage.removeItem('line');
         dispatch(createAction('REMOVE_USER'));
+      },
+      refreshAuth: async () => {
+        await RNSInfo.getItem('user', {}).then(async (userData) => {
+          const data = JSON.parse(userData);
+          await auth0.auth
+            .refreshToken({
+              refreshToken: data.token,
+            })
+            .then(async (user) => {
+              console.log('refresh user', user);
+              // const userData = {
+              //   token: data.accessToken,
+              //   authData: data,
+              //   userData: user,
+              //   app_metadata:
+              //     user['https://livetracking.ca/app_metadata'].organizations[0],
+              //   user_metadata: user['https://livetracking.ca/user_metadata'],
+              // };
+            });
+        });
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

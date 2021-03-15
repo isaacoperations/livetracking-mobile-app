@@ -1,6 +1,13 @@
-import React, {useContext, useEffect, useReducer, useState} from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+  Fragment,
+} from 'react';
 import {StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {THEME} from '../../constants/theme';
 import HeaderStatus from '../../components/HeaderStatus';
@@ -13,36 +20,48 @@ import {createAction} from '../../utils/createAction';
 export function SelectFactoryScreen({navigation}) {
   const user = useContext(UserContext);
   const [{factory}, dispatch] = useReducer(reducer, initialState);
-  const {
-    app_metadata: {factories},
-  } = user;
-  console.log('factoryID nnnnnn', factory);
+  const organizations =
+    user.userData['https://livetracking.ca/app_metadata'].organizations;
   const [selected, setSelected] = useState(factory);
-  console.log('setSelected setSelected', selected);
   useEffect(() => {
     (async () => {
-      if (await AsyncStorage.getItem('factoryID')) {
-        await AsyncStorage.getItem('factoryID').then((id) => {
-          const num = Number(id);
-          console.log('ffafafaffa', num);
-          setSelected(num);
-          dispatch(createAction('SET_FACTORY', num));
-        });
-      } else {
-        console.log('not ffafafaffa');
-        setSelected(factory);
-      }
-      console.log('setSelected setSelected', selected);
+      crashlytics().log('Select factory - screen');
+      await AsyncStorage.getItem('factoryID').then((data) => {
+        if (data) {
+          const {factoryId} = JSON.parse(data);
+          setSelected(factoryId);
+          dispatch(createAction('SET_FACTORY', factoryId));
+        } else {
+          setSelected(factory);
+        }
+      });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
-  const requestFactoryId = async (id) => {
-    await AsyncStorage.setItem('factoryID', id.toString());
-    console.log('handleClick', id);
+  const requestFactoryId = async (id, url) => {
+    const data = {
+      factoryId: id,
+      factoryUrl: url,
+    };
+    await AsyncStorage.setItem('factoryID', JSON.stringify(data));
     setSelected(id);
     dispatch(createAction('SET_FACTORY', id));
   };
+
+  let idx = 0;
+
+  // {
+  //   organizations.map((organization) => {
+  //     idx++;
+  //     console.log('organization', organization);
+  //     {
+  //       organization.factories.map((item, index) => {
+  //         console.log('item', item);
+  //       });
+  //     }
+  //   });
+  // }
 
   return (
     <>
@@ -50,24 +69,39 @@ export function SelectFactoryScreen({navigation}) {
       <SafeAreaView style={styles.container}>
         <ModalHeader
           title={'Select Factory'}
-          onPressClose={() => navigation.goBack()}
-          onPressSetting={() => navigation.navigate('Setting')}
+          onPressClose={() => {
+            crashlytics().log('Select factory - goBack');
+            navigation.goBack();
+          }}
+          onPressSetting={() => {
+            crashlytics().log('Select factory - Setting');
+            navigation.navigate('Setting');
+          }}
           iconShow={true}
           iconColor={THEME.DARK_COLOR}
           iconTitleSetting={'settings'}
           backgroundColor={'#EDF0F3'}
         />
         <ScrollView>
-          {factories.map((item, index) => (
-            <SelectFactoryItem
-              key={index}
-              id={index}
-              onPress={() => requestFactoryId(index)}
-              title={item.name}
-              description={item.id}
-              isActive={selected}
-            />
-          ))}
+          {organizations.map((organization) => {
+            idx++;
+            return (
+              <Fragment key={idx}>
+                {organization.factories.map((item, index) => {
+                  return (
+                    <SelectFactoryItem
+                      key={idx + index}
+                      id={item.id}
+                      onPress={() => requestFactoryId(item.id, item.url)}
+                      title={organization.name}
+                      description={item.id}
+                      isActive={selected}
+                    />
+                  );
+                })}
+              </Fragment>
+            );
+          })}
         </ScrollView>
       </SafeAreaView>
     </>

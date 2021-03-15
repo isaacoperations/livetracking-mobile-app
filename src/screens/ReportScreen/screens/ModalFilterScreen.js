@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
-  ActivityIndicator,
 } from 'react-native';
 import {Divider, ListItem, CheckBox} from 'react-native-elements';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -36,9 +35,11 @@ import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
 import {EmptyComponent} from '../components/EmptyComponent';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 export function ModalFilterScreen({navigation}) {
   const [modalValueText, setModalValueText] = useState('One day');
+  const [selectOneDay, setSelectOneDay] = useState(true);
   const [isCheckVisibleLine, setIsCheckVisibleLine] = useState(false);
   const [isCheckVisibleProduct, setIsCheckVisibleProduct] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -65,6 +66,7 @@ export function ModalFilterScreen({navigation}) {
     (async () => {
       await MaterialCommunityIcons.loadFont();
       await MaterialIcons.loadFont();
+      crashlytics().log('Filters - screen');
 
       await fetchLineData();
       await fetchProductData();
@@ -80,7 +82,8 @@ export function ModalFilterScreen({navigation}) {
         setLineData(data);
       });
     } catch (e) {
-      console.log('error message line', e);
+      crashlytics().log('Filters error - line');
+      crashlytics().recordError(e.message);
       logout();
     }
   }
@@ -91,12 +94,14 @@ export function ModalFilterScreen({navigation}) {
         setProductData(data);
       });
     } catch (e) {
-      console.log('error message product', e);
+      crashlytics().log('Filters error - product');
+      crashlytics().recordError(e.message);
       logout();
     }
   }
 
   const handleCheckedLine = (id) => {
+    crashlytics().log('Filters check - line');
     const data = lineData.map((item) => {
       if (item.id === id) {
         return {
@@ -122,6 +127,7 @@ export function ModalFilterScreen({navigation}) {
   };
 
   const handleAllLine = () => {
+    crashlytics().log('Filters all check - line');
     const data = lineData.map((item) => {
       return {
         id: item.id,
@@ -180,6 +186,7 @@ export function ModalFilterScreen({navigation}) {
   // ==== PRODUCT ==== //
 
   const handleCheckedProduct = (id) => {
+    crashlytics().log('Filters check - product');
     const data = productData.map((item) => {
       if (item.id === id) {
         return {
@@ -209,6 +216,7 @@ export function ModalFilterScreen({navigation}) {
   };
 
   const handleAllProduct = () => {
+    crashlytics().log('Filters all check - product');
     const data = productData.map((item) => {
       return {
         id: item.id,
@@ -291,6 +299,7 @@ export function ModalFilterScreen({navigation}) {
   // ==== SUBMIT FORM ==== //
 
   const handleSubmit = () => {
+    crashlytics().log('Filters - button apply');
     const filterLine = _.filter(lineData, ['selected', true]);
     const filterProduct = _.filter(productData, ['selected', true]);
     const lineSelected = _.map(filterLine, 'id');
@@ -304,6 +313,7 @@ export function ModalFilterScreen({navigation}) {
       lineDataFull: filterLine.length > 0 ? filterLine : [],
       productData: productSelected.length > 0 ? productSelected : null,
       productDataFull: filterProduct.length > 0 ? filterProduct : [],
+      selectDay: selectOneDay,
       date: date ? date.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
       dateFrom: startDate
         ? startDate.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
@@ -316,11 +326,13 @@ export function ModalFilterScreen({navigation}) {
   };
 
   const handleReset = () => {
+    crashlytics().log('Filters - button reset');
     setDate(moment().subtract(1, 'days'));
-    setStartDate(moment());
+    setStartDate(moment().subtract(1, 'days'));
     setEndDate(moment());
     setModalVisibleDate(false);
     setModalVisible(false);
+    setSelectOneDay(true);
 
     const dataLine = lineData.map((item) => {
       return {
@@ -380,9 +392,15 @@ export function ModalFilterScreen({navigation}) {
               dropdownTextHighlightStyle={styles.dropdownTextHighlightStyle}
               textStyle={styles.text}
               style={{width: 170, height: 60}}
-              onSelect={(idx, value) =>
-                idx === 0 ? setModalValueText(value) : setModalValueText(value)
-              }>
+              onSelect={(idx, value) => {
+                if (idx === 0) {
+                  setModalValueText(value);
+                  setSelectOneDay(true);
+                } else {
+                  setModalValueText(value);
+                  setSelectOneDay(false);
+                }
+              }}>
               <View style={{flexDirection: 'row'}}>
                 <Text style={styles.modalValueText}>{modalValueText}</Text>
                 <MaterialIcons

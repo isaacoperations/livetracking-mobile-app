@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -6,7 +6,10 @@ import {
   View,
   Text,
   Platform,
+  Linking,
+  Alert,
 } from 'react-native';
+import {getDeviceToken, getVersion} from 'react-native-device-info';
 
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
@@ -14,8 +17,30 @@ import {FONT} from '../../../constants/fonts';
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {sendEmail} from '../../../utils/sendEmail';
 
 export function SecurityScreen({navigation}) {
+  const supportedURL = 'https://www.livetracking.io/privacy-policy';
+  // const brand = getBrand();
+  const version = getVersion();
+  const emailURL = 'support@livetracking.io';
+  const emailSubject = 'Mobile App Support Request';
+  const emailBody = `
+===============<br/>
+[Email body here]
+<br/>===============<br/>
+App version: v${version}<br/>
+OS: <span style='text-transform: capitalize'>${Platform.OS}</span>`;
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      getDeviceToken().then((deviceToken) => {
+        console.log('deviceToken', deviceToken);
+      });
+    }
+  }, []);
+
   return (
     <>
       <HeaderStatus ios={'dark'} />
@@ -30,29 +55,34 @@ export function SecurityScreen({navigation}) {
         <ScrollView>
           <View style={{padding: 30}}>
             <Text style={styles.content}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
+              We use the Device Information that we collect to help us screen
+              for potential risk and fraud (in particular, your IP address), and
+              more generally to improve and optimize our Site and Apps (for
+              example, by generating analytics about how our customers browse
+              and interact with the Site, and to assess the success of our
+              product roadmap decisions).
             </Text>
-            <Text style={styles.content}>
-              Dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-              veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-              ex ea commodo consequat.
-            </Text>
-            <Text style={styles.info}>
-              Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-              labore labore et dolore magna aliqua. Ut enim ad minim veniam,
-              quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-              commodo consequat.
+            <Text style={[styles.content]}>
+              For more information about our privacy practices, if you have
+              questions, or if you would like to make a complaint, please
+              contact us by e-mail at{' '}
+              <Text
+                style={styles.content}
+                onPress={() => {
+                  sendEmail(emailSubject, emailURL, emailBody);
+                }}>
+                support@livetracking.io
+              </Text>
             </Text>
           </View>
         </ScrollView>
         <View style={styles.containerBottom}>
           <Btn
             title={'More About Data Security'}
-            onPress={() => console.log('More About Data Security')}
+            onPress={async () => {
+              crashlytics().log('More About Data Security - button');
+              await Linking.openURL(supportedURL);
+            }}
             icon={false}
             navigation={navigation}
             borderColor={THEME.DARK_COLOR}

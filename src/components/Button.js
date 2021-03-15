@@ -18,6 +18,7 @@ export function Btn({
   fontFamily = Platform.OS === 'ios' ? FONT.SemiBold : FONT.Bold,
   size = THEME.BUTTON_PRIMARY_BIG,
   onPress,
+  marginLeft = 'auto',
 }) {
   useEffect(() => {
     (async () => {
@@ -44,11 +45,12 @@ export function Btn({
           }}>
           <Text
             style={[
+              styles.text,
               {
                 color: !pressed ? textColor : textColorHover,
                 fontFamily: fontFamily,
+                marginLeft: marginLeft,
               },
-              styles.text,
             ]}>
             {title}
           </Text>

@@ -1,4 +1,10 @@
-import React, {useContext, useState, useRef, useCallback} from 'react';
+import React, {
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react';
 import {
   View,
   Text,
@@ -7,8 +13,8 @@ import {
   ScrollView,
   Platform,
   FlatList,
-  TouchableOpacity,
   RefreshControl,
+  Button,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
 import {useFocusEffect} from '@react-navigation/native';
@@ -19,6 +25,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import crashlytics from '@react-native-firebase/crashlytics';
 import Clipboard from 'react-native-advanced-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
@@ -37,7 +44,7 @@ import {sleep} from '../../utils/sleep';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
-  const {logout} = useContext(AuthContext);
+  const {logout, refreshAuth} = useContext(AuthContext);
   const {ApiService} = useData();
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,13 +56,17 @@ export function HomeScreen({navigation}) {
   const numColumns = 2;
   //const WIDTH = Dimensions.get('window').width;
 
+  useEffect(() => {
+    crashlytics().log('Home mounted.');
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      crashlytics().log('Home mounted.');
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
         console.log('home user data ', user);
+        console.log('home user refreshAuth ', refreshAuth());
 
         await fetchData();
 
@@ -64,12 +75,9 @@ export function HomeScreen({navigation}) {
           if (favorite !== null) {
             data = JSON.parse(favorite) || [];
           }
-          console.log('data fffff', data);
           setFavorites(data);
         });
       })();
-
-      console.log('favorites data', favorites);
 
       const refreshID = setInterval(async () => {
         await fetchData();
@@ -89,8 +97,22 @@ export function HomeScreen({navigation}) {
         setNodeData(nodes);
       });
     } catch (e) {
-      console.log('error message', e);
-      logout();
+      const {data, status} = e.response;
+      crashlytics().log(data.error);
+      crashlytics().recordError(data.error);
+      if (status === 400) {
+        setNodeData([]);
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: data.error,
+          topOffset: Platform.OS === 'ios' ? 80 : 30,
+          visibilityTime: 1500,
+        });
+      } else {
+        console.log('logout message');
+        logout();
+      }
     }
   }
 
@@ -136,8 +158,6 @@ export function HomeScreen({navigation}) {
       if (line) {
         data = JSON.parse(line);
       }
-      console.log('logged', data, idx);
-      console.log('logged true', data.indexOf(idx));
       if (data.indexOf(idx) === -1) {
         data.push(idx);
       } else {
@@ -145,7 +165,6 @@ export function HomeScreen({navigation}) {
       }
       AsyncStorage.setItem('favorites', JSON.stringify(data));
       setFavorites(data);
-      console.log('saved', data);
     });
 
     let tempArr = [];
@@ -154,8 +173,6 @@ export function HomeScreen({navigation}) {
     });
 
     const includes = _.includes(data, tempArr);
-    console.log('includes', includes);
-    console.log('tempArr', tempArr);
 
     if (includes) {
       setIsVisible(false);
@@ -174,6 +191,18 @@ export function HomeScreen({navigation}) {
     Clipboard.setString(tokenDevice);
   };
 
+  const isLine = _.map(nodeData, 'lineId');
+  const isStrLine = isLine.join().split(',');
+  const isStrFav = favorites.join().split(',');
+
+  // const full = isLine.map((line) => {
+  //   if (_.some(favorites, line)) {
+  //     return true;
+  //   }
+  // });
+  //
+  // console.log('full', full);
+
   return (
     <>
       <HeaderStatus ios={'light'} />
@@ -185,7 +214,7 @@ export function HomeScreen({navigation}) {
         {/*<TouchableOpacity onPress={copyToClipboard2} style={{marginTop: 20}}>*/}
         {/*  <Text>Click here to copy to Token Device APN </Text>*/}
         {/*</TouchableOpacity>*/}
-
+        {/*<Button title="removeItem" onPress={async () => await AsyncStorage.removeItem('onboarding')} />*/}
         <View style={styles.tabContainer}>
           <SegmentedControlTab
             values={['All lines', 'My line']}
@@ -237,7 +266,7 @@ export function HomeScreen({navigation}) {
               {/*      You have no lines in your watch list*/}
               {/*    </Text>*/}
               {/*  </>*/}
-              {/*) : null}*/}
+              {/*) : (*/}
               <ScrollView
                 style={[styles.containerScrollView, {paddingHorizontal: 10}]}
                 refreshControl={
@@ -261,6 +290,16 @@ export function HomeScreen({navigation}) {
                   })}
                 </View>
               </ScrollView>
+              {/*)}*/}
+              {/*{favorites.indexOf(nodeData) < -1 ? null : (*/}
+              {/*  <>*/}
+              {/*    <IconBox style={{marginTop: 'auto', marginBottom: 15}} />*/}
+              {/*    <Text style={styles.subtitle}>*/}
+              {/*      You have no lines in your watch list*/}
+              {/*    </Text>*/}
+              {/*  </>*/}
+              {/*)}*/}
+
               <RBSheet
                 ref={refRBSheet}
                 closeOnDragDown={false}
@@ -276,7 +315,10 @@ export function HomeScreen({navigation}) {
                   },
                 }}>
                 <RBSheetHeader
-                  onPress={() => refRBSheet.current.close()}
+                  onPress={() => {
+                    crashlytics().log('Open edit list - button');
+                    refRBSheet.current.close();
+                  }}
                   title={'Edit List'}
                   iconName={'close'}
                 />

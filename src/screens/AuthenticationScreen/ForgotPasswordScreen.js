@@ -11,19 +11,22 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import {Formik, ErrorMessage} from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import Auth0 from 'react-native-auth0';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {getVersion} from 'react-native-device-info';
 
 import APIConfig from '../../config';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 import HeaderStatus from '../../components/HeaderStatus';
 import ErrorComponent from '../../components/ErrorComponent';
+import {sendEmail} from '../../utils/sendEmail';
 
-export function ForgotPasswordScreen({navigation}) {
+export function ForgotPasswordScreen() {
   const [isError, setIsError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const LoginSchema = Yup.object().shape({
@@ -33,6 +36,20 @@ export function ForgotPasswordScreen({navigation}) {
       .email('Invalid email')
       .required('Required'),
   });
+
+  const supportedURL = 'https://www.livetracking.io/privacy-policy';
+  // const brand = getBrand();
+  const version = getVersion();
+  const emailURL = 'support@livetracking.io';
+  const emailSubject = 'Login Support';
+  const emailBody = `
+===============<br/>
+[Email body here]
+<br/>===============<br/>
+App version: v${version}<br/>
+OS: <span style="text-transform: ${
+    Platform.OS === 'ios' ? 'uppercase' : 'capitalize'
+  }">${Platform.OS}</span>`;
 
   const formData = new FormData();
 
@@ -44,6 +61,7 @@ export function ForgotPasswordScreen({navigation}) {
         validationSchema={LoginSchema}
         onSubmit={async (values, actions) => {
           try {
+            crashlytics().log('Forgot password - screen');
             setIsLoading(true);
             const emailData = values.email.toLowerCase();
             const data = JSON.stringify({
@@ -64,9 +82,11 @@ export function ForgotPasswordScreen({navigation}) {
             }).then((response) => {
               setIsLoading(false);
               setIsError('');
+              crashlytics().log('FORGOT_PASSWORD - send');
             });
             actions.resetForm();
           } catch (e) {
+            crashlytics().recordError(e.message);
             setIsError(e.message);
             setIsLoading(false);
           }
@@ -82,10 +102,6 @@ export function ForgotPasswordScreen({navigation}) {
         }) => (
           <SafeAreaView style={styles.containerScroll}>
             <ScrollView contentContainerStyle={{flexGrow: 1}}>
-              {/*<KeyboardAvoidingView*/}
-              {/*  enabled={false}*/}
-              {/*  style={{flex: 1, width: '100%'}}*/}
-              {/*  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>*/}
               <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.container}>
                   <View
@@ -138,29 +154,28 @@ export function ForgotPasswordScreen({navigation}) {
                         },
                         THEME.BUTTON_PRIMARY_SMALL,
                       ]}>
-                      {({pressed}) => (
-                        <View
-                          style={{
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            flexDirection: 'row',
-                          }}>
-                          <Text
-                            style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-                            {isLoading ? (
-                              <ActivityIndicator color={THEME.WHITE_COLOR} />
-                            ) : (
-                              'Reset Password'
-                            )}
-                          </Text>
-                        </View>
-                      )}
+                      <View
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          width: '100%',
+                          flexDirection: 'row',
+                        }}>
+                        <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                          {isLoading ? (
+                            <ActivityIndicator color={THEME.WHITE_COLOR} />
+                          ) : (
+                            'Reset Password'
+                          )}
+                        </Text>
+                      </View>
                     </Pressable>
                   </View>
                   <View style={styles.containerBottom}>
                     <TouchableOpacity
-                      onPress={() => navigation.navigate('AuthInfo')}
+                      onPress={() =>
+                        sendEmail(emailSubject, emailURL, emailBody)
+                      }
                       activeOpacity={1}>
                       <Text style={[{color: THEME.PRIMARY_COLOR}, styles.text]}>
                         Still have trouble? Contact administrator
@@ -169,7 +184,6 @@ export function ForgotPasswordScreen({navigation}) {
                   </View>
                 </View>
               </TouchableWithoutFeedback>
-              {/*</KeyboardAvoidingView>*/}
             </ScrollView>
           </SafeAreaView>
         )}

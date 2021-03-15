@@ -1,60 +1,75 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Pressable, Alert} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Alert,
+  Linking,
+  Platform,
+} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import crashlytics from '@react-native-firebase/crashlytics';
 import * as Animatable from 'react-native-animatable';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import {Btn} from '../../components/Button';
 import LogoNotification from '../../components/icons/LogoNotification';
-
-import {fcmService} from '../../services/FCMServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function EnableNotificationScreen({navigation}) {
   const [isShow, setIsShow] = useState(true);
-  useEffect(() => {
-    fcmService.checkPermission(onRegister);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      crashlytics().log('Enable Notification - Screen');
+      requestUserPermission();
+      const intervalID = setInterval(async () => {
+        await requestUserPermission();
+      }, 2000);
 
-  async function onRegister(token) {
-    if (token) {
-      console.log('[Notification] [checkPermission] onRegister: ', token);
+      return () => clearInterval(intervalID);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isShow]),
+  );
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    console.log('enabled', enabled);
+
+    if (enabled) {
       setIsShow(false);
+      console.log('Authorization status:', authStatus);
     } else {
       setIsShow(true);
-      await AsyncStorage.setItem('tokenDevice', token);
-      console.log('[Notification] [checkPermission] not onRegister: ', token);
+      console.log('Authorization status:', authStatus);
     }
   }
-  // async function requestUserPermission() {
-  //   const authStatus = await messaging().requestPermission();
-  //   const enabled =
-  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  //
-  //   if (enabled) {
-  //     console.log('Authorization status:', authStatus);
-  //     setIsShow(false);
-  //   } else {
-  //     console.log('Authorization status:', authStatus);
-  //   }
-  // }
 
-  const handleSubmit = async () => {
-    // Alert.alert(
-    //   '“LiveTracking” Would Like to Send You Notifications"',
-    //   'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.',
-    //   [
-    //     {
-    //       text: 'Don’t Allow',
-    //       onPress: () => console.log('Cancel Pressed'),
-    //       style: 'cancel',
-    //     },
-    //     {text: 'OK', onPress: () => navigation.navigate('Authentication')},
-    //   ],
-    // );
-    await onRegister();
+  const handlePress = async () => {
+    Alert.alert(
+      '“LiveTracking” Would Like to Send You Notifications"',
+      'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.',
+      [
+        {
+          text: 'Don’t Allow',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            await AsyncStorage.setItem('onboarding', 'true');
+            await Linking.openSettings();
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -72,10 +87,67 @@ export function EnableNotificationScreen({navigation}) {
           your subscribed notifications are triggered.
         </Text>
       </View>
-      {isShow && isShow ? (
+      {Platform.OS === 'ios' ? (
+        isShow ? (
+          <>
+            <Pressable
+              onPress={handlePress}
+              style={({pressed}) => [
+                {
+                  backgroundColor: pressed
+                    ? THEME.PRIMARY_COLOR_DARK
+                    : THEME.PRIMARY_COLOR,
+                  borderColor: THEME.WHITE_COLOR,
+                },
+                THEME.BUTTON_PRIMARY_SMALL,
+              ]}>
+              <View style={styles.centered}>
+                <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                  Enable Notification
+                </Text>
+              </View>
+            </Pressable>
+            <Btn
+              navigation={navigation}
+              title={'I’ll do it later'}
+              onPress={async () => {
+                await AsyncStorage.setItem('onboarding', 'true');
+                console.log('I’ll do it later');
+              }}
+              borderColor={THEME.PRIMARY_COLOR}
+              backgroundColor={THEME.WHITE_COLOR}
+              backgroundColorHover={THEME.PRIMARY_COLOR}
+              textColor={THEME.PRIMARY_COLOR}
+              textColorHover={THEME.WHITE_COLOR}
+              icon={false}
+              iconColor={THEME.PRIMARY_COLOR}
+              iconColorHover={THEME.WHITE_COLOR}
+              size={THEME.BUTTON_PRIMARY_SMALL}
+            />
+          </>
+        ) : (
+          <Btn
+            navigation={navigation}
+            title={'Go home'}
+            onPress={async () => {
+              await AsyncStorage.setItem('onboarding', 'true');
+              console.log('Go to Home');
+            }}
+            borderColor={THEME.PRIMARY_COLOR}
+            backgroundColor={THEME.WHITE_COLOR}
+            backgroundColorHover={THEME.PRIMARY_COLOR}
+            textColor={THEME.PRIMARY_COLOR}
+            textColorHover={THEME.WHITE_COLOR}
+            icon={false}
+            iconColor={THEME.PRIMARY_COLOR}
+            iconColorHover={THEME.WHITE_COLOR}
+            size={THEME.BUTTON_PRIMARY_SMALL}
+          />
+        )
+      ) : (
         <>
           <Pressable
-            onPress={handleSubmit}
+            onPress={handlePress}
             style={({pressed}) => [
               {
                 backgroundColor: pressed
@@ -85,24 +157,19 @@ export function EnableNotificationScreen({navigation}) {
               },
               THEME.BUTTON_PRIMARY_SMALL,
             ]}>
-            {({pressed}) => (
-              <View
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  flexDirection: 'row',
-                }}>
-                <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-                  Enable Notification
-                </Text>
-              </View>
-            )}
+            <View style={styles.centered}>
+              <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                Enable Notification
+              </Text>
+            </View>
           </Pressable>
           <Btn
             navigation={navigation}
             title={'I’ll do it later'}
-            onPress={() => navigation.navigate('AuthInfo')}
+            onPress={async () => {
+              await AsyncStorage.setItem('onboarding', 'true');
+              console.log('I’ll do it later');
+            }}
             borderColor={THEME.PRIMARY_COLOR}
             backgroundColor={THEME.WHITE_COLOR}
             backgroundColorHover={THEME.PRIMARY_COLOR}
@@ -114,21 +181,6 @@ export function EnableNotificationScreen({navigation}) {
             size={THEME.BUTTON_PRIMARY_SMALL}
           />
         </>
-      ) : (
-        <Btn
-          navigation={navigation}
-          title={'Go to login page'}
-          onPress={() => navigation.navigate('Login')}
-          borderColor={THEME.PRIMARY_COLOR}
-          backgroundColor={THEME.WHITE_COLOR}
-          backgroundColorHover={THEME.PRIMARY_COLOR}
-          textColor={THEME.PRIMARY_COLOR}
-          textColorHover={THEME.WHITE_COLOR}
-          icon={false}
-          iconColor={THEME.PRIMARY_COLOR}
-          iconColorHover={THEME.WHITE_COLOR}
-          size={THEME.BUTTON_PRIMARY_SMALL}
-        />
       )}
     </View>
   );
@@ -141,6 +193,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
     backgroundColor: '#F1F1F1',
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    flexDirection: 'row',
   },
   text: {
     marginLeft: 'auto',

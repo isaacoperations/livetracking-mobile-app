@@ -1,6 +1,13 @@
-import React, {useContext} from 'react';
-import {StyleSheet, SafeAreaView, ScrollView, View, Platform} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  View,
+  Platform,
+} from 'react-native';
 import {Divider} from 'react-native-elements';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {THEME} from '../../constants/theme';
 
@@ -13,6 +20,9 @@ import {AuthContext, UserContext} from '../../context/context';
 import {Btn} from '../../components/Button';
 
 export function SettingScreen({navigation}) {
+  useEffect(() => {
+    crashlytics().log('Setting - screen');
+  }, []);
   const user = useContext(UserContext);
   const {logout} = useContext(AuthContext);
   const {
@@ -56,7 +66,10 @@ export function SettingScreen({navigation}) {
           <View style={styles.containerBottom}>
             <Btn
               title={'Log out'}
-              onPress={() => logout()}
+              onPress={() => {
+                crashlytics().log('Logout - button');
+                logout();
+              }}
               icon={false}
               navigation={navigation}
               borderColor={THEME.DARK_COLOR}

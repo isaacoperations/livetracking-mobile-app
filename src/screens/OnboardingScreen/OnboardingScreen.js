@@ -75,8 +75,14 @@ export function OnboardingScreen({navigation}) {
           DoneButtonComponent={DoneBtn}
           SkipButtonComponent={skipBtn}
           NextButtonComponent={NextBtn}
-          onSkip={() => navigation.navigate('Notification')}
-          onDone={() => navigation.navigate('Notification')}
+          onSkip={() => {
+            // await AsyncStorage.setItem('onboarding', 'true');
+            navigation.navigate('Notification');
+          }}
+          onDone={() => {
+            // await AsyncStorage.setItem('onboarding', 'true');
+            navigation.navigate('Notification');
+          }}
           bottomBarHighlight={false}
           containerStyles={styles.onboarding}
           titleStyles={styles.onboardingSubtitle}
@@ -129,7 +135,17 @@ export function OnboardingScreen({navigation}) {
                   }}
                 />
               ),
-              title: 'Navigating multiple factories with ease',
+              title: (
+                <Text
+                  style={{
+                    color: THEME.PEW_COLOR,
+                    marginTop: 0,
+                    marginBottom: Platform.OS === 'ios' ? 35 : 32,
+                    fontSize: 12,
+                  }}>
+                  Navigating multiple factories with ease
+                </Text>
+              ),
               subtitle: 'Switching Factories',
             },
             {

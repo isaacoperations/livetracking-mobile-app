@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {View, StyleSheet} from 'react-native';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {THEME} from '../../constants/theme';
 import {Btn} from '../../components/Button';
@@ -16,7 +17,10 @@ export function AuthenticationScreen({navigation}) {
           <Btn
             navigation={navigation}
             title={'Log in your LiveTracking account'}
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => {
+              crashlytics().log('Login - button');
+              navigation.navigate('Login');
+            }}
             borderColor={'white'}
             backgroundColor={THEME.PRIMARY_COLOR}
             backgroundColorHover={THEME.WHITE_COLOR}
@@ -24,11 +28,15 @@ export function AuthenticationScreen({navigation}) {
             textColorHover={THEME.PRIMARY_COLOR}
             iconColor={THEME.WHITE_COLOR}
             iconColorHover={THEME.PRIMARY_COLOR}
+            marginLeft={10}
           />
           <Btn
             navigation={navigation}
             title={'I don’t have an account'}
-            onPress={() => navigation.navigate('AuthInfo')}
+            onPress={() => {
+              crashlytics().log('I don’t have an account - button');
+              navigation.navigate('AuthInfo');
+            }}
             borderColor={'white'}
             backgroundColor={THEME.PRIMARY_COLOR}
             backgroundColorHover={THEME.WHITE_COLOR}
@@ -36,6 +44,7 @@ export function AuthenticationScreen({navigation}) {
             textColorHover={THEME.PRIMARY_COLOR}
             iconColor={THEME.WHITE_COLOR}
             iconColorHover={THEME.PRIMARY_COLOR}
+            marginLeft={10}
           />
         </View>
       </View>

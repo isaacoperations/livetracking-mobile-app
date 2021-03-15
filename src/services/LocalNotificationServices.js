@@ -48,6 +48,7 @@ class LocalNotificationService {
         alert: true,
         badge: true,
         sound: true,
+        notificationCenter: true,
       },
 
       // Should the initial notification be popped automatically

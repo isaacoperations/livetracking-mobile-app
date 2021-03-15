@@ -14,14 +14,16 @@ export function ReportHeaderFilter({navigation, filterResult}) {
   let date = '';
   let starDate = '';
   let endDate = '';
+  let selectDay;
   if (!bool) {
     countItems =
       filterResult.lineDataFull.length +
       filterResult.productDataFull.length +
-      2;
+      1;
     date = moment(filterResult.date).format('MMM DD, YYYY');
     starDate = moment(filterResult.dateFrom).format('MMM DD, YYYY');
     endDate = moment(filterResult.dateTo).format('MMM DD, YYYY');
+    selectDay = filterResult.selectDay;
   }
   useEffect(() => {
     (async () => {
@@ -72,7 +74,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate('FilterTab')}
               />
-              {date && (
+              {selectDay ? (
                 <Button
                   buttonStyle={styles.filterButton}
                   titleStyle={styles.filterButtonText}
@@ -80,15 +82,16 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate('FilterTab')}
                 />
-              )}
-              {starDate && (
-                <Button
-                  buttonStyle={styles.filterButton}
-                  titleStyle={styles.filterButtonText}
-                  title={`${starDate} - ${endDate}`}
-                  activeOpacity={0.8}
-                  onPress={() => navigation.navigate('FilterTab')}
-                />
+              ) : (
+                <>
+                  <Button
+                    buttonStyle={styles.filterButton}
+                    titleStyle={styles.filterButtonText}
+                    title={`${starDate} - ${endDate}`}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('FilterTab')}
+                  />
+                </>
               )}
               {filterResult.lineDataFull.length > 0
                 ? filterResult.lineDataFull.map((item) => (

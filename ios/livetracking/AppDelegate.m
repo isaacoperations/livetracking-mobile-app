@@ -71,16 +71,20 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 
    [application registerForRemoteNotifications];
 
-//   [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
-//                                                       NSError * _Nullable error) {
-//     if (error != nil) {
-//       NSLog(@"Error fetching remote instance ID: %@", error);
-//     } else {
-//       NSLog(@"Remote instance ID token: %@", result.token);
-//     }
-//   }];
-//
-//   [FIRMessaging messaging].autoInitEnabled = YES;
+  [application registerForRemoteNotifications];
+      
+      [FIRMessaging messaging].delegate = self;
+      
+      [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
+                                                          NSError * _Nullable error) {
+        if (error != nil) {
+          NSLog(@"Error fetching remote instance ID: %@", error);
+        } else {
+          NSLog(@"Remote instance ID token: %@", result.token);
+        }
+      }];
+      
+      [FIRMessaging messaging].autoInitEnabled = YES;
 
  // End I added
   
@@ -89,6 +93,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
       NSLog(@"Error getting FCM registration token: %@", error);
     } else {
       NSLog(@"FCM registration token: %@", token);
+      // self.fcmRegTokenMessage.text = token;
     }
   }];
 
@@ -194,6 +199,18 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
     didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+  
+  NSDictionary *userInfo = response.notification.request.content.userInfo;
+    if (userInfo[kGCMMessageIDKey]) {
+      NSLog(@"Message ID: %@", userInfo[kGCMMessageIDKey]);
+    }
+
+    // With swizzling disabled you must let Messaging know about the message, for Analytics
+    // [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+
+    // Print full message.
+    NSLog(@"%@", userInfo);
+  
   completionHandler();
 }
 

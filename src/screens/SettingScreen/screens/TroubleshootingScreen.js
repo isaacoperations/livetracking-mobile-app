@@ -7,16 +7,29 @@ import {
   Text,
   Platform,
 } from 'react-native';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {getVersion} from 'react-native-device-info';
 
+import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
-
+import {Btn} from '../../../components/Button';
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
-
-import {Btn} from '../../../components/Button';
-import {FONT} from '../../../constants/fonts';
+import {sendEmail} from '../../../utils/sendEmail';
 
 export function TroubleShootingScreen({navigation}) {
+  const supportedURL = 'https://www.livetracking.io/privacy-policy';
+  // const brand = getBrand();
+  const version = getVersion();
+  const emailURL = 'support@livetracking.io';
+  const emailSubject = 'Mobile App Support Request';
+  const emailBody = `
+===============<br/>
+[Email body here]
+<br/>===============<br/>
+App version: v${version}<br/>
+OS: <span style='text-transform: capitalize'>${Platform.OS}</span>`;
+
   return (
     <>
       <HeaderStatus ios={'dark'} />
@@ -30,35 +43,35 @@ export function TroubleShootingScreen({navigation}) {
         />
         <ScrollView>
           <View style={{padding: 30}}>
-            <Text style={styles.label}>
-              Eiusmod tempor incididunt ut labore?
-            </Text>
             <Text style={styles.content}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam.
+              We use the Device Information that we collect to help us screen
+              for potential risk and fraud (in particular, your IP address), and
+              more generally to improve and optimize our Site and Apps (for
+              example, by generating analytics about how our customers browse
+              and interact with the Site, and to assess the success of our
+              product roadmap decisions).
             </Text>
-            <Text style={styles.label}>Smod tempor incididunt ut labore?</Text>
-            <Text style={styles.content}>
-              Piscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua. Ut enim ad minim veniam.
-            </Text>
-            <Text style={styles.label}>
-              Labore et dolore magna aliqua. Ut enim ad minim veniam sed do
-              eiusmod?
-            </Text>
-            <Text style={styles.content}>
-              Dolor sit amet, consectetur piscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-              veniam. Ut enim ad minim veniam. Piscing elit, sed do eiusmod
-              tempor.
+            <Text style={[styles.content]}>
+              For more information about our privacy practices, if you have
+              questions, or if you would like to make a complaint, please
+              contact us by e-mail at{' '}
+              <Text
+                style={styles.content}
+                onPress={() => {
+                  sendEmail(emailSubject, emailURL, emailBody);
+                }}>
+                support@livetracking.io
+              </Text>
             </Text>
           </View>
         </ScrollView>
         <View style={styles.containerBottom}>
           <Btn
             title={'Customer Support'}
-            onPress={() => console.log('Customer Support')}
+            onPress={() => {
+              crashlytics().log('Customer Support - button');
+              sendEmail(emailSubject, emailURL, emailBody);
+            }}
             icon={false}
             navigation={navigation}
             borderColor={THEME.DARK_COLOR}

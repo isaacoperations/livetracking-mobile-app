@@ -938,11 +938,6 @@
   dependencies:
     deep-assign "^3.0.0"
 
-"@react-native-community/async-storage@1.3.3":
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/@react-native-community/async-storage/-/async-storage-1.3.3.tgz#fbcd09c68be0f91362c1bc5696802d8e281cf67d"
-  integrity sha512-mypRivxWCO3apTDWpbvc7owcz5gZH0mI60JWPJDW/Pibr3vk9T7TQPA44b8m43qc/o5cnSEJFZk6l/1T4QEM/Q==
-
 "@react-native-community/cli-debugger-ui@^4.13.1":
   version "4.13.1"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-4.13.1.tgz#07de6d4dab80ec49231de1f1fbf658b4ad39b32c"
@@ -1418,6 +1413,13 @@ accepts@~1.3.5, accepts@~1.3.7:
   dependencies:
     mime-types "~2.1.24"
     negotiator "0.6.2"
+
+accordion-collapse-react-native@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/accordion-collapse-react-native/-/accordion-collapse-react-native-1.0.0.tgz#d48ee4714b53e3481115cb1d08ae077919651837"
+  integrity sha512-WIGfznOVux+Y3rDljzxc9rEL4mMEB54io6/GVsw7EWmA041JDNYmPj4HSBRSqHqW/YZ+iK3eG0v5WG2Wz1SvSg==
+  dependencies:
+    lodash.get "4.4.2"
 
 acorn-globals@^4.3.2:
   version "4.3.4"
@@ -4747,6 +4749,11 @@ lodash.frompairs@^4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.frompairs/-/lodash.frompairs-4.0.1.tgz#bc4e5207fa2757c136e573614e9664506b2b1bd2"
   integrity sha1-vE5SB/onV8E25XNhTpZkUGsrG9I=
 
+lodash.get@4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+
 lodash.isequal@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
@@ -4756,11 +4763,6 @@ lodash.isstring@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/lodash.isstring/-/lodash.isstring-4.0.1.tgz#d527dfb5456eca7cc9bb95d5daeaf88ba54a5451"
   integrity sha1-1SfftUVuynzJu5XV2ur4i6VKVFE=
-
-lodash.merge@4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
-  integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
 lodash.omit@^4.5.0:
   version "4.5.0"
@@ -5958,13 +5960,6 @@ react-native-calendar-picker@^7.1.0:
     prop-types "^15.6.0"
     recyclerlistview "^3.0.0"
 
-react-native-collapsible@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/react-native-collapsible/-/react-native-collapsible-1.5.3.tgz#d6bc7274ae8f40f7688cca23ededa263e6c81c63"
-  integrity sha512-Ciuy3yF8wcHeLxXFtx9vxoyrq8l+9EJqLM/ADw54gVwzTQc1/e2ojhQbVFPlxhDA+Pba2qezkaKfv5ifxg8hoQ==
-  dependencies:
-    prop-types "^15.6.2"
-
 react-native-countdown-component@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/react-native-countdown-component/-/react-native-countdown-component-2.7.1.tgz#d1e1278d792b0bb6b1bf58972e8a3ad758926a86"
@@ -5978,6 +5973,11 @@ react-native-date-picker@^3.2.10:
   version "3.2.10"
   resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-3.2.10.tgz#5e690db8e628255d8390e33b1e6f8fa9477f6fb9"
   integrity sha512-/fA+htnZcr3rBw3eaOR/DvMwGLDTg59MCiiluin5YcHBxNZQYs/uYp/l6Hf719qZXndPGcixS46YIgso4Jf4gg==
+
+react-native-device-info@^8.0.5:
+  version "8.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.0.5.tgz#9b7e576533c4117af39581bfe75c9d81aab274a9"
+  integrity sha512-yVQMu5xW9lmQGl7iyT/lrn6wddbDypQ/bjJHWClY4Ic/AS0CitQUV8RGUzJG+SG+5VGwf96Y50fUzYBALok2FQ==
 
 react-native-elements@^3.1.0:
   version "3.2.0"
@@ -6010,6 +6010,11 @@ react-native-iphone-x-helper@^1.3.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
   integrity sha512-HOf0jzRnq2/aFUcdCJ9w9JGzN3gdEg0zFE4FyYlp4jtidqU03D5X7ZegGKfT1EWteR0gPBGp9ye5T5FvSWi9Yg==
+
+react-native-mail@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-mail/-/react-native-mail-6.0.0.tgz#7e8014cccff794098f8de012fc822c57d28f7d72"
+  integrity sha512-aQjCxKmPIwwX+voC2oK5Lj54Gfuvkodhp9lYFpPMxYYCXXtADuuZMsNWN7jSeqVuQHQzJZvYhgRtYqx0UDoKoQ==
 
 "react-native-modal-dropdown@https://github.com/Kishanjvaghela/react-native-modal-dropdown":
   version "0.7.5"
@@ -6068,14 +6073,6 @@ react-native-sensitive-info@^6.0.0-alpha.9:
   version "6.0.0-alpha.9"
   resolved "https://registry.yarnpkg.com/react-native-sensitive-info/-/react-native-sensitive-info-6.0.0-alpha.9.tgz#b488fab715d36efdf80b377a21545cfe888ab8d2"
   integrity sha512-W2R1gUHgBAmy+wVl0BvA7s01SqqTitnG4Sdj2zmck0OS5a54kq+pTnXRqDljMa2NQs4Mue2IHyvd+Tf0X1ZL6Q==
-
-react-native-simple-store@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/react-native-simple-store/-/react-native-simple-store-2.0.2.tgz#5ee6e07d1869f6a5dd32d092e9c522e6c28aa826"
-  integrity sha512-2+EOxAGb5mMAQ3PKNUoE/X+i4fbHF7kV7BdJE9EQ42zbWty+rVH/3J6eJCijDXuGxvEvcQxkOU7P/VeY6wPvig==
-  dependencies:
-    "@react-native-community/async-storage" "1.3.3"
-    lodash.merge "4.6.2"
 
 react-native-size-matters@^0.3.1:
   version "0.3.1"

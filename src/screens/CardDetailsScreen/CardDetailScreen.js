@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,14 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  Button,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
-import Accordion from 'react-native-collapsible/Accordion';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {AccordionList} from 'accordion-collapse-react-native';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -31,24 +32,26 @@ import {CardEfficiency} from './components/CardEfficiency';
 import {useData} from '../../services/ApiService';
 import {sleep} from '../../utils/sleep';
 import {CardProductDesc} from './components/CardProductDesc';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 export function CardDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeSectionsPositive, setActiveSectionsPositive] = useState([]);
-  const [activeSectionsNegative, setActiveSectionsNegative] = useState([]);
+  const scrollRef = useRef();
+  let listViewRef;
+  let _scrollViewBottom = 0;
   const [runData, setRunData] = useState({});
   const {ApiService} = useData();
 
   const {runId} = route.params;
-  console.log('runId', runId);
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
+        crashlytics().log('Run report - screen');
 
         setIsLoading(true);
         if (runId) {
@@ -58,18 +61,12 @@ export function CardDetailScreen({navigation, route}) {
         }
       })();
 
-      console.log('runData?.lostTimeList', runData?.lostTimeList, runData?.lost_time_list);
-
       const refreshID = setInterval(async () => {
-        setActiveSectionsPositive([]);
-        setActiveSectionsNegative([]);
         await fetchData();
       }, 10000);
 
       return () => {
         clearInterval(refreshID);
-        setActiveSectionsPositive([]);
-        setActiveSectionsNegative([]);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -78,13 +75,13 @@ export function CardDetailScreen({navigation, route}) {
   async function fetchData() {
     await ApiService.getByRunId(runId)
       .then(({data}) => {
-        console.log('response run data', data);
+        crashlytics().log('Get run report - get method');
         setRunData(data);
         setIsLoading(false);
       })
       .catch((error) => {
+        crashlytics().recordError(error.message);
         setIsLoading(true);
-        console.log('error run', error);
         navigation.navigate('Home'); // goBack()
       });
   }
@@ -92,8 +89,6 @@ export function CardDetailScreen({navigation, route}) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     const refreshId = sleep(1000).then(async () => {
-      setActiveSectionsPositive([]);
-      setActiveSectionsNegative([]);
       await fetchData().then(() => {
         setRefreshing(false);
       });
@@ -102,78 +97,76 @@ export function CardDetailScreen({navigation, route}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderHeaderPositive = (content, index, isActive, sections) => {
+  const renderHeaderPositive = (item, index, isExpanded) => {
+    const result = runData?.lostTimeList.filter((list) => {
+      return list.lostTimePercent > 0;
+    });
     return (
       <ProgressLine
+        key={index + Math.random()}
         index={index}
-        title={content.reasonName}
-        percent={content.lostTimePercent}
-        isActive={isActive}
-        sections={sections}
+        title={item.reasonName}
+        percent={item.lostTimePercent}
+        isActive={isExpanded}
+        sections={result}
       />
     );
   };
 
-  const renderContentPositive = (content, index, isActive) => {
+  const renderContentPositive = (item, index, isExpanded) => {
     return (
       <ProgressContent
+        key={index + Math.random()}
         index={index}
-        isActive={isActive}
-        title={content.reasonName}
-        time={content.lostTimeSeconds}
-        percent={content.lostTimePercent}
+        isActive={isExpanded}
+        title={item.reasonName}
+        time={item.lostTimeSeconds}
+        percent={item.lostTimePercent}
       />
     );
   };
 
-  const renderHeaderNegative = (content, index, isActive, sections) => {
+  const renderHeaderNegative = (item, index, isExpanded) => {
+    const result = runData?.lostTimeList.filter((list) => {
+      return list.lostTimePercent < 0;
+    });
     return (
       <ProgressLine
+        key={index + Math.random()}
         index={index}
-        title={content.reasonName}
-        percent={content.lostTimePercent}
-        isActive={isActive}
+        title={item.reasonName}
+        percent={item.lostTimePercent}
+        isActive={isExpanded}
         backgroundColor={THEME.GREEN_COLOR}
-        sections={sections}
+        sections={result}
       />
     );
   };
 
-  const renderContentNegative = (content, index, isActive) => {
+  const renderContentNegative = (item, index, isExpanded) => {
     return (
       <ProgressContent
+        key={index + Math.random()}
         index={index}
-        isActive={isActive}
-        title={content.reasonName}
-        time={content.lostTimeSeconds}
-        percent={content.lostTimePercent}
+        isActive={isExpanded}
+        title={item.reasonName}
+        time={item.lostTimeSeconds}
+        percent={item.lostTimePercent}
       />
     );
-  };
-
-  const updateSectionsPositive = (items) => {
-    console.log('updateSectionsPositive', items);
-    setActiveSectionsPositive(items);
-  };
-
-  const updateSectionsNegative = (items) => {
-    setActiveSectionsNegative(items);
   };
 
   const renderDataPositive = (data) => {
     const result = data.filter((item) => {
-      return item.lostTimePercent >= 0;
+      return item.lostTimePercent > 0;
     });
     if (result.length > 0) {
       return (
-        <Accordion
-          sections={result}
-          activeSections={activeSectionsPositive}
-          renderHeader={renderHeaderPositive}
-          renderContent={renderContentPositive}
-          onChange={updateSectionsPositive}
-          underlayColor={'transparent'}
-          containerStyle={styles.accordionContainerStyle}
+        <AccordionList
+          list={result}
+          header={renderHeaderPositive}
+          body={renderContentPositive}
+          keyExtractor={(item) => `${item.reasonName}`}
         />
       );
     } else {
@@ -183,18 +176,16 @@ export function CardDetailScreen({navigation, route}) {
 
   const renderDataNegative = (data) => {
     const result = data.filter((item) => {
-      return item.lostTimePercent <= 0;
+      return item.lostTimePercent < 0;
     });
+
     if (result.length > 0) {
       return (
-        <Accordion
-          sections={result}
-          activeSections={activeSectionsNegative}
-          renderHeader={renderHeaderNegative}
-          renderContent={renderContentNegative}
-          onChange={updateSectionsNegative}
-          underlayColor={'transparent'}
-          containerStyle={styles.accordionContainerStyle}
+        <AccordionList
+          list={result}
+          header={renderHeaderNegative}
+          body={renderContentNegative}
+          keyExtractor={(item) => `${item.reasonName}`}
         />
       );
     } else {
@@ -214,7 +205,14 @@ export function CardDetailScreen({navigation, route}) {
           />
         ) : (
           <ScrollView
+            ref={(ref) => {
+              console.log('ref', ref);
+              listViewRef = ref;
+            }}
             style={styles.container}
+            onContentSizeChange={(contentWidth, contentHeight) => {
+              console.log('contentHeight', contentHeight);
+            }}
             refreshControl={
               <RefreshControl
                 tintColor={THEME.PRIMARY_COLOR}
@@ -222,6 +220,12 @@ export function CardDetailScreen({navigation, route}) {
                 onRefresh={onRefresh}
               />
             }>
+            {/*<Button*/}
+            {/*  title={'sdasd'}*/}
+            {/*  onPress={() => {*/}
+            {/*    listViewRef?.scrollToEnd({animated: true});*/}
+            {/*  }}*/}
+            {/*/>*/}
             <View>
               <View style={styles.block}>
                 <CardTitle title={runData?.lineName} />
@@ -265,7 +269,9 @@ export function CardDetailScreen({navigation, route}) {
                   <SegmentedControlTab
                     values={['Positive effect', 'Negative effect']}
                     selectedIndex={selectedIndex}
-                    onTabPress={(index) => setSelectedIndex(index)}
+                    onTabPress={(index) => {
+                      setSelectedIndex(index);
+                    }}
                     tabsContainerStyle={styles.tabsContainerStyle}
                     tabStyle={styles.tabStyle}
                     firstTabStyle={styles.firstTabStyle}

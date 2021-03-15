@@ -17,7 +17,7 @@ export function useData() {
     app_metadata,
   } = user;
 
-  console.log('factoryID ----------', factory);
+  console.log('factoryID ----------', app_metadata?.factories[0]?.id);
 
   const customAxios = axios.create({
     baseURL: APIConfig.BASE_URL,
@@ -27,26 +27,18 @@ export function useData() {
     },
   });
 
-  //axios.defaults.baseURL = APIConfig.BASE_URL;
-  //axios.defaults.headers.common.Authorization = `${tokenType} ${idToken}`;
-  //axios.defaults.headers.common['FACTORY-ID'] = app_metadata?.factories[tempID]?.id;
-  //axios.defaults.headers.common['Content-Type'] = 'application/json';
-
   const requestHandler = async (request) => {
-    console.log('requestHandler ----------', factory);
-    if (await AsyncStorage.getItem('factoryID')) {
-      await AsyncStorage.getItem('factoryID').then((id) => {
-        const num = Number(id);
-        console.log('ffafafaffa', num);
-        dispatch(createAction('SET_FACTORY', num));
-        request.headers.common['FACTORY-ID'] = app_metadata?.factories[num]?.id;
-      });
-    } else {
-      console.log('not ffafafaffa');
-      request.headers.common['FACTORY-ID'] =
-        app_metadata?.factories[factory]?.id;
-    }
-    //request.headers.common['FACTORY-ID'] = app_metadata?.factories[factory]?.id;
+    console.log('request', request);
+    await AsyncStorage.getItem('factoryID').then((data) => {
+      if (data) {
+        const {factoryId, factoryUrl} = JSON.parse(data);
+        dispatch(createAction('SET_FACTORY', factoryId));
+        request.headers.common['FACTORY-ID'] = factoryId;
+        request.baseURL = factoryUrl;
+      } else {
+        request.headers.common['FACTORY-ID'] = app_metadata?.factories[0]?.id;
+      }
+    });
     return request;
   };
 
@@ -73,7 +65,7 @@ export function useData() {
 
   const responseBody = (response) => camelcaseKeys(response, {deep: true});
   const responseError = (error) => {
-    console.log('responseError', error.response);
+    console.log('responseError', error);
     console.error(error);
     throw error;
   };
