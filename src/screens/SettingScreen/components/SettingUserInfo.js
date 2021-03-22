@@ -6,7 +6,11 @@ import {FONT} from '../../../constants/fonts';
 
 import LogoMini from '../../../components/icons/LogoMini';
 
-export function SettingUserInfo({name = '', email = '', avatar = ''}) {
+export function SettingUserInfo({
+  name = 'Guest',
+  email = 'example@livetracking.io',
+  avatar,
+}) {
   return (
     <View style={styles.rowUser}>
       <View style={styles.avatar}>

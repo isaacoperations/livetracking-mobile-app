@@ -22,6 +22,7 @@ export function SelectFactoryScreen({navigation}) {
   const [{factory}, dispatch] = useReducer(reducer, initialState);
   const organizations =
     user.userData['https://livetracking.ca/app_metadata'].organizations;
+  const factoriesData = user.app_metadata?.factories[0]?.id;
   const [selected, setSelected] = useState(factory);
   useEffect(() => {
     (async () => {
@@ -32,7 +33,7 @@ export function SelectFactoryScreen({navigation}) {
           setSelected(factoryId);
           dispatch(createAction('SET_FACTORY', factoryId));
         } else {
-          setSelected(factory);
+          setSelected(factoriesData);
         }
       });
     })();
@@ -50,18 +51,6 @@ export function SelectFactoryScreen({navigation}) {
   };
 
   let idx = 0;
-
-  // {
-  //   organizations.map((organization) => {
-  //     idx++;
-  //     console.log('organization', organization);
-  //     {
-  //       organization.factories.map((item, index) => {
-  //         console.log('item', item);
-  //       });
-  //     }
-  //   });
-  // }
 
   return (
     <>

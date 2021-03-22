@@ -17,7 +17,7 @@ export function sendEmail(emailSubject, emailURL, emailBody, isHTML = true) {
           position: 'top',
           text1: 'Send email',
           topOffset: Platform.OS === 'ios' ? 110 : 40,
-          visibilityTime: 500,
+          visibilityTime: 1000,
         });
       } else {
         Toast.show({
@@ -25,7 +25,7 @@ export function sendEmail(emailSubject, emailURL, emailBody, isHTML = true) {
           position: 'top',
           text1: 'Cancelable email',
           topOffset: Platform.OS === 'ios' ? 110 : 40,
-          visibilityTime: 500,
+          visibilityTime: 1000,
         });
       }
       console.log('Mailer', error, event);

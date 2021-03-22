@@ -14,7 +14,6 @@ import {
   Platform,
   FlatList,
   RefreshControl,
-  Button,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
 import {useFocusEffect} from '@react-navigation/native';
@@ -23,7 +22,6 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
-import Clipboard from 'react-native-advanced-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import _ from 'lodash';
@@ -39,16 +37,18 @@ import {CardComponent} from '../ReportScreen/components/CardComponent';
 import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
-
 import {sleep} from '../../utils/sleep';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
-  const {logout, refreshAuth} = useContext(AuthContext);
+  const {refreshTokens} = useContext(AuthContext);
   const {ApiService} = useData();
+  const organizations =
+    user.userData['https://livetracking.ca/app_metadata'].organizations;
+  const factoriesData = user.app_metadata?.factories[0]?.id;
 
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
+  const [factoryIds, setFactoryIds] = useState(factoriesData || '');
   const [nodeData, setNodeData] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,16 +65,24 @@ export function HomeScreen({navigation}) {
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
-        console.log('home user data ', user);
-        console.log('home user refreshAuth ', refreshAuth());
 
         await fetchData();
 
+        const factoryData = await AsyncStorage.getItem('factoryID');
+        const {factoryId} = JSON.parse(factoryData);
+
+        if (factoryId !== null) {
+          setFactoryIds(factoryId);
+        } else {
+          setFactoryIds(factoriesData);
+        }
+
         await AsyncStorage.getItem('favorites').then((favorite) => {
-          let data = [];
+          let data;
           if (favorite !== null) {
-            data = JSON.parse(favorite) || [];
+            data = JSON.parse(favorite);
           }
+
           setFavorites(data);
         });
       })();
@@ -87,7 +95,7 @@ export function HomeScreen({navigation}) {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isVisible]),
+    }, []),
   );
 
   async function fetchData() {
@@ -111,7 +119,7 @@ export function HomeScreen({navigation}) {
         });
       } else {
         console.log('logout message');
-        logout();
+        refreshTokens();
       }
     }
   }
@@ -153,68 +161,49 @@ export function HomeScreen({navigation}) {
   );
 
   const handleChecked = async (idx) => {
-    let data = [];
-    await AsyncStorage.getItem('favorites').then((line) => {
-      if (line) {
-        data = JSON.parse(line);
-      }
-      if (data.indexOf(idx) === -1) {
-        data.push(idx);
+    let resultData = {};
+
+    await AsyncStorage.getItem('favorites').then((favorite) => {
+      if (favorite) {
+        resultData = JSON.parse(favorite);
       } else {
-        data = data.filter((item) => item !== idx);
+        resultData = {};
+        _.forEach(organizations, function (organization) {
+          _.forEach(organization.factories, function (factory) {
+            resultData[factory.id] = [];
+          });
+        });
       }
-      AsyncStorage.setItem('favorites', JSON.stringify(data));
-      setFavorites(data);
+
+      _.forEach(organizations, function (organization) {
+        _.forEach(organization.factories, function (factory) {
+          if (factoryIds === factory.id) {
+            let factoryFavorites = resultData[factory.id];
+            if (factoryFavorites.indexOf(idx) === -1) {
+              resultData[factory.id].push(idx);
+            } else {
+              resultData[factory.id] = factoryFavorites.filter(
+                (item) => item !== idx,
+              );
+            }
+          }
+        });
+      });
+
+      AsyncStorage.setItem('favorites', JSON.stringify(resultData));
+      setFavorites(resultData);
     });
-
-    let tempArr = [];
-    nodeData.map((item) => {
-      tempArr.push(item.lineId);
-    });
-
-    const includes = _.includes(data, tempArr);
-
-    if (includes) {
-      setIsVisible(false);
-    } else {
-      setIsVisible(true);
-    }
   };
 
-  const copyToClipboard = async () => {
-    const tokenDevice = await AsyncStorage.getItem('tokenDevice');
-    Clipboard.setString(tokenDevice);
-  };
-
-  const copyToClipboard2 = async () => {
-    const tokenDevice = await AsyncStorage.getItem('tokenDeviceAPNs');
-    Clipboard.setString(tokenDevice);
-  };
-
-  const isLine = _.map(nodeData, 'lineId');
-  const isStrLine = isLine.join().split(',');
-  const isStrFav = favorites.join().split(',');
-
-  // const full = isLine.map((line) => {
-  //   if (_.some(favorites, line)) {
-  //     return true;
-  //   }
-  // });
-  //
-  // console.log('full', full);
+  console.log('_.isEmpty(favorites[factoryIds])', favorites);
 
   return (
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        {/*<TouchableOpacity onPress={copyToClipboard} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to copy to Token Device FCM </Text>*/}
+        {/*<TouchableOpacity onPress={() => RNRestart.Restart()} style={{marginTop: 20}}>*/}
+        {/*  <Text>Click here to update Token </Text>*/}
         {/*</TouchableOpacity>*/}
-
-        {/*<TouchableOpacity onPress={copyToClipboard2} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to copy to Token Device APN </Text>*/}
-        {/*</TouchableOpacity>*/}
-        {/*<Button title="removeItem" onPress={async () => await AsyncStorage.removeItem('onboarding')} />*/}
         <View style={styles.tabContainer}>
           <SegmentedControlTab
             values={['All lines', 'My line']}
@@ -259,46 +248,52 @@ export function HomeScreen({navigation}) {
                   flex: 1,
                 },
               ]}>
-              {/*{isVisible ? (*/}
-              {/*  <>*/}
-              {/*    <IconBox style={{marginTop: 'auto', marginBottom: 15}} />*/}
-              {/*    <Text style={styles.subtitle}>*/}
-              {/*      You have no lines in your watch list*/}
-              {/*    </Text>*/}
-              {/*  </>*/}
-              {/*) : (*/}
-              <ScrollView
-                style={[styles.containerScrollView, {paddingHorizontal: 10}]}
-                refreshControl={
-                  <RefreshControl
-                    tintColor={THEME.PRIMARY_COLOR}
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                  />
-                }>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    height: '100%',
-                    width: '100%',
-                  }}>
-                  {nodeData.map((item) => {
-                    return favorites.indexOf(item.lineId) !== -1
-                      ? renderCard({item})
-                      : null;
-                  })}
-                </View>
-              </ScrollView>
-              {/*)}*/}
-              {/*{favorites.indexOf(nodeData) < -1 ? null : (*/}
-              {/*  <>*/}
-              {/*    <IconBox style={{marginTop: 'auto', marginBottom: 15}} />*/}
-              {/*    <Text style={styles.subtitle}>*/}
-              {/*      You have no lines in your watch list*/}
-              {/*    </Text>*/}
-              {/*  </>*/}
-              {/*)}*/}
+              {typeof favorites !== 'undefined' ? (
+                !_.isEmpty(favorites[factoryIds]) ? (
+                  <ScrollView
+                    style={[
+                      styles.containerScrollView,
+                      {paddingHorizontal: 10},
+                    ]}
+                    refreshControl={
+                      <RefreshControl
+                        tintColor={THEME.PRIMARY_COLOR}
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                      />
+                    }>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        height: '100%',
+                        width: '100%',
+                      }}>
+                      {factoryIds &&
+                        nodeData.map((item) => {
+                          return favorites[factoryIds].indexOf(item.lineId) !==
+                            -1
+                            ? renderCard({item})
+                            : null;
+                        })}
+                    </View>
+                  </ScrollView>
+                ) : (
+                  <>
+                    <IconBox style={{marginTop: 'auto', marginBottom: 15}} />
+                    <Text style={styles.subtitle}>
+                      You have no lines in your watch list
+                    </Text>
+                  </>
+                )
+              ) : (
+                <>
+                  <IconBox style={{marginTop: 'auto', marginBottom: 15}} />
+                  <Text style={styles.subtitle}>
+                    You have no lines in your watch list
+                  </Text>
+                </>
+              )}
 
               <RBSheet
                 ref={refRBSheet}
@@ -338,7 +333,8 @@ export function HomeScreen({navigation}) {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                         }}>
-                        <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+                        <ListItem.Title
+                          style={{color: THEME.DARK_COLOR, flex: 1}}>
                           {item.lineName}
                         </ListItem.Title>
                         <View>
@@ -357,7 +353,15 @@ export function HomeScreen({navigation}) {
                                 color={THEME.PRIMARY_COLOR}
                               />
                             }
-                            checked={favorites.indexOf(item.lineId) !== -1}
+                            checked={
+                              typeof favorites !== 'undefined'
+                                ? _.isEmpty(favorites[factoryIds])
+                                  ? false
+                                  : favorites[factoryIds].indexOf(
+                                      item.lineId,
+                                    ) !== -1
+                                : false
+                            }
                             onPress={() => handleChecked(item.lineId)}
                           />
                         </View>

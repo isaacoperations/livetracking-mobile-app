@@ -37,7 +37,7 @@ export function ReportScreen({navigation, route}) {
   const [isLoading, setLoading] = useState(true);
 
   const {ApiService} = useData();
-  const {logout} = useContext(AuthContext);
+  const {refreshTokens} = useContext(AuthContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -90,7 +90,7 @@ export function ReportScreen({navigation, route}) {
         crashlytics().recordError(err);
         console.log('datadatadata', data);
         if (status === 401) {
-          logout();
+          refreshTokens();
         } else {
           setLoading(true);
           Toast.show({

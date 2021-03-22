@@ -21,8 +21,8 @@ public class MainActivity extends ReactActivity {
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-    //SplashScreen.show(this);
-    SplashScreen.show(this, R.style.SplashScreenTheme);
+    SplashScreen.show(this);
+    // SplashScreen.show(this, R.style.SplashScreenTheme);
     super.onCreate(savedInstanceState, persistentState);
   }
 }

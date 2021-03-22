@@ -12,13 +12,13 @@ import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import * as Animatable from 'react-native-animatable';
 import {useFocusEffect} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
 import {Btn} from '../../components/Button';
 import LogoNotification from '../../components/icons/LogoNotification';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function EnableNotificationScreen({navigation}) {
   const [isShow, setIsShow] = useState(true);
@@ -40,7 +40,6 @@ export function EnableNotificationScreen({navigation}) {
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-    console.log('enabled', enabled);
 
     if (enabled) {
       setIsShow(false);
@@ -58,12 +57,16 @@ export function EnableNotificationScreen({navigation}) {
       [
         {
           text: 'Don’t Allow',
-          onPress: () => console.log('Cancel Pressed'),
+          onPress: async () => {
+            crashlytics().log('Enable Notification - Don’t Allow');
+            await AsyncStorage.setItem('onboarding', 'true')
+          },
           style: 'cancel',
         },
         {
           text: 'OK',
           onPress: async () => {
+            crashlytics().log('Enable Notification - Enable button');
             await AsyncStorage.setItem('onboarding', 'true');
             await Linking.openSettings();
           },
@@ -111,8 +114,8 @@ export function EnableNotificationScreen({navigation}) {
               navigation={navigation}
               title={'I’ll do it later'}
               onPress={async () => {
+                crashlytics().log('Enable Notification - I’ll do it later');
                 await AsyncStorage.setItem('onboarding', 'true');
-                console.log('I’ll do it later');
               }}
               borderColor={THEME.PRIMARY_COLOR}
               backgroundColor={THEME.WHITE_COLOR}
@@ -130,8 +133,8 @@ export function EnableNotificationScreen({navigation}) {
             navigation={navigation}
             title={'Go home'}
             onPress={async () => {
+              crashlytics().log('Enable Notification - Go home');
               await AsyncStorage.setItem('onboarding', 'true');
-              console.log('Go to Home');
             }}
             borderColor={THEME.PRIMARY_COLOR}
             backgroundColor={THEME.WHITE_COLOR}
@@ -167,8 +170,8 @@ export function EnableNotificationScreen({navigation}) {
             navigation={navigation}
             title={'I’ll do it later'}
             onPress={async () => {
+              crashlytics().log('Enable Notification - I’ll do it later');
               await AsyncStorage.setItem('onboarding', 'true');
-              console.log('I’ll do it later');
             }}
             borderColor={THEME.PRIMARY_COLOR}
             backgroundColor={THEME.WHITE_COLOR}

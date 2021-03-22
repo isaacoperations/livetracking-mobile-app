@@ -9,14 +9,13 @@ import {
 import {Divider} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 
+import {AuthContext, UserContext} from '../../context/context';
 import {THEME} from '../../constants/theme';
 
 import HeaderStatus from '../../components/HeaderStatus';
 import {ModalHeader} from '../../components/ModalHeader';
 import {SettingBtn} from './components/SettingBtn';
 import {SettingUserInfo} from './components/SettingUserInfo';
-
-import {AuthContext, UserContext} from '../../context/context';
 import {Btn} from '../../components/Button';
 
 export function SettingScreen({navigation}) {
@@ -26,7 +25,7 @@ export function SettingScreen({navigation}) {
   const user = useContext(UserContext);
   const {logout} = useContext(AuthContext);
   const {
-    userData: {name, picture},
+    userData: {name, picture, email},
   } = user;
   return (
     <>
@@ -41,7 +40,7 @@ export function SettingScreen({navigation}) {
         />
         <SettingUserInfo
           name={name}
-          email={'work@email.com'}
+          email={email}
           avatar={picture}
         />
         <ScrollView contentContainerStyle={{height: '100%'}}>

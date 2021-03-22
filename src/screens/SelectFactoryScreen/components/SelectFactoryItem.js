@@ -12,7 +12,7 @@ export function SelectFactoryItem({
   description = 'Test Factory Etobicoke North',
   onPress,
   iconShow = false,
-  isActive = 1,
+  isActive,
 }) {
   useEffect(() => {
     (async () => {

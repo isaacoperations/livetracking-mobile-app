@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import moment from 'moment';
 
@@ -12,6 +12,7 @@ export function ProgressContent({
   time = '',
   isActive,
 }) {
+  const [visible, setVisible] = useState(true);
   const minute = moment().startOf('hour').seconds(time).format('mm');
   const second = moment().startOf('hour').seconds(time).format('ss');
   return (
@@ -25,7 +26,7 @@ export function ProgressContent({
           paddingBottom: isActive ? 2 : 0,
         },
       ]}>
-      <View style={{justifyContent: 'space-between', marginRight: 15}}>
+      <View style={{flex: 1, justifyContent: 'space-between', marginRight: 15}}>
         <Text style={[styles.progressInfoText, styles.uppercase]}>Reason</Text>
         <Text style={[styles.progressInfoText, styles.uppercase]}>
           Lost time
@@ -34,8 +35,14 @@ export function ProgressContent({
           Percentage
         </Text>
       </View>
-      <View style={{justifyContent: 'space-between'}}>
-        <Text style={styles.progressInfoText}>{title}</Text>
+      <View style={{flex: 2, justifyContent: 'space-between'}}>
+        <Text
+          onPress={() => setVisible(!visible)}
+          numberOfLines={visible ? 1 : undefined}
+          ellipsizeMode={'tail'}
+          style={styles.progressInfoText}>
+          {title}
+        </Text>
         <Text style={styles.progressInfoText}>{`${minute}m ${second}s`}</Text>
         <Text style={styles.progressInfoText}>{percent} %</Text>
       </View>

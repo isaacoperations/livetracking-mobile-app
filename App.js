@@ -18,6 +18,7 @@ import {localNotificationService} from './src/services/LocalNotificationServices
 
 import MainTabNavigation from './src/navigation/MainTabNavigation';
 import AuthStackNavigator from './src/navigation/AuthStackNavigation';
+import OnboardingStackNavigator from './src/navigation/OnboardingStackNavigation';
 import {useAuth} from './src/hooks/useAuth';
 import {useInterval} from './src/hooks/useInterval';
 import {SplashScreenComponent} from './src/components/SplashScreen';
@@ -25,13 +26,7 @@ import {sleep} from './src/utils/sleep';
 
 import reducer, {initialState} from './src/reducer/reducer';
 import {createAction} from './src/utils/createAction';
-import RNSInfo from 'react-native-sensitive-info';
-import Auth0 from 'react-native-auth0';
-import {
-  credentials,
-  credentialsRefresh,
-} from './src/config/auth0-configuration';
-import OnboardingStackNavigator from './src/navigation/OnboardingStackNavigation';
+import {createTimeSlots} from './src/utils/createTimeSlots';
 
 const App = () => {
   const navigationRef = useRef(null);
@@ -42,22 +37,6 @@ const App = () => {
   const [isEnableDisturb, setIsEnabledDisturb] = useState(false);
   const [isWeek, setIsWeek] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
-
-  const auth0 = new Auth0(credentials);
-
-  const createTimeSlots = (fromTime, toTime) => {
-    let startTime = moment(fromTime, 'HH:mm');
-    let endTime = moment(toTime, 'HH:mm');
-    if (endTime.isBefore(startTime)) {
-      endTime.add(1, 'day');
-    }
-    let arr = [];
-    while (startTime <= endTime) {
-      arr.push(new moment(startTime).format('HH:mm'));
-      startTime.add(1, 'minutes');
-    }
-    return arr;
-  };
 
   const checkOnboarding = async () => {
     try {
@@ -80,45 +59,10 @@ const App = () => {
     fcmService.getAPNsToken(onRegisterAPNS);
     fcmService.register(onRegister, onNotification, onOpenNotification);
     localNotificationService.configure(onOpenNotification);
-    //localNotificationService.createChannel();
-    //localNotificationService.getChannels();
+    localNotificationService.createChannel();
+    localNotificationService.getChannels();
 
     (async () => {
-      await RNSInfo.getItem('user', {}).then(async (userData) => {
-        const data = JSON.parse(userData);
-        console.log('payload 2', data);
-        await auth0.auth
-          .refreshToken({
-            refreshToken: data.token, // use access token
-            scope: 'openid profile offline_access',
-          })
-          .then((user) => {
-            console.log('refresh user 2', user);
-          })
-          .catch((e) => {
-            console.log('refresh user 3', e.response);
-          });
-
-        // async function postData(url = '', data = {}) {
-        //   // Default options are marked with *
-        //   const response = await fetch(url, {
-        //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        //     headers: {'content-type': 'application/x-www-form-urlencoded'},
-        //     form: {
-        //       grant_type: 'refresh_token',
-        //       client_id: 'OsRHqDRNeKAo1u7AGDFcfAa7D4VK7gyz',
-        //       client_secret:
-        //         'NfVFKewmlLwP-AaF57Rz6UFZTJimz0heZ87dUEpiSFky1hCV7mgBoOFlzsuBf3t2',
-        //       refresh_token: 'g9ZMS7bTT8PTf8S4Fnly4mLhxS1pzIym',
-        //     },
-        //   });
-        //   return await response.json(); // parses JSON response into native JavaScript objects
-        // }
-        //
-        // postData('https://livetracking.auth0.com/oauth/token').then((datas) => {
-        //   console.log('postData', datas); // JSON data parsed by `response.json()` call
-        // });
-      });
       await checkOnboarding();
     })();
 
@@ -148,6 +92,18 @@ const App = () => {
   }
 
   async function onNotification(notify) {
+    if (notify) {
+      let dataN = {};
+      let resultN = [];
+
+      await AsyncStorage.getItem('notifyData').then(async (notifys) => {
+        if (notifys) {
+          dataN = JSON.parse(notifys);
+        }
+        resultN.push(dataN, notifys);
+        await AsyncStorage.setItem('notifyData', JSON.stringify(resultN));
+      });
+    }
     console.log('[Notification] onNotification: ', notify);
     await AsyncStorage.setItem('notifyIcon', 'true');
     dispatch(createAction('SET_BADGE', true));
@@ -289,7 +245,20 @@ const App = () => {
     });
   }
 
-  function onOpenNotification(notify) {
+  async function onOpenNotification(notify) {
+    if (notify) {
+      let dataN = {};
+      let resultN = [];
+
+      await AsyncStorage.getItem('notifyData').then(async (notifys) => {
+        if (notifys) {
+          dataN = JSON.parse(notifys);
+        }
+        resultN.push(dataN, notifys);
+        await AsyncStorage.setItem('notifyData', JSON.stringify(resultN));
+      });
+    }
+
     console.log('[Notification] onOpenNotification: ', notify);
     console.log(
       '[Notification] [Notification][Notification]',

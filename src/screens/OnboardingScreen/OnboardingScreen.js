@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,6 +9,10 @@ import {
 } from 'react-native';
 import Onboarding from 'react-native-onboarding-swiper';
 import * as Animatable from 'react-native-animatable';
+import {useFocusEffect} from '@react-navigation/native';
+import crashlytics from '@react-native-firebase/crashlytics';
+import messaging from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {IMAGE} from '../../constants/images';
 import {THEME} from '../../constants/theme';
@@ -20,6 +24,34 @@ import Onboarding4 from './components/OnBoarding_4';
 
 export function OnboardingScreen({navigation}) {
   const [page, setPage] = useState(0);
+  const [isShow, setIsShow] = useState(true);
+  useFocusEffect(
+    useCallback(() => {
+      crashlytics().log('Enable Notification - Screen');
+      requestUserPermission();
+      const intervalID = setInterval(async () => {
+        await requestUserPermission();
+      }, 2000);
+
+      return () => clearInterval(intervalID);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isShow]),
+  );
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      setIsShow(false);
+      console.log('Authorization status:', authStatus);
+    } else {
+      setIsShow(true);
+      console.log('Authorization status:', authStatus);
+    }
+  }
 
   const skipBtn = ({...props}) => (
     <TouchableOpacity {...props}>
@@ -75,13 +107,23 @@ export function OnboardingScreen({navigation}) {
           DoneButtonComponent={DoneBtn}
           SkipButtonComponent={skipBtn}
           NextButtonComponent={NextBtn}
-          onSkip={() => {
-            // await AsyncStorage.setItem('onboarding', 'true');
-            navigation.navigate('Notification');
+          onSkip={async () => {
+            if (Platform.OS === 'ios') {
+              isShow
+                ? navigation.navigate('Notification')
+                : await AsyncStorage.setItem('onboarding', 'true');
+            } else {
+              navigation.navigate('Notification');
+            }
           }}
-          onDone={() => {
-            // await AsyncStorage.setItem('onboarding', 'true');
-            navigation.navigate('Notification');
+          onDone={async () => {
+            if (Platform.OS === 'ios') {
+              isShow
+                ? navigation.navigate('Notification')
+                : await AsyncStorage.setItem('onboarding', 'true');
+            } else {
+              navigation.navigate('Notification');
+            }
           }}
           bottomBarHighlight={false}
           containerStyles={styles.onboarding}

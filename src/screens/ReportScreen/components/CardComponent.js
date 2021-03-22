@@ -1,13 +1,6 @@
-import React, {useState} from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Card} from 'react-native-elements';
-import CountDown from 'react-native-countdown-component';
 import _ from 'lodash';
 
 import {FONT} from '../../../constants/fonts';
@@ -17,7 +10,7 @@ import {BadgeComponent} from '../../../components/BadgeComponent';
 import IconE from '../../../components/icons/IconE';
 import IconMoon from '../../../components/icons/IconMoon';
 import IconDanger from '../../../components/icons/IconDanger';
-import {CountDownLabel} from '../../CardDetailsScreen/components/CountDownLabel';
+import {CountTimer} from '../../CardDetailsScreen/components/CountTimer';
 
 export function CardComponent({
   progressLine = '50',
@@ -30,15 +23,12 @@ export function CardComponent({
   currentDowntimeDurationSeconds,
   runDurationSeconds,
 }) {
-  const [runSeconds, setRunSeconds] = useState(runDurationSeconds);
-  const [currentSeconds, setCurrentSeconds] = useState(currentDowntimeDurationSeconds);
   return (
     <Card
       containerStyle={[
         styles.cardContainer,
         {width: progressLine ? 'auto' : '46%'},
-      ]}
-    >
+      ]}>
       <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
         <View style={styles.cardImage}>
           <BadgeComponent status={status} />
@@ -102,47 +92,29 @@ export function CardComponent({
           </View>
           <View style={styles.cardTimerRow}>
             {status === 'down' ? (
-              <IconDanger style={{marginBottom: 4}} />
+              <IconDanger style={{marginTop: 10}} />
             ) : (
-              <IconMoon style={{marginBottom: 4}} />
+              <IconMoon style={{marginTop: 5}} />
             )}
-            {status !== 'notrunning' ? (
-              <View>
-                <CountDownLabel />
-                <CountDown
-                  size={15}
-                  until={
-                    status === 'slow' || status === 'normal'
-                      ? runSeconds
-                      : status === 'down'
-                      ? currentSeconds
-                      : null
-                  }
-                  onFinish={() => console.log('Finished')}
-                  digitTxtStyle={{
-                    color:
-                      status === 'down'
-                        ? THEME.ERROR_COLOR
-                        : THEME.PRIMARY_COLOR_DARK,
-                    fontSize: 12,
-                  }}
-                  timeLabelStyle={{
-                    color: THEME.ASH_COLOR,
-                    margin: 0,
-                  }}
-                  digitStyle={{
-                    backgroundColor: 'transparent',
-                    height: 20,
-                  }}
-                  separatorStyle={{
-                    color: THEME.ASH_COLOR,
-                    marginTop: 'auto',
-                    marginBottom: 1,
-                  }}
-                  style={{flexDirection: 'row'}}
-                  timeLabels={{h: null, m: null, s: null}} //h: 'HR', m: 'MIN', s: 'SEC'
-                  timeToShow={['H', 'M', 'S']}
-                  showSeparator
+            {status === 'down' ? (
+              <View style={{width: '100%', paddingHorizontal: 15}}>
+                <CountTimer
+                  durationSeconds={currentDowntimeDurationSeconds}
+                  status={status}
+                />
+              </View>
+            ) : status === 'slow' ? (
+              <View style={{width: '100%', paddingHorizontal: 15}}>
+                <CountTimer
+                  durationSeconds={runDurationSeconds}
+                  status={status}
+                />
+              </View>
+            ) : status === 'normal' ? (
+              <View style={{width: '100%', paddingHorizontal: 15}}>
+                <CountTimer
+                  durationSeconds={runDurationSeconds}
+                  status={status}
                 />
               </View>
             ) : null}
@@ -181,7 +153,7 @@ const styles = StyleSheet.create({
     color: THEME.CHAR_COLOR,
     fontSize: 11,
     fontFamily: FONT.Regular,
-    marginTop: Platform.OS === 'android' ? -5: 0,
+    marginTop: Platform.OS === 'android' ? -5 : 0,
   },
   cardProgress: {
     flexDirection: 'row',
@@ -193,7 +165,7 @@ const styles = StyleSheet.create({
   },
   cardProgressTitle: {
     color: THEME.PRIMARY_COLOR_DARK,
-    fontFamily: FONT.SemiBold,
+    fontFamily: Platform.OS === 'ios' ? FONT.SemiBold : FONT.Bold,
   },
   cardProgressRow: {
     position: 'relative',

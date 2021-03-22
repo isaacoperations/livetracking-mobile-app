@@ -16,7 +16,6 @@ import {Divider, ListItem, CheckBox} from 'react-native-elements';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import ModalDropdown from 'react-native-modal-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
@@ -60,7 +59,7 @@ export function ModalFilterScreen({navigation}) {
   const maxDate = new Date(2050, 11, 30);
 
   const {ApiService} = useData();
-  const {logout} = useContext(AuthContext);
+  const {refreshTokens} = useContext(AuthContext);
 
   useEffect(() => {
     (async () => {
@@ -84,7 +83,7 @@ export function ModalFilterScreen({navigation}) {
     } catch (e) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
-      logout();
+      refreshTokens();
     }
   }
 
@@ -96,7 +95,7 @@ export function ModalFilterScreen({navigation}) {
     } catch (e) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
-      logout();
+      refreshTokens();
     }
   }
 

@@ -1,10 +1,12 @@
+import Config from 'react-native-config';
+
 export const credentials = {
-  domain: 'livetracking.auth0.com',
-  clientId: 'OsRHqDRNeKAo1u7AGDFcfAa7D4VK7gyz',
+  domain: Config.AUTH0_DOMAIN,
+  clientId: Config.AUTH0_CLIENT_ID,
 };
 
 export const credentialsRefresh = {
-  domain: 'livetracking.auth0.com',
+  domain: Config.AUTH0_DOMAIN,
   clientId: 'GZXVed_6TF5Dub5MTx3g9SDOu3NA6C3g',
 };
 

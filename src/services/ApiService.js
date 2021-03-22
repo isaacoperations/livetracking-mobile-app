@@ -11,13 +11,13 @@ import reducer, {initialState} from '../reducer/reducer';
 
 export function useData() {
   const user = useContext(UserContext);
-  const [{factory}, dispatch] = useReducer(reducer, initialState);
+  const [, dispatch] = useReducer(reducer, initialState);
   const {
     authData: {idToken, tokenType},
     app_metadata,
   } = user;
 
-  console.log('factoryID ----------', app_metadata?.factories[0]?.id);
+  // console.log('factoryID ----------', app_metadata?.factories[0]?.id);
 
   const customAxios = axios.create({
     baseURL: APIConfig.BASE_URL,

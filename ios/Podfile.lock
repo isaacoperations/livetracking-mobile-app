@@ -274,13 +274,17 @@ PODS:
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
   - React-jsinspector (0.63.4)
-  - react-native-advanced-clipboard (1.0.4):
-    - React
+  - react-native-config (1.4.2):
+    - react-native-config/App (= 1.4.2)
+  - react-native-config/App (1.4.2):
+    - React-Core
   - react-native-date-picker (3.2.10):
     - React-Core
   - react-native-mail (6.0.0):
     - React-Core
   - react-native-netinfo (5.9.10):
+    - React-Core
+  - react-native-restart (0.0.22):
     - React-Core
   - react-native-safe-area-context (3.1.9):
     - React-Core
@@ -408,10 +412,11 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
-  - react-native-advanced-clipboard (from `../node_modules/react-native-advanced-clipboard`)
+  - react-native-config (from `../node_modules/react-native-config`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-mail (from `../node_modules/react-native-mail`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sensitive-info (from `../node_modules/react-native-sensitive-info`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
@@ -492,14 +497,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
-  react-native-advanced-clipboard:
-    :path: "../node_modules/react-native-advanced-clipboard"
+  react-native-config:
+    :path: "../node_modules/react-native-config"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
   react-native-mail:
     :path: "../node_modules/react-native-mail"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
+  react-native-restart:
+    :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sensitive-info:
@@ -590,10 +597,11 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-advanced-clipboard: 8ee320229aa6caf0bd2d5fd7f6bf35bf66bad2ba
+  react-native-config: c98128a72bc2c3a1ca72caec0b021f0fa944aa29
   react-native-date-picker: 242eec7af56cea5fb2706d5db5d3837060b3884b
   react-native-mail: 88305252f4c3fb0157015ff8a7ac9c41b321a0dd
   react-native-netinfo: 30fb89fa913c342be82a887b56e96be6d71201dd
+  react-native-restart: 733a51ad137f15b0f8dc34c4082e55af7da00979
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-sensitive-info: d44e909d065f9c0e15734245e5dd6a24b82e3dcd
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865

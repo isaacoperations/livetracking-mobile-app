@@ -14,38 +14,34 @@ export function CardTime({startTime = null, endTime = null}) {
     })();
   }, []);
   return (
-    <>
-      <View style={{flex: 1, flexDirection: 'row'}}>
-        <View
-          style={{
-            flex: 1,
-            borderRightWidth: 1,
-            borderColor: THEME.GRAY_COLOR,
-            paddingTop: 20,
-            paddingBottom: 30,
-          }}>
-          <Text style={styles.label}>Start time</Text>
-          <View style={styles.timeBlock}>
-            <MaterialIcons
-              size={25}
-              color={THEME.PRIMARY_COLOR_DARK}
-              name={'access-time'}
-              style={{marginRight: 10}}
-            />
-            <Text style={styles.textBlue}>
-              {startTime
-                ? moment.utc(startTime).format('h:mm:ss a')
-                : 'In Progress'}
-            </Text>
-          </View>
+    <View style={{flex: 1, flexDirection: 'row'}}>
+      <View
+        style={{
+          flex: 1,
+          borderRightWidth: 1,
+          borderColor: THEME.GRAY_COLOR,
+          paddingTop: 20,
+          paddingBottom: 30,
+        }}>
+        <Text style={styles.label}>Start time</Text>
+        <View style={styles.timeBlock}>
+          <MaterialIcons
+            size={25}
+            color={THEME.PRIMARY_COLOR_DARK}
+            name={'access-time'}
+            style={{marginRight: 10}}
+          />
+          <Text style={styles.textBlue}>
+            {startTime
+              ? moment.utc(startTime).format('h:mm:ss a')
+              : 'In Progress'}
+          </Text>
         </View>
-        <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
-          <Text style={[styles.label, {marginBottom: 7}]}>End time</Text>
-          <View
-            style={[
-              styles.timeBlock,
-              {marginTop: Platform.OS === 'ios' ? 10 : 6},
-            ]}>
+      </View>
+      <View style={{flex: 1, marginLeft: 20, paddingTop: 20}}>
+        <Text style={styles.label}>End time</Text>
+        {Platform.OS === 'ios' ? (
+          <View style={[styles.timeBlock, {marginTop: 12}]}>
             <IconCheck />
             <View style={{marginLeft: 15}}>
               <Text style={styles.textBlue}>
@@ -55,9 +51,20 @@ export function CardTime({startTime = null, endTime = null}) {
               </Text>
             </View>
           </View>
-        </View>
+        ) : (
+          <View style={styles.timeBlock}>
+            <IconCheck />
+            <View style={{marginLeft: 15}}>
+              <Text style={styles.textBlue}>
+                {endTime
+                  ? moment.utc(startTime).format('h:mm:ss a')
+                  : 'In Progress'}
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
-    </>
+    </View>
   );
 }
 

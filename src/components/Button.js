@@ -1,9 +1,8 @@
-import * as React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, Pressable, Platform} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
-import {useEffect} from 'react';
 
 export function Btn({
   title,
@@ -32,6 +31,7 @@ export function Btn({
         {
           backgroundColor: !pressed ? backgroundColor : backgroundColorHover,
           borderColor: borderColor,
+          alignItems: 'center',
         },
         size,
       ]}>
@@ -42,6 +42,7 @@ export function Btn({
             justifyContent: 'space-between',
             width: '100%',
             flexDirection: 'row',
+            // backgroundColor: 'blue',
           }}>
           <Text
             style={[
@@ -50,6 +51,7 @@ export function Btn({
                 color: !pressed ? textColor : textColorHover,
                 fontFamily: fontFamily,
                 marginLeft: marginLeft,
+                // backgroundColor: 'red',
               },
             ]}>
             {title}

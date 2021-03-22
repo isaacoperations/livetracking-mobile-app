@@ -5,10 +5,9 @@ import {
   View,
   Pressable,
 } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
-
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export function SettingBtn({title = '', onPress}) {
   useEffect(() => {
