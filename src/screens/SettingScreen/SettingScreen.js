@@ -38,11 +38,7 @@ export function SettingScreen({navigation}) {
           iconShow={false}
           backgroundColor={'#EDF0F3'}
         />
-        <SettingUserInfo
-          name={name}
-          email={email}
-          avatar={picture}
-        />
+        <SettingUserInfo name={name} email={email} avatar={picture} />
         <ScrollView contentContainerStyle={{height: '100%'}}>
           <View style={{marginBottom: 'auto'}}>
             <Divider style={styles.divider} />

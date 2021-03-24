@@ -18,6 +18,7 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -34,9 +35,8 @@ import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
 import {EmptyComponent} from '../components/EmptyComponent';
-import crashlytics from '@react-native-firebase/crashlytics';
 
-export function ModalFilterScreen({navigation}) {
+export function ModalFilterScreen({navigation, route}) {
   const [modalValueText, setModalValueText] = useState('One day');
   const [selectOneDay, setSelectOneDay] = useState(true);
   const [isCheckVisibleLine, setIsCheckVisibleLine] = useState(false);
@@ -45,13 +45,15 @@ export function ModalFilterScreen({navigation}) {
   const [modalVisibleDate, setModalVisibleDate] = useState(false);
   const [countCheckProduct, setCountCheckProduct] = useState('All Products');
   const [lineData, setLineData] = useState([]);
-  const [checkAllLine, setCheckAllLine] = useState(false);
   const [productData, setProductData] = useState([]);
+  const [checkAllLine, setCheckAllLine] = useState(false);
   const [checkAllProduct, setCheckAllProduct] = useState(false);
   const [date, setDate] = useState(moment());
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const refRBSheetProduct = useRef();
+
+  let bool = _.isEmpty(route?.params?.filterDataTab);
 
   const HEIGHT = Dimensions.get('window').height;
   const WIDTH = Dimensions.get('window').width;
@@ -66,19 +68,92 @@ export function ModalFilterScreen({navigation}) {
       await MaterialCommunityIcons.loadFont();
       await MaterialIcons.loadFont();
       crashlytics().log('Filters - screen');
+      if (bool) {
+        await fetchLineData();
+        setCheckAllLine(true);
 
-      await fetchLineData();
-      await fetchProductData();
+        await fetchProductData();
+        setCheckAllProduct(true);
+      } else {
+        fetchLocalData();
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ==== LOCAL DATA ==== //
+
+  function fetchLocalData() {
+    const {
+      lineDataFull,
+      productDataFull,
+      lineData,
+      productData,
+    } = route?.params?.filterDataTab;
+    setLineData(lineDataFull);
+    setProductData(productDataFull);
+
+    const tempLine = _.filter(lineDataFull, ['selected', true]);
+    const sizeLine = _.size(tempLine);
+
+    const tempProduct = _.filter(productDataFull, ['selected', true]);
+    const sizeProduct = _.size(tempProduct);
+
+    if (sizeLine > 0) {
+      const uniqDataBy = _.uniqBy(lineDataFull, 'selected');
+      const some = _.some(uniqDataBy, ['selected', true]);
+      if (some) {
+        setIsCheckVisibleLine(true);
+      } else {
+        setIsCheckVisibleLine(false);
+      }
+    } else {
+      setCheckAllLine(false);
+    }
+
+    if (sizeProduct > 0) {
+      const uniqDataBy = _.uniqBy(productDataFull, 'selected');
+      const some = _.some(uniqDataBy, ['selected', true]);
+      if (some) {
+        setIsCheckVisibleProduct(true);
+      } else {
+        setIsCheckVisibleProduct(false);
+      }
+    } else {
+      setCheckAllProduct(false);
+    }
+
+    if (lineDataFull.length === lineData.length) {
+      setCheckAllLine(true);
+      setIsCheckVisibleLine(false);
+    }
+
+    if (productDataFull.length === productData.length) {
+      setCheckAllProduct(true);
+      setIsCheckVisibleProduct(false);
+    }
+
+    const reject = _.reject(productDataFull, function (o) {
+      return !o.selected;
+    });
+    const size = _.size(reject);
+    setCountCheckProduct(`Products (${size})`);
+  }
 
   // ==== LINE ==== //
 
   async function fetchLineData() {
     try {
       await ApiService.getLines().then(async ({data}) => {
-        setLineData(data);
+        const dataX = data.map((item) => {
+          return {
+            id: item.id,
+            name: item.name,
+            selected: true,
+          };
+        });
+        setLineData(dataX);
+        setIsCheckVisibleLine(false);
       });
     } catch (e) {
       crashlytics().log('Filters error - line');
@@ -90,7 +165,22 @@ export function ModalFilterScreen({navigation}) {
   async function fetchProductData() {
     try {
       await ApiService.getProducts().then(async ({data}) => {
-        setProductData(data);
+        // setProductData(data);
+
+        const dataX = data.map((item) => {
+          return {
+            id: item.id,
+            name: item.name,
+            selected: true,
+          };
+        });
+        const reject = _.reject(dataX, function (o) {
+          return !o.selected;
+        });
+        const size = _.size(reject);
+        setCountCheckProduct(`Products (${size})`);
+        setProductData(dataX);
+        setIsCheckVisibleProduct(false);
       });
     } catch (e) {
       crashlytics().log('Filters error - product');
@@ -137,50 +227,6 @@ export function ModalFilterScreen({navigation}) {
     setLineData(data);
     setIsCheckVisibleLine(false);
   };
-
-  const renderLineItem = ({item}) => (
-    <>
-      <ListItem
-        containerStyle={{
-          paddingLeft: 30,
-          backgroundColor: 'white',
-        }}
-        activeOpacity={1}
-        onPress={() => handleCheckedLine(item.id)}>
-        <ListItem.Content
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-          <ListItem.Title style={{color: THEME.DARK_COLOR}}>
-            {item.name}
-          </ListItem.Title>
-          <View>
-            <CheckBox
-              checkedIcon={
-                <MaterialIcons
-                  name={'check-circle'}
-                  size={24}
-                  color={THEME.PRIMARY_COLOR}
-                />
-              }
-              uncheckedIcon={
-                <MaterialCommunityIcons
-                  name={'circle-outline'}
-                  size={24}
-                  color={THEME.PRIMARY_COLOR}
-                />
-              }
-              checked={item.selected || false}
-              onPress={() => handleCheckedLine(item.id)}
-            />
-          </View>
-        </ListItem.Content>
-      </ListItem>
-      <Divider style={styles.divider} />
-    </>
-  );
 
   // ==== PRODUCT ==== //
 
@@ -307,11 +353,12 @@ export function ModalFilterScreen({navigation}) {
       .subtract(1, 'days')
       .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+    console.log('productData submit', productData);
     const data = {
       lineData: lineSelected.length > 0 ? lineSelected : null,
-      lineDataFull: filterLine.length > 0 ? filterLine : [],
+      lineDataFull: lineData,
       productData: productSelected.length > 0 ? productSelected : null,
-      productDataFull: filterProduct.length > 0 ? filterProduct : [],
+      productDataFull: productData,
       selectDay: selectOneDay,
       date: date ? date.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
       dateFrom: startDate
@@ -337,9 +384,10 @@ export function ModalFilterScreen({navigation}) {
       return {
         id: item.id,
         name: item.name,
-        selected: false,
+        selected: true,
       };
     });
+    const filterLineId = _.map(dataLine, 'id');
     setIsCheckVisibleLine(false);
     setLineData(dataLine);
 
@@ -347,9 +395,10 @@ export function ModalFilterScreen({navigation}) {
       return {
         id: item.id,
         name: item.name,
-        selected: false,
+        selected: true,
       };
     });
+    const filterProductId = _.map(dataProduct, 'id');
     setCountCheckProduct('All products');
     setProductData(dataProduct);
     setIsCheckVisibleProduct(false);
@@ -359,16 +408,16 @@ export function ModalFilterScreen({navigation}) {
       .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const data = {
-      lineData: null,
-      lineDataFull: [],
-      productData: null,
-      productDataFull: [],
+      lineData: filterLineId,
+      lineDataFull: dataLine,
+      productData: filterProductId,
+      productDataFull: dataProduct,
       date: today,
       dateFrom: yesterday,
       dateTo: today,
     };
     navigation.navigate('ReportScreen', {
-      filterData: data,
+      filterData: undefined,
     });
   };
 
@@ -378,7 +427,11 @@ export function ModalFilterScreen({navigation}) {
       <SafeAreaView style={[styles.container]}>
         <ModalHeader
           title={'Filters'}
-          onPressClose={() => navigation.goBack()}
+          onPressClose={() =>
+            navigation.navigate('ReportScreen', {
+              filterData: !bool ? route?.params?.filterDataTab : undefined,
+            })
+          }
         />
         {/* Start Scroll */}
         <ScrollView nestedScrollEnabled={true}>
@@ -477,7 +530,9 @@ export function ModalFilterScreen({navigation}) {
                         date={
                           startDate
                             ? startDate.format('MMM DD, YYYY')
-                            : moment().format('MMM DD, YYYY')
+                            : moment()
+                                .subtract(1, 'days')
+                                .format('MMM DD, YYYY')
                         }
                         title={'From'}
                         onPress={() => setModalVisible(true)}
@@ -598,26 +653,6 @@ export function ModalFilterScreen({navigation}) {
               </ListItem.Content>
             </ListItem>
             <Divider style={styles.divider} />
-            {/* ScrollView Container for Line list */}
-            {/*<FlatList*/}
-            {/*  nestedScrollEnabled={true}*/}
-            {/*  keyExtractor={(item) => item.id.toString()}*/}
-            {/*  data={lineData}*/}
-            {/*  renderItem={renderLineItem}*/}
-            {/*  ListEmptyComponent={*/}
-            {/*    <EmptyComponent*/}
-            {/*      title={'You have no lines in your watch list'}*/}
-            {/*    />*/}
-            {/*  }*/}
-            {/*  removeClippedSubviews={true} // Unmount components when outside of window*/}
-            {/*  initialNumToRender={2} // Reduce initial render amount*/}
-            {/*  maxToRenderPerBatch={10} // Reduce number in each render batch*/}
-            {/*  updateCellsBatchingPeriod={100} // Increase time between renders*/}
-            {/*  windowSize={20}*/}
-            {/*  // ListFooterComponent={*/}
-            {/*  //   <ActivityIndicator size={30} color={THEME.PRIMARY_COLOR} />*/}
-            {/*  // }*/}
-            {/*/>*/}
             <ScrollView nestedScrollEnabled={true}>
               {lineData.length > 0 ? (
                 lineData.map((item, i) => (

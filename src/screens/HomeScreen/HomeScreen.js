@@ -16,7 +16,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
-import {useFocusEffect} from '@react-navigation/native';
+import {CommonActions, useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -89,7 +89,7 @@ export function HomeScreen({navigation}) {
 
       const refreshID = setInterval(async () => {
         await fetchData();
-      }, 10000);
+      }, 1000);
 
       return () => {
         clearInterval(refreshID);
@@ -206,7 +206,7 @@ export function HomeScreen({navigation}) {
         {/*</TouchableOpacity>*/}
         <View style={styles.tabContainer}>
           <SegmentedControlTab
-            values={['All lines', 'My line']}
+            values={['All lines', 'My lines']}
             selectedIndex={selectedIndex}
             onTabPress={(index) => setSelectedIndex(index)}
             tabsContainerStyle={styles.tabsContainerStyle}

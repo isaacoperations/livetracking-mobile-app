@@ -18,6 +18,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getVersion} from 'react-native-device-info';
+import Toast from 'react-native-toast-message';
 
 import APIConfig from '../../config';
 import {THEME} from '../../constants/theme';
@@ -85,10 +86,24 @@ OS: <span style="text-transform: ${
               crashlytics().log('FORGOT_PASSWORD - send');
             });
             actions.resetForm();
+            Toast.show({
+              type: 'success',
+              position: 'top',
+              text1: 'Send email',
+              topOffset: Platform.OS === 'ios' ? 110 : 40,
+              visibilityTime: 1000,
+            });
           } catch (e) {
             crashlytics().recordError(e.message);
             setIsError(e.message);
             setIsLoading(false);
+            Toast.show({
+              type: 'error',
+              position: 'top',
+              text1: 'Error send email',
+              topOffset: Platform.OS === 'ios' ? 110 : 40,
+              visibilityTime: 1000,
+            });
           }
         }}>
         {({

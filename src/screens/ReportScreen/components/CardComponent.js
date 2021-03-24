@@ -23,6 +23,7 @@ export function CardComponent({
   currentDowntimeDurationSeconds,
   runDurationSeconds,
 }) {
+  console.log('status ----------', status);
   return (
     <Card
       containerStyle={[

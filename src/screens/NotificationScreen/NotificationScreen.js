@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-import {useFocusEffect} from '@react-navigation/native';
+import {CommonActions, useFocusEffect} from '@react-navigation/native';
 import crashlytics from '@react-native-firebase/crashlytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import _ from 'lodash';
@@ -21,9 +21,28 @@ import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {localNotificationService} from '../../services/LocalNotificationServices';
 
-export function NotificationScreen() {
+export function NotificationScreen({navigation}) {
   const [tempNotify, setTempNotify] = useState([]);
   const [, dispatch] = useReducer(reducer, initialState);
+
+  async function fetchData() {
+    await AsyncStorage.getItem('notifyData').then((notify) => {
+      if (notify) {
+        const dataN = JSON.parse(notify);
+        console.log('notify', dataN);
+        setTempNotify((prevState) => {
+          return {
+            ...prevState,
+            notification: dataN,
+          };
+        });
+      } else {
+        console.log('notify error');
+        setTempNotify([]);
+      }
+    });
+  }
+
   useFocusEffect(
     useCallback(() => {
       crashlytics().log('Notification Screen mounted.');
@@ -36,25 +55,14 @@ export function NotificationScreen() {
           });
       }
       localNotificationService.getApplicationIconBadgeNumber();
+      (async () => {
+        await fetchData();
+      })();
       const intervalID2 = setInterval(async () => {
         console.log('intervalID2');
         await AsyncStorage.setItem('notifyIcon', 'false');
         dispatch(createAction('SET_BADGE', false));
-        await AsyncStorage.getItem('notifyData').then((notify) => {
-          if (notify) {
-            const dataN = JSON.parse(notify);
-            console.log('notify', dataN);
-            setTempNotify((prevState) => {
-              return {
-                ...prevState,
-                notification: dataN,
-              }
-            });
-          } else {
-            console.log('notify error');
-            setTempNotify([]);
-          }
-        });
+        await fetchData();
       }, 1000);
       return () => {
         clearInterval(intervalID2);

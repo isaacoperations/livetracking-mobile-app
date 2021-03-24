@@ -63,8 +63,8 @@ const HomeStackNavigator = ({navigation}) => {
       await MaterialIcons.loadFont();
       await AsyncStorage.getItem('factoryID').then((data) => {
         if (data) {
-          const {factoryId} = JSON.parse(data);
-          setIsActive(factoryId);
+          const {factoryName} = JSON.parse(data);
+          setIsActive(factoryName);
         } else {
           setIsActive(factory);
         }
@@ -72,6 +72,7 @@ const HomeStackNavigator = ({navigation}) => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isFocused]);
+
   return (
     <>
       <HomeStack.Navigator screenOptions={screenOptions}>
@@ -79,7 +80,7 @@ const HomeStackNavigator = ({navigation}) => {
           name="Home"
           component={HomeScreen}
           options={() => ({
-            title: app_metadata?.factories[isActive]?.id || 'Test Factory',
+            title: isActive || app_metadata?.factories[0]?.name,
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}
@@ -114,8 +115,8 @@ const ReportStackNavigator = ({navigation}) => {
       await MaterialIcons.loadFont();
       await AsyncStorage.getItem('factoryID').then((data) => {
         if (data) {
-          const {factoryId} = JSON.parse(data);
-          setIsActive(factoryId);
+          const {factoryName} = JSON.parse(data);
+          setIsActive(factoryName);
         } else {
           setIsActive(factory);
         }
@@ -146,9 +147,7 @@ const ReportStackNavigator = ({navigation}) => {
           name="ReportScreen"
           component={ReportScreen}
           options={() => ({
-            title:
-              app_metadata?.factories[isActive]?.id ||
-              'Test Factory Etobicoke South',
+            title: isActive || app_metadata?.factories[0]?.name,
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}
@@ -158,6 +157,7 @@ const ReportStackNavigator = ({navigation}) => {
             ),
             headerRight: () => <Text> </Text>,
           })}
+          initialParams={{filterData: undefined}}
         />
         <ReportStack.Screen
           name="CardDetailReport"
@@ -208,8 +208,8 @@ const NotificationStackNavigator = ({navigation}) => {
       await MaterialIcons.loadFont();
       await AsyncStorage.getItem('factoryID').then((data) => {
         if (data) {
-          const {factoryId} = JSON.parse(data);
-          setIsActive(factoryId);
+          const {factoryName} = JSON.parse(data);
+          setIsActive(factoryName);
         } else {
           setIsActive(factory);
         }
@@ -223,9 +223,7 @@ const NotificationStackNavigator = ({navigation}) => {
         name="Notification"
         component={NotificationScreen}
         options={() => ({
-          title:
-            app_metadata?.factories[isActive]?.id ||
-            'Test Factory Etobicoke South',
+          title: isActive || app_metadata?.factories[0]?.name,
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('SelectFactoryTab')}
@@ -248,7 +246,6 @@ function TabNavigator() {
   const [{badge}, dispatch] = useReducer(reducer, initialState);
   useInterval(() => {
     (async () => {
-      console.log('useInterval TabNavigator');
       await AsyncStorage.getItem('notifyIcon')
         .then((item) => {
           dispatch(createAction('SET_BADGE', JSON.parse(item)));

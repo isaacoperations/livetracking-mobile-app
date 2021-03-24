@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {Text, StyleSheet, View, Platform} from 'react-native';
 import moment from 'moment';
 
@@ -6,20 +6,9 @@ import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
 
 export function CountTimer({durationSeconds, status}) {
-  const [second, setSecond] = useState(durationSeconds);
-
-  useEffect(() => {
-    // setSecond(durationSeconds);
-    let timeID2;
-    timeID2 = setTimeout(() => setSecond((prevState) => prevState + 1), 1000);
-    return () => {
-      clearTimeout(timeID2);
-    };
-  }, [second]);
-
-  let hours = moment().startOf('day').seconds(second).format('HH');
-  let minutes = moment().startOf('day').seconds(second).format('mm');
-  let secondes = moment().startOf('day').seconds(second).format('ss');
+  let hours = moment().startOf('day').seconds(durationSeconds).format('HH');
+  let minutes = moment().startOf('day').seconds(durationSeconds).format('mm');
+  let secondes = moment().startOf('day').seconds(durationSeconds).format('ss');
 
   return (
     <View style={{flex: 1, flexDirection: 'row'}}>

@@ -16,6 +16,7 @@ import {SelectFactoryItem} from './components/SelectFactoryItem';
 import {UserContext} from '../../context/context';
 import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
+import {sleep} from '../../utils/sleep';
 
 export function SelectFactoryScreen({navigation}) {
   const user = useContext(UserContext);
@@ -40,14 +41,18 @@ export function SelectFactoryScreen({navigation}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
-  const requestFactoryId = async (id, url) => {
+  const requestFactoryId = async (id, url, name) => {
     const data = {
       factoryId: id,
+      factoryName: name,
       factoryUrl: url,
     };
     await AsyncStorage.setItem('factoryID', JSON.stringify(data));
     setSelected(id);
     dispatch(createAction('SET_FACTORY', id));
+    sleep(500).then(() => {
+      navigation.goBack();
+    });
   };
 
   let idx = 0;
@@ -81,9 +86,9 @@ export function SelectFactoryScreen({navigation}) {
                     <SelectFactoryItem
                       key={idx + index}
                       id={item.id}
-                      onPress={() => requestFactoryId(item.id, item.url)}
+                      onPress={() => requestFactoryId(item.id, item.url, item.name)}
                       title={organization.name}
-                      description={item.id}
+                      description={item.name}
                       isActive={selected}
                     />
                   );

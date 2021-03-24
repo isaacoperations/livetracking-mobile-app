@@ -6,7 +6,11 @@ import {THEME} from '../../../constants/theme';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-export function ReportHeaderBack({navigation, text = 'Back to Report'}) {
+export function ReportHeaderBack({
+  navigation,
+  result = {},
+  text = 'Back to Report',
+}) {
   useEffect(() => {
     (async () => {
       await MaterialIcons.loadFont();
@@ -16,7 +20,11 @@ export function ReportHeaderBack({navigation, text = 'Back to Report'}) {
     <View style={styles.container}>
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={() => navigation.navigate('ReportScreen')}>
+        onPress={() =>
+          navigation.navigate('ReportScreen', {
+            filterData: result,
+          })
+        }>
         <View style={styles.containerRow}>
           <MaterialIcons
             name={'keyboard-arrow-left'}

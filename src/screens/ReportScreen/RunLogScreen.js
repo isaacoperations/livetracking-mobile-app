@@ -7,6 +7,7 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
+  Platform,
 } from 'react-native';
 import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
@@ -75,6 +76,12 @@ export function RunLogScreen({navigation, route}) {
       return data;
     } else if (data.lineName.toLowerCase().includes(search.toLowerCase())) {
       return data;
+    } else if (
+      data.productDescription.toLowerCase().includes(search.toLowerCase())
+    ) {
+      return data;
+    } else if (data.productName.toLowerCase().includes(search.toLowerCase())) {
+      return data;
     }
   });
 
@@ -82,8 +89,18 @@ export function RunLogScreen({navigation, route}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        <ReportHeaderFilter navigation={navigation} filterResult={typeof route.params !== 'undefined' ? route.params?.filterData : {}} />
-        <ReportHeaderBack navigation={navigation} />
+        <ReportHeaderFilter
+          navigation={navigation}
+          filterResult={
+            typeof route.params !== 'undefined' ? route.params?.filterData : {}
+          }
+        />
+        <ReportHeaderBack
+          navigation={navigation}
+          result={
+            typeof route.params !== 'undefined' ? route.params?.filterData : {}
+          }
+        />
         <SearchBar
           onChangeText={updateSearch}
           value={search}
@@ -91,13 +108,19 @@ export function RunLogScreen({navigation, route}) {
           showLoading={false}
           containerStyle={styles.searchContainerStyle}
           inputContainerStyle={styles.searchInputContainerStyle}
+          underlineColorAndroid={'transparent'}
           searchIcon={{
             size: 20,
           }}
           inputStyle={styles.searchInputStyle}
         />
-        <ScrollView nestedScrollEnabled={true}>
-          <ScrollView nestedScrollEnabled={true} horizontal={true}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          showsHorizontalScrollIndicator={false}>
+          <ScrollView
+            nestedScrollEnabled={true}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}>
             <View>
               {_.isEmpty(items) ? (
                 <View style={{marginTop: 100, width: Math.round(WIDTH)}}>
@@ -329,6 +352,8 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.WHITE_COLOR,
     fontSize: 14,
     fontFamily: FONT.Regular,
+    color: THEME.DARK_COLOR,
+    marginTop: Platform.OS === 'android' ? 7 : 0,
   },
   divider: {
     backgroundColor: THEME.GRAY_COLOR,

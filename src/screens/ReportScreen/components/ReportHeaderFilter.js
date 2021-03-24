@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Button} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -9,27 +9,42 @@ import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
 
 export function ReportHeaderFilter({navigation, filterResult}) {
-  const bool = _.isEmpty(filterResult);
+  console.log('filterResult', filterResult);
+  let bool = _.isEmpty(filterResult);
   let countItems;
   let date = '';
   let starDate = '';
   let endDate = '';
   let selectDay;
+  let filterLine;
+  let filterProduct;
   if (!bool) {
+    filterLine = _.filter(filterResult.lineDataFull, ['selected', true]);
+    filterProduct = _.filter(filterResult.productDataFull, ['selected', true]);
     countItems =
-      filterResult.lineDataFull.length +
-      filterResult.productDataFull.length +
+      _.size(filterLine) +
+      _.size(filterProduct) +
       1;
     date = moment(filterResult.date).format('MMM DD, YYYY');
     starDate = moment(filterResult.dateFrom).format('MMM DD, YYYY');
     endDate = moment(filterResult.dateTo).format('MMM DD, YYYY');
     selectDay = filterResult.selectDay;
   }
-  useEffect(() => {
-    (async () => {
-      await MaterialIcons.loadFont();
-    })();
-  }, []);
+
+  const handleResetFilter = () => {
+    return navigation.navigate('FilterTab', {
+      screen: 'ModalFilter',
+      params: {filterDataTab: undefined},
+    });
+  };
+
+  const handleOpenFilter = () => {
+    return navigation.navigate('FilterTab', {
+      screen: 'ModalFilter',
+      params: {filterDataTab: filterResult},
+    });
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
@@ -37,25 +52,67 @@ export function ReportHeaderFilter({navigation, filterResult}) {
           {bool ? (
             <>
               <Button
-                buttonStyle={styles.filterButton}
-                titleStyle={styles.filterButtonText}
+                buttonStyle={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: 'transparent',
+                    borderWidth: 1,
+                    borderColor: 'white',
+                  },
+                ]}
+                titleStyle={[styles.filterButtonText, {color: 'white'}]}
                 icon={
                   <MaterialIcons
                     size={20}
                     name={'filter-list'}
-                    color={THEME.PRIMARY_COLOR_DARK}
+                    color={THEME.WHITE_COLOR}
                   />
                 }
-                title=""
+                title="0"
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate('FilterTab')}
+                onPress={handleResetFilter}
               />
               <Button
-                buttonStyle={styles.filterButton}
-                titleStyle={styles.filterButtonText}
-                title="No filters"
+                buttonStyle={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: 'transparent',
+                    borderWidth: 1,
+                    borderColor: 'white',
+                  },
+                ]}
+                titleStyle={[styles.filterButtonText, {color: 'white'}]}
+                title={`${moment().format('MMM DD, YYYY')}`}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate('FilterTab')}
+                onPress={handleResetFilter}
+              />
+              <Button
+                buttonStyle={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: 'transparent',
+                    borderWidth: 1,
+                    borderColor: 'white',
+                  },
+                ]}
+                titleStyle={[styles.filterButtonText, {color: 'white'}]}
+                title="All lines"
+                activeOpacity={0.8}
+                onPress={handleResetFilter}
+              />
+              <Button
+                buttonStyle={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: 'transparent',
+                    borderWidth: 1,
+                    borderColor: 'white',
+                  },
+                ]}
+                titleStyle={[styles.filterButtonText, {color: 'white'}]}
+                title="All products"
+                activeOpacity={0.8}
+                onPress={handleResetFilter}
               />
             </>
           ) : (
@@ -72,7 +129,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                 }
                 title={`${countItems}`}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate('FilterTab')}
+                onPress={handleOpenFilter}
               />
               {selectDay ? (
                 <Button
@@ -80,7 +137,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                   titleStyle={styles.filterButtonText}
                   title={date}
                   activeOpacity={0.8}
-                  onPress={() => navigation.navigate('FilterTab')}
+                  onPress={handleOpenFilter}
                 />
               ) : (
                 <>
@@ -89,31 +146,31 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                     titleStyle={styles.filterButtonText}
                     title={`${starDate} - ${endDate}`}
                     activeOpacity={0.8}
-                    onPress={() => navigation.navigate('FilterTab')}
+                    onPress={handleOpenFilter}
                   />
                 </>
               )}
-              {filterResult.lineDataFull.length > 0
-                ? filterResult.lineDataFull.map((item) => (
+              {filterLine.length > 0
+                ? filterLine?.map((item) => (
                     <Button
                       key={item.id}
                       buttonStyle={styles.filterButton}
                       titleStyle={styles.filterButtonText}
                       title={item.name}
                       activeOpacity={0.8}
-                      onPress={() => navigation.navigate('FilterTab')}
+                      onPress={handleOpenFilter}
                     />
                   ))
                 : null}
-              {filterResult.productDataFull.length > 0
-                ? filterResult.productDataFull.map((item) => (
+              {filterProduct.length > 0
+                ? filterProduct?.map((item) => (
                     <Button
                       key={item.id}
                       buttonStyle={styles.filterButton}
                       titleStyle={styles.filterButtonText}
                       title={item.name}
                       activeOpacity={0.8}
-                      onPress={() => navigation.navigate('FilterTab')}
+                      onPress={handleOpenFilter}
                     />
                   ))
                 : null}

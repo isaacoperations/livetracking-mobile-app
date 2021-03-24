@@ -35,9 +35,40 @@ export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [reportData, setReportData] = useState([]);
   const [isLoading, setLoading] = useState(true);
-
+  const [lineArray, setLineArray] = useState([]);
+  const [productArray, setProductArray] = useState([]);
   const {ApiService} = useData();
   const {refreshTokens} = useContext(AuthContext);
+
+  async function fetchProductData() {
+    try {
+      await ApiService.getProducts().then(async ({data}) => {
+        const produtSelected = _.map(data, 'id');
+        setProductArray(produtSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - product');
+      crashlytics().recordError(e.message);
+      setProductArray([]);
+      refreshTokens();
+    }
+  }
+
+  async function fetchLineData() {
+    try {
+      await ApiService.getLines().then(async ({data}) => {
+        const lineSelected = _.map(data, 'id');
+        setLineArray(lineSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - line');
+      crashlytics().recordError(e.message);
+      setLineArray([]);
+      refreshTokens();
+    }
+  }
+
+  let bool = _.isEmpty(route?.params?.filterData);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,41 +76,39 @@ export function ReportScreen({navigation, route}) {
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
-
-        if (typeof route.params !== 'undefined') {
+        if (!bool) {
           setLoading(true);
           const {
             filterData: {lineData, productData, date, dateFrom, dateTo},
           } = route.params;
-          console.log(lineData, productData, date, dateFrom, dateTo);
           await fetchData(lineData, productData, date, dateFrom, dateTo);
         } else {
-          await fetchData();
+          setLoading(true);
+          const yesterday = moment()
+            .subtract(1, 'days')
+            .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+          const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+          await fetchProductData();
+          await fetchLineData();
+          await fetchData(lineArray, productArray, today, yesterday, today);
         }
       })();
+      return () => {
+        console.log('logout vi');
+        setLoading(true);
+        navigation.setParams({filterData: undefined});
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route]),
   );
 
-  const yesterday = moment()
-    .subtract(1, 'days')
-    .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-  const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-
-  async function fetchData(
-    line = null,
-    product = null,
-    date = today,
-    fromDate = yesterday,
-    toDate = today,
-  ) {
+  async function fetchData(line, product, date, fromDate, toDate) {
     const resData = {
       line_id_list: line,
       product_id_list: product,
       start_date: fromDate,
       end_date: toDate,
     };
-    console.log('resDataresData', resData);
     await ApiService.postReport(resData)
       .then(async ({data}) => {
         setLoading(false);
@@ -88,7 +117,6 @@ export function ReportScreen({navigation, route}) {
       .catch((err) => {
         const {status, data} = err.response;
         crashlytics().recordError(err);
-        console.log('datadatadata', data);
         if (status === 401) {
           refreshTokens();
         } else {
@@ -207,7 +235,7 @@ export function ReportScreen({navigation, route}) {
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
         />
-        <ScrollView>
+        <ScrollView nestedScrollEnabled={true} horizontal={false}>
           {isLoading ? (
             <ActivityIndicator
               size={Platform.OS === 'android' ? 50 : 'large'}
