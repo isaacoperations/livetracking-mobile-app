@@ -29,13 +29,8 @@ export function NotificationScreen({navigation}) {
     await AsyncStorage.getItem('notifyData').then((notify) => {
       if (notify) {
         const dataN = JSON.parse(notify);
-        console.log('notify', dataN);
-        setTempNotify((prevState) => {
-          return {
-            ...prevState,
-            notification: dataN,
-          };
-        });
+        const order = _.orderBy(dataN, ['date'], ['desc']);
+        setTempNotify(order);
       } else {
         console.log('notify error');
         setTempNotify([]);
@@ -70,19 +65,15 @@ export function NotificationScreen({navigation}) {
     }, []),
   );
 
-  console.log('prevState', tempNotify);
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         {!_.isEmpty(tempNotify) ? (
-          tempNotify.notification?.map((item, index) => (
+          tempNotify.map((item, index) => (
             <NotificationComponent
               key={index}
               title={item.title}
-              sku={123123}
-              time={'now'}
-              status={'Downtime'}
+              time={item.date}
               line={item.body}
             />
           ))

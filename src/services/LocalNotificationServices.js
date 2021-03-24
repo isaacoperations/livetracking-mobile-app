@@ -8,7 +8,7 @@ class LocalNotificationService {
     this.lastId = 0;
   }
 
-  configure = (onOpenNotification) => {
+  configure = (onRegister, onNotification, onOpenNotification) => {
     PushNotification.configure({
       onRegister: function (token) {
         console.log('[LocalNotificationService] onRegister:', token);
@@ -17,13 +17,27 @@ class LocalNotificationService {
         console.log('[LocalNotificationService] onNotification:', notification);
         console.log('[LocalNotificationService] test foreground:', notification.foreground);
         await AsyncStorage.setItem('foreground', JSON.stringify(notification.foreground));
-        if (!notification?.data) {
-          return;
+        // if (!notification?.data) {
+        //   return;
+        // }
+        // notification.userInteraction = true;
+        // onOpenNotification(
+        //   Platform.OS === 'ios' ? notification.data.item : notification.data,
+        // );
+
+        if (Platform.OS === 'ios') {
+          if (notification.foreground) {
+            notification.userInteraction = true;
+          }
+        } else {
+          notification.userInteraction = true;
         }
-        notification.userInteraction = true;
-        onOpenNotification(
-          Platform.OS === 'ios' ? notification.data.item : notification.data,
-        );
+
+        if (notification.userInteraction) {
+          onOpenNotification(notification);
+        } else {
+          onNotification(notification);
+        }
 
         if (Platform.OS === 'ios') {
           // (required) Called when a remote is received or opened, or local notification is opened
@@ -116,8 +130,8 @@ class LocalNotificationService {
       /* iOS and Android properties */
       ...this.buildIOSNotification(this.lastId, title, message, data, options),
       /* iOS and Android properties */
-      title: title || '',
-      message: message || '',
+      title: title || 'Livetracking title',
+      message: message || 'Livetracking body',
       playSound: options.playSound || true,
       soundName: options.soundName || 'default',
       userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not

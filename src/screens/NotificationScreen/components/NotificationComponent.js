@@ -1,8 +1,30 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, Divide} from 'react-native';
+import React from 'react';
+import moment from 'moment';
+import {StyleSheet, Text, View} from 'react-native';
 import {Divider} from 'react-native-elements';
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
+
+moment.updateLocale('en', {
+  relativeTime: {
+    future: 'in %s',
+    past: '%s ago',
+    s: 'now',
+    ss: '%d s',
+    m: 'now',
+    mm: '%d m',
+    h: 'an h',
+    hh: '%d h',
+    d: 'a d',
+    dd: '%d d',
+    w: 'a w',
+    ww: '%d w',
+    M: 'a m',
+    MM: '%d m',
+    y: 'a y',
+    yy: '%d y',
+  },
+});
 
 export function NotificationComponent({
   title = 'Notification title',
@@ -11,12 +33,13 @@ export function NotificationComponent({
   line = 'Line 1',
   sku = 'SKU 229394, SKU 234823',
 }) {
+  console.log(time);
   return (
     <>
       <View style={styles.block}>
         <View style={styles.flexBetween}>
           <Text style={styles.status}>{status}</Text>
-          <Text style={styles.line}>{time}</Text>
+          <Text style={styles.line}>{moment.unix(time).fromNow(true)}</Text>
         </View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.line}>{line}</Text>

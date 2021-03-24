@@ -8,12 +8,12 @@ import {name as appName} from './app.json';
 import messaging from '@react-native-firebase/messaging';
 import {localNotificationService} from './src/services/LocalNotificationServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+// AsyncStorage.removeItem('notifyData');
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
   if (remoteMessage) {
-    let data = {};
+    let data = [];
     let result = [];
     await AsyncStorage.setItem('notifyIcon', 'true');
 
@@ -21,18 +21,25 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
       if (notify) {
         data = JSON.parse(notify);
       }
-      result.push(data, remoteMessage.notification);
+      let res = {
+        title: remoteMessage.notification.title,
+        body: remoteMessage.notification.body,
+        date: Math.floor(new Date().getTime() / 1000),
+      };
+      result.push(...data, res);
       await AsyncStorage.setItem('notifyData', JSON.stringify(result));
     });
 
     const title =
       remoteMessage?.data?.twi_title ||
       remoteMessage?.twi_title ||
-      remoteMessage?.title;
+      remoteMessage?.title ||
+      remoteMessage.notification.title;
     const message =
       remoteMessage?.data?.twi_body ||
       remoteMessage?.twi_body ||
-      remoteMessage?.body;
+      remoteMessage?.body ||
+      remoteMessage.notification.body;
     const options = {
       soundName: 'default',
       playSound: true,
@@ -44,12 +51,12 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
       // imageUrl:
       //   remoteMessage?.image || remoteMessage?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
     };
-    localNotificationService.showNotification(
-      title,
-      message,
-      remoteMessage, // data
-      options, // options
-    );
+    // localNotificationService.showNotification(
+    //   title,
+    //   message,
+    //   remoteMessage, // data
+    //   options, // options
+    // );
   }
 });
 

@@ -195,8 +195,6 @@ export function HomeScreen({navigation}) {
     });
   };
 
-  console.log('_.isEmpty(favorites[factoryIds])', favorites);
-
   return (
     <>
       <HeaderStatus ios={'light'} />

@@ -58,7 +58,11 @@ const App = () => {
 
     fcmService.getAPNsToken(onRegisterAPNS);
     fcmService.register(onRegister, onNotification, onOpenNotification);
-    localNotificationService.configure(onOpenNotification);
+    // localNotificationService.configure(
+    //   onRegister,
+    //   onNotification,
+    //   onOpenNotification,
+    // );
     localNotificationService.createChannel();
     localNotificationService.getChannels();
 
@@ -93,14 +97,19 @@ const App = () => {
 
   async function onNotification(notify) {
     if (notify) {
-      let dataN = {};
+      let dataN = [];
       let resultN = [];
 
       await AsyncStorage.getItem('notifyData').then(async (notifys) => {
         if (notifys) {
           dataN = JSON.parse(notifys);
         }
-        resultN.push(dataN, notifys);
+        let res = {
+          title: notify.title || 'Livetracking title',
+          body: notify.body || 'Livetracking body',
+          date: Math.floor(new Date().getTime() / 1000),
+        };
+        resultN.push(...dataN, res);
         await AsyncStorage.setItem('notifyData', JSON.stringify(resultN));
       });
     }
@@ -112,7 +121,7 @@ const App = () => {
       const title =
         notify?.twi_title || notify?.data?.twi_title || notify?.title;
       const message =
-        notify?.twi_body || notify?.data?.twi_body || notify?.body;
+        notify?.twi_body || notify?.data?.twi_body || notify?.body || notify?.message;
       const options = {
         soundName: 'default',
         playSound: true,
@@ -170,8 +179,6 @@ const App = () => {
           const formData = JSON.parse(result);
           const setTimeFrom = moment(formData?.timeFrom, 'HH:mm');
           const setTimeTo = moment(formData?.timeTo, 'HH:mm');
-          console.log('formNotify 2', formData?.daysIndex);
-          console.log('formNotify 3', formData);
           setIsEnabled(formData?.showInNotify);
           setIsEnabledDisturb(formData?.showInDisturb);
           setIsWeek(formData?.daysIndex);
@@ -246,34 +253,14 @@ const App = () => {
   }
 
   async function onOpenNotification(notify) {
-    if (notify) {
-      let dataN = {};
-      let resultN = [];
-
-      await AsyncStorage.getItem('notifyData').then(async (notifys) => {
-        if (notifys) {
-          dataN = JSON.parse(notifys);
-        }
-        resultN.push(dataN, notifys);
-        await AsyncStorage.setItem('notifyData', JSON.stringify(resultN));
-      });
-    }
-
     console.log('[Notification] onOpenNotification: ', notify);
-    console.log(
-      '[Notification] [Notification][Notification]',
-      notify?.data?.twi_title,
-      notify?.data?.twi_body,
-      notify?.data?.twi_action,
-    );
-    console.log('isEnable -------------', isEnable);
     if (isEnable) {
       if (notify) {
         sleep(4000).then(async () => {
           const title =
             notify?.twi_title || notify?.data?.twi_title || notify?.title;
           const message =
-            notify?.twi_body || notify?.data?.twi_body || notify?.body;
+            notify?.twi_body || notify?.data?.twi_body || notify?.body || notify?.message;
           const runID =
             Number(notify?.twi_action) ||
             Number(notify?.data?.twi_action) ||
@@ -288,12 +275,10 @@ const App = () => {
             // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
           };
           if (isEnableDisturb) {
-            console.log('isEnableDisturb -------------', isEnableDisturb);
             const today = moment().weekday();
             const includeToday = _.includes(isWeek, today);
             const isMinutes = moment().startOf('minute').format('HH:mm');
             const includeMinute = _.includes(timeSlots, isMinutes);
-            console.log('includeToday -------------', includeToday);
             if (!includeToday) {
               await getForeground(runID, title, message);
             } else if (!includeMinute) {

@@ -134,13 +134,15 @@ class FCMService {
         console.log('[FCMService] A new FCM message arrived!', remoteMessage);
         if (remoteMessage) {
           localNotificationService.setApplicationIconBadgeNumber(1);
+          console.log('notification', remoteMessage);
           let notification = null;
           if (Platform.OS === 'ios') {
             notification = remoteMessage.notification;
           } else {
-            notification = remoteMessage.data;
+            notification = remoteMessage.notification; // data
           }
           onNotification(notification);
+          onOpenNotification(notification);
         }
       },
     );
