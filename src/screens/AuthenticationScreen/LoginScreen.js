@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-import {CheckBox} from 'react-native-elements';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -181,49 +180,6 @@ export function LoginScreen({navigation}) {
                     {focusPassword && errors.password ? (
                       <Text style={THEME.ERROR_TEXT}>{errors.password}</Text>
                     ) : null}
-
-                    {/*<View style={{margin: 0, padding: 0}}>*/}
-                    {/*  <CheckBox*/}
-                    {/*    left*/}
-                    {/*    title="Remember Me"*/}
-                    {/*    iconLeft*/}
-                    {/*    containerStyle={{*/}
-                    {/*      borderWidth: 0,*/}
-                    {/*      backgroundColor: THEME.WHITE_COLOR,*/}
-                    {/*      padding: 0,*/}
-                    {/*      marginLeft: 0,*/}
-                    {/*      left: 0,*/}
-                    {/*      opacity: 1,*/}
-                    {/*    }}*/}
-                    {/*    textStyle={{*/}
-                    {/*      color: THEME.DARK_COLOR,*/}
-                    {/*      fontSize: 12,*/}
-                    {/*      fontWeight: '400',*/}
-                    {/*      marginTop: 2,*/}
-                    {/*    }}*/}
-                    {/*    checkedIcon={*/}
-                    {/*      <MaterialIcons*/}
-                    {/*        style={{color: THEME.PRIMARY_COLOR}}*/}
-                    {/*        name="check-box"*/}
-                    {/*        size={26}*/}
-                    {/*      />*/}
-                    {/*    }*/}
-                    {/*    uncheckedIcon={*/}
-                    {/*      <MaterialIcons*/}
-                    {/*        style={{color: THEME.PRIMARY_COLOR}}*/}
-                    {/*        name="check-box-outline-blank"*/}
-                    {/*        size={26}*/}
-                    {/*      />*/}
-                    {/*    }*/}
-                    {/*    activeOpacity={1}*/}
-                    {/*    uncheckedColor={THEME.PRIMARY_COLOR}*/}
-                    {/*    checkedColor={THEME.PRIMARY_COLOR}*/}
-                    {/*    checked={values.check}*/}
-                    {/*    onPress={(e) => {*/}
-                    {/*      setFieldValue('check', !values.check);*/}
-                    {/*    }}*/}
-                    {/*  />*/}
-                    {/*</View>*/}
                   </View>
                   <View style={styles.containerBottom}>
                     <Pressable
@@ -247,14 +203,14 @@ export function LoginScreen({navigation}) {
                             width: '100%',
                             flexDirection: 'row',
                           }}>
-                          <Text
-                            style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-                            {isLoading ? (
-                              <ActivityIndicator color={THEME.WHITE_COLOR} />
-                            ) : (
-                              'Log in'
-                            )}
-                          </Text>
+                          {isLoading ? (
+                            <ActivityIndicator style={{marginLeft: 'auto', marginRight: 'auto'}} color={THEME.WHITE_COLOR} />
+                          ) : (
+                            <Text
+                              style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                              Log in
+                            </Text>
+                          )}
                         </View>
                       )}
                     </Pressable>

@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
   if (remoteMessage) {
+    console.log('remoteMessage', remoteMessage);
     let data = [];
     let result = [];
     await AsyncStorage.setItem('notifyIcon', 'true');
@@ -22,8 +23,8 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
         data = JSON.parse(notify);
       }
       let res = {
-        title: remoteMessage.notification.title,
-        body: remoteMessage.notification.body,
+        title: remoteMessage.notification.title || remoteMessage.data.title,
+        body: remoteMessage.notification.body || remoteMessage.data.body,
         date: Math.floor(new Date().getTime() / 1000),
       };
       result.push(...data, res);

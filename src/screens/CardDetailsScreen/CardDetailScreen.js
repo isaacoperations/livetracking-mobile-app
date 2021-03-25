@@ -7,7 +7,6 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  Button,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {Divider} from 'react-native-elements';
@@ -33,6 +32,7 @@ import {useData} from '../../services/ApiService';
 import {sleep} from '../../utils/sleep';
 import {CardProductDesc} from './components/CardProductDesc';
 import crashlytics from '@react-native-firebase/crashlytics';
+import _ from 'lodash';
 
 export function CardDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -101,6 +101,7 @@ export function CardDetailScreen({navigation, route}) {
     const result = runData?.lostTimeList.filter((list) => {
       return list.lostTimePercent > 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     return (
       <ProgressLine
         key={index + Math.random()}
@@ -108,7 +109,7 @@ export function CardDetailScreen({navigation, route}) {
         title={item.reasonName}
         percent={item.lostTimePercent}
         isActive={isExpanded}
-        sections={result}
+        sections={resultSort}
       />
     );
   };
@@ -130,6 +131,7 @@ export function CardDetailScreen({navigation, route}) {
     const result = runData?.lostTimeList.filter((list) => {
       return list.lostTimePercent < 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     return (
       <ProgressLine
         key={index + Math.random()}
@@ -138,7 +140,7 @@ export function CardDetailScreen({navigation, route}) {
         percent={item.lostTimePercent}
         isActive={isExpanded}
         backgroundColor={THEME.GREEN_COLOR}
-        sections={result}
+        sections={resultSort}
       />
     );
   };
@@ -160,10 +162,11 @@ export function CardDetailScreen({navigation, route}) {
     const result = data.filter((item) => {
       return item.lostTimePercent > 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
       return (
         <AccordionList
-          list={result}
+          list={resultSort}
           header={renderHeaderPositive}
           body={renderContentPositive}
           keyExtractor={(item) => `${item.reasonName}`}
@@ -178,11 +181,11 @@ export function CardDetailScreen({navigation, route}) {
     const result = data.filter((item) => {
       return item.lostTimePercent < 0;
     });
-
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
       return (
         <AccordionList
-          list={result}
+          list={resultSort}
           header={renderHeaderNegative}
           body={renderContentNegative}
           keyExtractor={(item) => `${item.reasonName}`}

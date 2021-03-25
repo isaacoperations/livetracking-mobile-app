@@ -50,6 +50,7 @@ export function NotificationScreen({navigation}) {
           });
       }
       localNotificationService.getApplicationIconBadgeNumber();
+      localNotificationService.setApplicationIconBadgeNumber(0);
       (async () => {
         await fetchData();
       })();

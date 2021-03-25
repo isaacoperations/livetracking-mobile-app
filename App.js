@@ -247,7 +247,7 @@ const App = () => {
     console.log('[Notification] onOpenNotification: ', notify);
     if (isEnable) {
       if (notify) {
-        sleep(4000).then(async () => {
+        sleep(1000).then(async () => {
           const title =
             notify?.twi_title || notify?.data?.twi_title || notify?.title;
           const message =

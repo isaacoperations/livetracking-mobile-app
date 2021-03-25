@@ -23,13 +23,8 @@ export function CardComponent({
   currentDowntimeDurationSeconds,
   runDurationSeconds,
 }) {
-  console.log('status ----------', status);
   return (
-    <Card
-      containerStyle={[
-        styles.cardContainer,
-        {width: progressLine ? 'auto' : '46%'},
-      ]}>
+    <Card containerStyle={[styles.cardContainer]}>
       <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
         <View style={styles.cardImage}>
           <BadgeComponent status={status} />
@@ -55,7 +50,7 @@ export function CardComponent({
           {status === 'notrunning' ? <View style={{height: 30}} /> : null}
           <View style={[styles.cardProgress, {marginBottom: 10}]}>
             <IconE />
-            {progressLine ? (
+            {status !== 'notrunning' ? progressLine ? (
               <>
                 <Text style={styles.cardProgressTitle}>
                   {progressRun > 100
@@ -89,35 +84,34 @@ export function CardComponent({
                   <View style={styles.cardProgressLineFooter} />
                 </View>
               </>
-            ) : null}
+            ) : null : null}
           </View>
           <View style={styles.cardTimerRow}>
-            {status === 'down' ? (
-              <IconDanger style={{marginTop: 10}} />
+            {status !== 'notrunning' ? (
+              status === 'down' ? (
+                <IconDanger style={{marginTop: 10}} />
+              ) : (
+                <IconMoon style={{marginTop: 5}} />
+              )
             ) : (
               <IconMoon style={{marginTop: 5}} />
             )}
-            {status === 'down' ? (
-              <View style={{width: '100%', paddingHorizontal: 15}}>
-                <CountTimer
-                  durationSeconds={currentDowntimeDurationSeconds}
-                  status={status}
-                />
-              </View>
-            ) : status === 'slow' ? (
-              <View style={{width: '100%', paddingHorizontal: 15}}>
-                <CountTimer
-                  durationSeconds={runDurationSeconds}
-                  status={status}
-                />
-              </View>
-            ) : status === 'normal' ? (
-              <View style={{width: '100%', paddingHorizontal: 15}}>
-                <CountTimer
-                  durationSeconds={runDurationSeconds}
-                  status={status}
-                />
-              </View>
+            {status !== 'notrunning' ? (
+              status === 'down' ? (
+                <View style={{width: '100%', paddingHorizontal: 15}}>
+                  <CountTimer
+                    durationSeconds={currentDowntimeDurationSeconds}
+                    status={status}
+                  />
+                </View>
+              ) : (
+                <View style={{width: '100%', paddingHorizontal: 15}}>
+                  <CountTimer
+                    durationSeconds={runDurationSeconds}
+                    status={status}
+                  />
+                </View>
+              )
             ) : null}
           </View>
         </View>
@@ -129,6 +123,7 @@ export function CardComponent({
 const styles = StyleSheet.create({
   cardContainer: {
     maxWidth: '46%',
+    width: '100%',
     margin: '2%',
     borderRadius: 8,
     padding: 15,

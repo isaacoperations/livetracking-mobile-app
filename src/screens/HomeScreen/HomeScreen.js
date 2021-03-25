@@ -67,7 +67,25 @@ export function HomeScreen({navigation}) {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
 
-        // await fetchData();
+        await fetchData().catch((error) => {
+          console.log('error', error);
+          const {data, status} = error.response;
+          crashlytics().log(data.error);
+          crashlytics().recordError(data.error);
+          if (status === 400) {
+            setNodeData([]);
+            Toast.show({
+              type: 'error',
+              position: 'top',
+              text1: data.error,
+              topOffset: Platform.OS === 'ios' ? 80 : 30,
+              visibilityTime: 1500,
+            });
+          } else {
+            console.log('logout message');
+            refreshTokens();
+          }
+        });
 
         const factoryData = await AsyncStorage.getItem('factoryID');
         const {factoryId} = JSON.parse(factoryData);
@@ -83,7 +101,6 @@ export function HomeScreen({navigation}) {
           if (favorite !== null) {
             data = JSON.parse(favorite);
           }
-
           setFavorites(data);
         });
       })();
@@ -106,22 +123,10 @@ export function HomeScreen({navigation}) {
         setNodeData(nodes);
       });
     } catch (e) {
-      const {data, status} = e.response;
+      console.log('e', e);
+      const {data} = e.response;
       crashlytics().log(data.error);
       crashlytics().recordError(data.error);
-      if (status === 400) {
-        setNodeData([]);
-        Toast.show({
-          type: 'error',
-          position: 'top',
-          text1: data.error,
-          topOffset: Platform.OS === 'ios' ? 80 : 30,
-          visibilityTime: 1500,
-        });
-      } else {
-        console.log('logout message');
-        refreshTokens();
-      }
     }
   }
 
@@ -153,11 +158,21 @@ export function HomeScreen({navigation}) {
       runDurationSeconds={item.runDurationSeconds}
       runStartTime={item.runStartTime}
       targetSpeed={item.targetSpeed}
-      onPress={() =>
-        navigation.navigate('CardDetail', {
-          runId: item.runId,
-        })
-      }
+      onPress={() => {
+        if (item.lineStatus !== 'notrunning') {
+          navigation.navigate('CardDetail', {
+            runId: item.runId,
+          })
+        } else {
+          Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: 'Line is not running',
+            topOffset: Platform.OS === 'ios' ? 80 : 30,
+            visibilityTime: 1500,
+          });
+        }
+      }}
     />
   );
 

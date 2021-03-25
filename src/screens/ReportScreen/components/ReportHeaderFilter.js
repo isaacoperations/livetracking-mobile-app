@@ -8,8 +8,12 @@ import moment from 'moment';
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
 
-export function ReportHeaderFilter({navigation, filterResult}) {
-  console.log('filterResult', filterResult);
+export function ReportHeaderFilter({
+  navigation,
+  filterResult,
+  allProducts,
+  allLines,
+}) {
   let bool = _.isEmpty(filterResult);
   let countItems;
   let date = '';
@@ -21,10 +25,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
   if (!bool) {
     filterLine = _.filter(filterResult.lineDataFull, ['selected', true]);
     filterProduct = _.filter(filterResult.productDataFull, ['selected', true]);
-    countItems =
-      _.size(filterLine) +
-      _.size(filterProduct) +
-      1;
+    countItems = _.size(filterLine) + _.size(filterProduct) + 1;
     date = moment(filterResult.date).format('MMM DD, YYYY');
     starDate = moment(filterResult.dateFrom).format('MMM DD, YYYY');
     endDate = moment(filterResult.dateTo).format('MMM DD, YYYY');
@@ -150,30 +151,46 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                   />
                 </>
               )}
-              {filterLine.length > 0
-                ? filterLine?.map((item) => (
-                    <Button
-                      key={item.id}
-                      buttonStyle={styles.filterButton}
-                      titleStyle={styles.filterButtonText}
-                      title={item.name}
-                      activeOpacity={0.8}
-                      onPress={handleOpenFilter}
-                    />
-                  ))
-                : null}
-              {filterProduct.length > 0
-                ? filterProduct?.map((item) => (
-                    <Button
-                      key={item.id}
-                      buttonStyle={styles.filterButton}
-                      titleStyle={styles.filterButtonText}
-                      title={item.name}
-                      activeOpacity={0.8}
-                      onPress={handleOpenFilter}
-                    />
-                  ))
-                : null}
+              {filterLine.length === allLines.length ? (
+                <Button
+                  buttonStyle={styles.filterButton}
+                  titleStyle={[styles.filterButtonText]}
+                  title="All lines"
+                  activeOpacity={0.8}
+                  onPress={handleResetFilter}
+                />
+              ) : filterLine.length > 0 ? (
+                filterLine?.map((item) => (
+                  <Button
+                    key={item.id}
+                    buttonStyle={styles.filterButton}
+                    titleStyle={styles.filterButtonText}
+                    title={item.name}
+                    activeOpacity={0.8}
+                    onPress={handleOpenFilter}
+                  />
+                ))
+              ) : null}
+              {filterProduct.length === allProducts.length ? (
+                <Button
+                  buttonStyle={styles.filterButton}
+                  titleStyle={[styles.filterButtonText]}
+                  title="All products"
+                  activeOpacity={0.8}
+                  onPress={handleResetFilter}
+                />
+              ) : filterProduct.length > 0 ? (
+                filterProduct?.map((item) => (
+                  <Button
+                    key={item.id}
+                    buttonStyle={styles.filterButton}
+                    titleStyle={styles.filterButtonText}
+                    title={item.name}
+                    activeOpacity={0.8}
+                    onPress={handleOpenFilter}
+                  />
+                ))
+              ) : null}
             </>
           )}
         </View>

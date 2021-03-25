@@ -31,7 +31,7 @@ import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
-import {interpolate} from 'react-native-reanimated';
+import {diffClamp} from 'react-native-reanimated';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -40,10 +40,11 @@ export function ReportScreen({navigation, route}) {
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
   const [bottomActions, setBottomActions] = useState(null);
-  const scrollY = useRef(new Animated.Value(0)).current;
   const {ApiService} = useData();
   const {refreshTokens} = useContext(AuthContext);
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const diffClamp = Animated.diffClamp(scrollY, 0, 45);
   const inputRange = [0, 0];
   const outputRange = [0, 0];
 
@@ -156,33 +157,32 @@ export function ReportScreen({navigation, route}) {
 
   const renderContentPositive = (item, index, isExpanded) => {
     return (
-      <Animated.View
-        style={[
-          styles.bottomActions,
-          {
-            transform: [
-              {
-                translateY: scrollY.interpolate({
-                  inputRange: inputRange,
-                  outputRange: outputRange,
-                  extrapolateLeft: 'extend',
-                  extrapolateRight: 'clamp',
-                }),
-              },
-            ],
-          },
-        ]}
-        onLayout={(event) => {
-          setBottomActions(event.nativeEvent.layout);
-        }}>
-        <ProgressContent
-          index={index}
-          isActive={isExpanded}
-          title={item.reasonName}
-          time={item.lostTimeSeconds}
-          percent={item.lostTimePercent}
-        />
-      </Animated.View>
+      // <Animated.View
+      //   style={[
+      //     styles.bottomActions,
+      //     {
+      //       transform: [
+      //         {
+      //           translateY: diffClamp.interpolate({
+      //             inputRange: inputRange,
+      //             outputRange: outputRange,
+      //             extrapolate: 'clamp',
+      //           }),
+      //         },
+      //       ],
+      //     },
+      //   ]}
+      //   onLayout={(event) => {
+      //     setBottomActions(event.nativeEvent.layout);
+      //   }}>
+      <ProgressContent
+        index={index}
+        isActive={isExpanded}
+        title={item.reasonName}
+        time={item.lostTimeSeconds}
+        percent={item.lostTimePercent}
+      />
+      //</Animated.View>
     );
   };
 
@@ -263,6 +263,8 @@ export function ReportScreen({navigation, route}) {
           filterResult={
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
+          allProducts={productArray}
+          allLines={lineArray}
         />
         <Animated.ScrollView
           nestedScrollEnabled={true}
@@ -468,6 +470,10 @@ const styles = StyleSheet.create({
   bottomActions: {
     position: 'relative',
     width: '100%',
-    zIndex: 10,
+    zIndex: 99999,
+    elevation: 99999,
+    top: 0,
+    left: 0,
+    right: 0,
   },
 });

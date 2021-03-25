@@ -19,6 +19,9 @@ export function ProgressLine({
     indexWidth = 100;
   } else {
     indexWidth = (percent * 100) / sections[0].lostTimePercent;
+    if (indexWidth > 100) {
+      indexWidth = percent;
+    }
   }
   if (percent === 0) {
     indexWidth = 0;
@@ -66,6 +69,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 10,
     marginBottom: 10,
+    zIndex: 2,
   },
   progressTitle: {
     marginRight: 10,

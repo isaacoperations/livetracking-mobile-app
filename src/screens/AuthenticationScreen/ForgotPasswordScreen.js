@@ -176,13 +176,14 @@ OS: <span style="text-transform: ${
                           width: '100%',
                           flexDirection: 'row',
                         }}>
-                        <Text style={[{color: THEME.WHITE_COLOR}, styles.text]}>
-                          {isLoading ? (
-                            <ActivityIndicator color={THEME.WHITE_COLOR} />
-                          ) : (
-                            'Reset Password'
-                          )}
-                        </Text>
+                        {isLoading ? (
+                          <ActivityIndicator style={{marginLeft: 'auto', marginRight: 'auto'}} color={THEME.WHITE_COLOR} />
+                        ) : (
+                          <Text
+                            style={[{color: THEME.WHITE_COLOR}, styles.text]}>
+                            Reset Password
+                          </Text>
+                        )}
                       </View>
                     </Pressable>
                   </View>

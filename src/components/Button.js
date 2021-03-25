@@ -41,8 +41,8 @@ export function Btn({
             alignItems: 'center',
             justifyContent: 'space-between',
             width: '100%',
+            height: '100%',
             flexDirection: 'row',
-            // backgroundColor: 'blue',
           }}>
           <Text
             style={[
@@ -51,7 +51,6 @@ export function Btn({
                 color: !pressed ? textColor : textColorHover,
                 fontFamily: fontFamily,
                 marginLeft: marginLeft,
-                // backgroundColor: 'red',
               },
             ]}>
             {title}

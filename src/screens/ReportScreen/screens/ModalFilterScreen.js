@@ -89,9 +89,19 @@ export function ModalFilterScreen({navigation, route}) {
       productDataFull,
       lineData,
       productData,
+      selectDay,
+      date,
+      dateFrom,
+      dateTo,
     } = route?.params?.filterDataTab;
     setLineData(lineDataFull);
     setProductData(productDataFull);
+
+    setSelectOneDay(selectDay);
+    setModalValueText(selectDay ? 'One day' : 'Multi-day');
+    setDate(moment(date));
+    setStartDate(moment(dateFrom));
+    setEndDate(moment(dateTo));
 
     const tempLine = _.filter(lineDataFull, ['selected', true]);
     const sizeLine = _.size(tempLine);
@@ -353,7 +363,6 @@ export function ModalFilterScreen({navigation, route}) {
       .subtract(1, 'days')
       .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-    console.log('productData submit', productData);
     const data = {
       lineData: lineSelected.length > 0 ? lineSelected : null,
       lineDataFull: lineData,
@@ -444,6 +453,8 @@ export function ModalFilterScreen({navigation, route}) {
               dropdownTextHighlightStyle={styles.dropdownTextHighlightStyle}
               textStyle={styles.text}
               style={{width: 170, height: 60}}
+              defaultIndex={selectOneDay ? 0 : 1}
+              defaultValue={selectOneDay ? 'One day' : 'Multi-day'}
               onSelect={(idx, value) => {
                 if (idx === 0) {
                   setModalValueText(value);
@@ -464,7 +475,7 @@ export function ModalFilterScreen({navigation, route}) {
             </ModalDropdown>
 
             <View style={{marginTop: -15}}>
-              {modalValueText && modalValueText === 'One day' ? (
+              {selectOneDay ? (
                 <>
                   <DatePickerComponent
                     date={
