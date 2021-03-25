@@ -1,4 +1,4 @@
-import React, {useState, Fragment} from 'react';
+import React, {useState, Fragment, useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
 import _ from 'lodash';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -22,23 +23,32 @@ import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {ReportHeaderBack} from './components/ReportHeaderBack';
 import IconAscDesc from '../../components/icons/IconAscDesc';
 import {EmptyComponent} from './components/EmptyComponent';
+import {ChartBar} from './components/ChartBar';
 
 export function RunLogScreen({navigation, route}) {
   const {logData} = route.params;
   const [search, setSearch] = useState('');
   const [nodeData, setNodeData] = useState(logData || []);
   const [sortShownDate, setSortShownDate] = useState(true);
+  const [isShowDate, setIsShowDate] = useState(false);
+  const [isShowProduct, setIsShowProduct] = useState(false);
   const [sortShownProduct, setSortShownProduct] = useState(true);
   const WIDTH = Dimensions.get('window').width;
 
+  useEffect(() => {
+    crashlytics().log('Run log screen');
+    (async () => {
+      await MaterialIcons.loadFont();
+    })();
+  }, []);
+
   const updateSearch = (text) => {
-    crashlytics().log('search text - run log screen');
     setSearch(text);
   };
 
   const handleSortShowDate = () => {
-    crashlytics().log('SortShowDate - run log button');
     setSortShownDate(!sortShownDate);
+    setIsShowDate(true);
     let data;
     if (sortShownDate) {
       data = _.orderBy(
@@ -60,8 +70,8 @@ export function RunLogScreen({navigation, route}) {
     setNodeData(data);
   };
   const handleSortShowProduct = () => {
-    crashlytics().log('SortShowProduct - run log button');
     setSortShownProduct(!sortShownProduct);
+    setIsShowProduct(true);
     let data;
     if (sortShownProduct) {
       data = _.orderBy(nodeData, ['productName'], ['asc']);
@@ -146,23 +156,27 @@ export function RunLogScreen({navigation, route}) {
                               ]}>
                               Date
                             </Text>
-                            {!sortShownDate ? (
-                              <IconAscDesc
-                                color={
-                                  pressed
-                                    ? THEME.PRIMARY_COLOR
-                                    : THEME.DARK_COLOR
-                                }
-                              />
+                            {isShowDate ? (
+                              !sortShownDate ? (
+                                <IconAscDesc
+                                  color={
+                                    pressed
+                                      ? THEME.PRIMARY_COLOR
+                                      : THEME.DARK_COLOR
+                                  }
+                                />
+                              ) : (
+                                <IconAscDesc
+                                  color={
+                                    pressed
+                                      ? THEME.PRIMARY_COLOR
+                                      : THEME.DARK_COLOR
+                                  }
+                                  style={{transform: [{rotateX: '180deg'}]}}
+                                />
+                              )
                             ) : (
-                              <IconAscDesc
-                                color={
-                                  pressed
-                                    ? THEME.PRIMARY_COLOR
-                                    : THEME.DARK_COLOR
-                                }
-                                style={{transform: [{rotateX: '180deg'}]}}
-                              />
+                              <ChartBar />
                             )}
                           </View>
                         )}
@@ -193,23 +207,27 @@ export function RunLogScreen({navigation, route}) {
                               ]}>
                               Product
                             </Text>
-                            {!sortShownProduct ? (
-                              <IconAscDesc
-                                color={
-                                  pressed
-                                    ? THEME.PRIMARY_COLOR
-                                    : THEME.DARK_COLOR
-                                }
-                              />
+                            {isShowProduct ? (
+                              !sortShownProduct ? (
+                                <IconAscDesc
+                                  color={
+                                    pressed
+                                      ? THEME.PRIMARY_COLOR
+                                      : THEME.DARK_COLOR
+                                  }
+                                />
+                              ) : (
+                                <IconAscDesc
+                                  color={
+                                    pressed
+                                      ? THEME.PRIMARY_COLOR
+                                      : THEME.DARK_COLOR
+                                  }
+                                  style={{transform: [{rotateX: '180deg'}]}}
+                                />
+                              )
                             ) : (
-                              <IconAscDesc
-                                color={
-                                  pressed
-                                    ? THEME.PRIMARY_COLOR
-                                    : THEME.DARK_COLOR
-                                }
-                                style={{transform: [{rotateX: '180deg'}]}}
-                              />
+                              <ChartBar />
                             )}
                           </View>
                         )}

@@ -36,7 +36,7 @@ const App = () => {
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [isEnableDisturb, setIsEnabledDisturb] = useState(false);
   const [isWeek, setIsWeek] = useState(null);
-  const [timeSlots, setTimeSlots] = useState([]);
+  const [timeSlots, setTimeSlots] = useState(null);
 
   const checkOnboarding = async () => {
     try {
@@ -135,21 +135,11 @@ const App = () => {
         Number(notify?.twi_action) || Number(notify?.data?.twi_action) || null;
       if (isEnable) {
         if (isEnableDisturb) {
-          console.log('isWeek 2', isWeek);
           const today = moment().weekday();
           const includeToday = _.includes(isWeek, today);
           const isMinutes = moment().startOf('minute').format('HH:mm');
-          console.log('timeSlots', timeSlots);
           const includeMinute = _.includes(timeSlots, isMinutes);
-          console.log('includeToday', !includeToday, !includeMinute);
-          if (!includeToday) {
-            localNotificationService.showNotification(
-              title,
-              message,
-              notify, //data
-              options, //options
-            );
-          } else if (!includeMinute) {
+          if (!includeMinute && !includeToday) {
             localNotificationService.showNotification(
               title,
               message,
@@ -280,11 +270,9 @@ const App = () => {
             const includeToday = _.includes(isWeek, today);
             const isMinutes = moment().startOf('minute').format('HH:mm');
             const includeMinute = _.includes(timeSlots, isMinutes);
-            console.log('includeMinute', includeMinute);
-            console.log('includeToday', includeToday);
-            if (!includeToday) {
-              await getForeground(runID, title, message);
-            } else if (!includeMinute) {
+            console.log('timeSlots', timeSlots);
+            if (!includeMinute && !includeToday) {
+              console.log('includeMinute', !includeMinute && !includeToday);
               await getForeground(runID, title, message);
             } else {
               console.log('[onOpenNotification] dont Disturb');

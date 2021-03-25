@@ -296,9 +296,9 @@ export function HomeScreen({navigation}) {
 
               <RBSheet
                 ref={refRBSheet}
-                closeOnDragDown={false}
+                closeOnDragDown={Platform.OS === 'ios'}
                 height={Platform.OS === 'ios' ? 500 : 400}
-                closeOnPressMask={false}
+                closeOnPressMask={true}
                 customStyles={{
                   wrapper: {
                     backgroundColor: 'transparent',
