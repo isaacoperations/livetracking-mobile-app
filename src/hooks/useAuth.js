@@ -50,10 +50,11 @@ export function useAuth() {
       refreshTokens: async () => {
         await RNSInfo.getItem('user', {}).then(async (userData) => {
           const data = JSON.parse(userData);
+          console.log('data --------------------', data);
           await auth0.auth
             .refreshToken({
               refreshToken: data.authData.refreshToken,
-              scope: Config.AUTHO_SCOPE_EMAIL,
+              scope: Config.AUTHO_SCOPE_ALL,
             })
             .then(async (newAccessToken) => {
               await auth0.auth

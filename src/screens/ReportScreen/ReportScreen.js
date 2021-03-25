@@ -1,4 +1,4 @@
-import React, {useContext, useState, useCallback} from 'react';
+import React, {useContext, useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
+  Animated,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -30,6 +31,7 @@ import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
+import {interpolate} from 'react-native-reanimated';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -37,8 +39,13 @@ export function ReportScreen({navigation, route}) {
   const [isLoading, setLoading] = useState(true);
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
+  const [bottomActions, setBottomActions] = useState(null);
+  const scrollY = useRef(new Animated.Value(0)).current;
   const {ApiService} = useData();
   const {refreshTokens} = useContext(AuthContext);
+
+  const inputRange = [0, 0];
+  const outputRange = [0, 0];
 
   async function fetchProductData() {
     try {
@@ -149,13 +156,33 @@ export function ReportScreen({navigation, route}) {
 
   const renderContentPositive = (item, index, isExpanded) => {
     return (
-      <ProgressContent
-        index={index}
-        isActive={isExpanded}
-        title={item.reasonName}
-        time={item.lostTimeSeconds}
-        percent={item.lostTimePercent}
-      />
+      <Animated.View
+        style={[
+          styles.bottomActions,
+          {
+            transform: [
+              {
+                translateY: scrollY.interpolate({
+                  inputRange: inputRange,
+                  outputRange: outputRange,
+                  extrapolateLeft: 'extend',
+                  extrapolateRight: 'clamp',
+                }),
+              },
+            ],
+          },
+        ]}
+        onLayout={(event) => {
+          setBottomActions(event.nativeEvent.layout);
+        }}>
+        <ProgressContent
+          index={index}
+          isActive={isExpanded}
+          title={item.reasonName}
+          time={item.lostTimeSeconds}
+          percent={item.lostTimePercent}
+        />
+      </Animated.View>
     );
   };
 
@@ -225,6 +252,8 @@ export function ReportScreen({navigation, route}) {
     }
   };
 
+  console.log('scrooll', scrollY);
+
   return (
     <>
       <HeaderStatus ios={'light'} />
@@ -235,7 +264,15 @@ export function ReportScreen({navigation, route}) {
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
         />
-        <ScrollView nestedScrollEnabled={true} horizontal={false}>
+        <Animated.ScrollView
+          nestedScrollEnabled={true}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {y: scrollY}}}],
+            {
+              useNativeDriver: true,
+            },
+          )}>
           {isLoading ? (
             <ActivityIndicator
               size={Platform.OS === 'android' ? 50 : 'large'}
@@ -285,7 +322,7 @@ export function ReportScreen({navigation, route}) {
               </View>
             </View>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
       </SafeAreaView>
     </>
   );
@@ -293,6 +330,7 @@ export function ReportScreen({navigation, route}) {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
     flex: 1,
     backgroundColor: '#E5E5E5',
   },
@@ -426,5 +464,10 @@ const styles = StyleSheet.create({
   textEmpty: {
     textAlign: 'center',
     color: THEME.PRIMARY_COLOR,
+  },
+  bottomActions: {
+    position: 'relative',
+    width: '100%',
+    zIndex: 10,
   },
 });

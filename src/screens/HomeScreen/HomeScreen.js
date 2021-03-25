@@ -14,9 +14,10 @@ import {
   Platform,
   FlatList,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
-import {CommonActions, useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -66,7 +67,7 @@ export function HomeScreen({navigation}) {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
 
-        await fetchData();
+        // await fetchData();
 
         const factoryData = await AsyncStorage.getItem('factoryID');
         const {factoryId} = JSON.parse(factoryData);
@@ -199,7 +200,7 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        {/*<TouchableOpacity onPress={() => RNRestart.Restart()} style={{marginTop: 20}}>*/}
+        {/*<TouchableOpacity onPress={() => refreshTokens()} style={{marginTop: 20}}>*/}
         {/*  <Text>Click here to update Token </Text>*/}
         {/*</TouchableOpacity>*/}
         <View style={styles.tabContainer}>

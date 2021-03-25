@@ -139,6 +139,7 @@ const App = () => {
           const today = moment().weekday();
           const includeToday = _.includes(isWeek, today);
           const isMinutes = moment().startOf('minute').format('HH:mm');
+          console.log('timeSlots', timeSlots);
           const includeMinute = _.includes(timeSlots, isMinutes);
           console.log('includeToday', !includeToday, !includeMinute);
           if (!includeToday) {
@@ -279,6 +280,8 @@ const App = () => {
             const includeToday = _.includes(isWeek, today);
             const isMinutes = moment().startOf('minute').format('HH:mm');
             const includeMinute = _.includes(timeSlots, isMinutes);
+            console.log('includeMinute', includeMinute);
+            console.log('includeToday', includeToday);
             if (!includeToday) {
               await getForeground(runID, title, message);
             } else if (!includeMinute) {
