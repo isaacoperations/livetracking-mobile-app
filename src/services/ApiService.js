@@ -17,8 +17,6 @@ export function useData() {
     app_metadata,
   } = user;
 
-  // console.log('factoryID ----------', app_metadata?.factories[0]?.id);
-
   const customAxios = axios.create({
     baseURL: APIConfig.BASE_URL,
     headers: {
@@ -39,6 +37,7 @@ export function useData() {
         request.headers.common['FACTORY-ID'] = app_metadata?.factories[0]?.id;
       }
     });
+
     return request;
   };
 
@@ -66,7 +65,6 @@ export function useData() {
   const responseBody = (response) => camelcaseKeys(response, {deep: true});
   const responseError = (error) => {
     console.log('responseError', error);
-    console.error(error);
     throw error;
   };
 

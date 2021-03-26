@@ -13,8 +13,10 @@ export function BadgeComponent({status, textColor = THEME.WHITE_COLOR}) {
     statusLine = 'warning';
   } else if (status === 'normal') {
     statusLine = 'success';
+  } else if (status === 'notrunning') {
+    statusLine = 'primary';
   } else {
-    statusLine = 'info';
+    statusLine = 'primary';
   }
 
   const statusLower = statusLine.toLocaleLowerCase();
@@ -28,7 +30,7 @@ export function BadgeComponent({status, textColor = THEME.WHITE_COLOR}) {
           ? 'up'
           : statusLower === 'error'
           ? 'down'
-          : statusLower === 'info'
+          : statusLower === 'primary'
           ? 'not running'
           : 'down'
       }
@@ -44,7 +46,7 @@ export function BadgeComponent({status, textColor = THEME.WHITE_COLOR}) {
               ? THEME.SUCCESS_COLOR
               : statusLower === 'error'
               ? THEME.ERROR_COLOR
-              : statusLower === 'info'
+              : statusLower === 'primary'
               ? THEME.ASH_COLOR
               : THEME.PRIMARY_COLOR_DARK,
         },

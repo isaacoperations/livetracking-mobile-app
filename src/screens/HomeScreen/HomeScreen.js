@@ -64,11 +64,29 @@ export function HomeScreen({navigation}) {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        await MaterialIcons.loadFont();
-        await MaterialCommunityIcons.loadFont();
+        try {
+          await MaterialIcons.loadFont();
+          await MaterialCommunityIcons.loadFont();
 
-        await fetchData().catch((error) => {
-          console.log('error', error);
+          const factoryData = await AsyncStorage.getItem('factoryID');
+          const {factoryId} = JSON.parse(factoryData);
+
+          if (factoryId !== null) {
+            setFactoryIds(factoryId);
+          } else {
+            setFactoryIds(factoriesData);
+          }
+
+          await AsyncStorage.getItem('favorites').then((favorite) => {
+            let data;
+            if (favorite !== null) {
+              data = JSON.parse(favorite);
+            }
+            setFavorites(data);
+          });
+
+          await fetchData();
+        } catch (error) {
           const {data, status} = error.response;
           crashlytics().log(data.error);
           crashlytics().recordError(data.error);
@@ -85,24 +103,7 @@ export function HomeScreen({navigation}) {
             console.log('logout message');
             refreshTokens();
           }
-        });
-
-        const factoryData = await AsyncStorage.getItem('factoryID');
-        const {factoryId} = JSON.parse(factoryData);
-
-        if (factoryId !== null) {
-          setFactoryIds(factoryId);
-        } else {
-          setFactoryIds(factoriesData);
         }
-
-        await AsyncStorage.getItem('favorites').then((favorite) => {
-          let data;
-          if (favorite !== null) {
-            data = JSON.parse(favorite);
-          }
-          setFavorites(data);
-        });
       })();
 
       const refreshID = setInterval(async () => {
@@ -117,17 +118,10 @@ export function HomeScreen({navigation}) {
   );
 
   async function fetchData() {
-    try {
-      await ApiService.getLiveview().then(async ({data}) => {
-        const nodes = data?.liveviewInfo;
-        setNodeData(nodes);
-      });
-    } catch (e) {
-      console.log('e', e);
-      const {data} = e.response;
-      crashlytics().log(data.error);
-      crashlytics().recordError(data.error);
-    }
+    await ApiService.getLiveview().then(async ({data}) => {
+      const nodes = data?.liveviewInfo;
+      setNodeData(nodes);
+    });
   }
 
   const onRefresh = useCallback(() => {
@@ -162,7 +156,7 @@ export function HomeScreen({navigation}) {
         if (item.lineStatus !== 'notrunning') {
           navigation.navigate('CardDetail', {
             runId: item.runId,
-          })
+          });
         } else {
           Toast.show({
             type: 'error',

@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useReducer, useState} from 'react';
 import {Alert, Platform} from 'react-native';
-import SplashScreen from 'react-native-splash-screen';
 import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import moment from 'moment';
 import _ from 'lodash';
-
+import RNBootSplash from 'react-native-bootsplash';
 import {
   AuthContext,
   UserContext,
@@ -52,8 +51,10 @@ const App = () => {
   };
 
   useEffect(() => {
-    SplashScreen.hide();
-
+    RNBootSplash.getVisibilityStatus().then((status) =>
+      console.log('status board ---------', status),
+    );
+    RNBootSplash.hide();
     // localNotificationService.showNotification('title', 'body');
 
     fcmService.getAPNsToken(onRegisterAPNS);
@@ -121,7 +122,10 @@ const App = () => {
       const title =
         notify?.twi_title || notify?.data?.twi_title || notify?.title;
       const message =
-        notify?.twi_body || notify?.data?.twi_body || notify?.body || notify?.message;
+        notify?.twi_body ||
+        notify?.data?.twi_body ||
+        notify?.body ||
+        notify?.message;
       const options = {
         soundName: 'default',
         playSound: true,
@@ -251,7 +255,10 @@ const App = () => {
           const title =
             notify?.twi_title || notify?.data?.twi_title || notify?.title;
           const message =
-            notify?.twi_body || notify?.data?.twi_body || notify?.body || notify?.message;
+            notify?.twi_body ||
+            notify?.data?.twi_body ||
+            notify?.body ||
+            notify?.message;
           const runID =
             Number(notify?.twi_action) ||
             Number(notify?.data?.twi_action) ||

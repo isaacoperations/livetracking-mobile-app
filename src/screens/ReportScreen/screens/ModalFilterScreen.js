@@ -682,7 +682,7 @@ export function ModalFilterScreen({navigation, route}) {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                         }}>
-                        <ListItem.Title style={{color: THEME.DARK_COLOR}}>
+                        <ListItem.Title style={{color: THEME.DARK_COLOR, flex: 1}}>
                           {item.name}
                         </ListItem.Title>
                         <View>

@@ -15,7 +15,7 @@ moment.updateLocale('en', {
     mm: '%d m',
     h: '%d h',
     hh: '%d h',
-    d: 'a d',
+    d: '%d d',
     dd: '%d d',
     w: '%d w',
     ww: '%d w',

@@ -24,12 +24,12 @@
 		3F103E6E25C43F5B00C526ED /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E6D25C43F5B00C526ED /* Icon@2x.png */; };
 		3F103E7F25C43FB700C526ED /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E7E25C43FB700C526ED /* Icon.png */; };
 		3F30F46925C46554007FE769 /* GoogleService-Info-old2.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */; };
+		3F614BE9260DBAAE00556544 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F614BE8260DBAAE00556544 /* BootSplash.storyboard */; };
 		4178C1A158E7DE72532B65EC /* libPods-livetracking-livetrackingTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47FD5B0CB3DA81902E510955 /* libPods-livetracking-livetrackingTests.a */; };
 		4A8396CEB4914136A6232F7B /* SFProDisplay-LightItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = CBA63B6A4CD5419C95CED580 /* SFProDisplay-LightItalic.otf */; };
 		6E5E5F3F38A948238E4719F8 /* SFProDisplay-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AAE6F01A54774410A3606D10 /* SFProDisplay-Semibold.otf */; };
 		7822C80587A04D0DAB606F23 /* SFProDisplay-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = EE8BD2B653344A4189D60F4D /* SFProDisplay-Light.otf */; };
 		8149C454D80C4FD5B660B0FF /* SFProDisplay-BoldItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 7DE0DF0A41C74B3C869C591F /* SFProDisplay-BoldItalic.otf */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		82B57E171B704E1A8198E23E /* SFProDisplay-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0CF09772D2E5413C884A419B /* SFProDisplay-Thin.otf */; };
 		8A6D0C74987341539A799AD8 /* SFProDisplay-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2406FB8E47943DD851589CC /* SFProDisplay-Black.otf */; };
 		8EA6FC4186B7400A98040F17 /* SFProDisplay-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D7CE93EE19149B882AAEB17 /* SFProDisplay-Heavy.otf */; };
@@ -105,6 +105,7 @@
 		3F1739A125A33D4D00740468 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F173B2C25A3858900740468 /* livetracking.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = livetracking.entitlements; path = livetracking/livetracking.entitlements; sourceTree = "<group>"; };
 		3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-old2.plist"; sourceTree = "<group>"; };
+		3F614BE8260DBAAE00556544 /* BootSplash.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BootSplash.storyboard; sourceTree = "<group>"; };
 		3FF1EE1A259CCBA200579D68 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		3FF1EE1B259CCBA200579D68 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		3FF1EE1C259CCBA200579D68 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
@@ -234,6 +235,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				3F614BE8260DBAAE00556544 /* BootSplash.storyboard */,
 			);
 			name = livetracking;
 			sourceTree = "<group>";
@@ -508,7 +510,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				8A6D0C74987341539A799AD8 /* SFProDisplay-Black.otf in Resources */,
 				9E19D78738EC4FB7B58663B8 /* SFProDisplay-BlackItalic.otf in Resources */,
@@ -529,6 +530,7 @@
 				9DACFB24F61043E9B9C14E2F /* SFProDisplay-Regular.otf in Resources */,
 				CC8AF64552DF406490FB0E8E /* SFProDisplay-RegularItalic.otf in Resources */,
 				6E5E5F3F38A948238E4719F8 /* SFProDisplay-Semibold.otf in Resources */,
+				3F614BE9260DBAAE00556544 /* BootSplash.storyboard in Resources */,
 				F41202651FB742818AF28129 /* SFProDisplay-SemiboldItalic.otf in Resources */,
 				82B57E171B704E1A8198E23E /* SFProDisplay-Thin.otf in Resources */,
 				96DF56F44CFC4244B9F7E57A /* SFProDisplay-ThinItalic.otf in Resources */,
@@ -962,7 +964,7 @@
 				CODE_SIGN_ENTITLEMENTS = livetracking/livetracking.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = livetracking/Info.plist;
@@ -992,7 +994,7 @@
 				CODE_SIGN_ENTITLEMENTS = livetracking/livetracking.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				INFOPLIST_FILE = livetracking/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -1021,7 +1023,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				ENABLE_TESTABILITY = YES;
@@ -1054,7 +1056,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 2SF3W8G6X7;
 				GCC_NO_COMMON_BLOCKS = YES;

@@ -1,4 +1,4 @@
-import React, {useState, Fragment, useEffect} from 'react';
+import React, {useState, Fragment, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,9 @@ import {ReportHeaderBack} from './components/ReportHeaderBack';
 import IconAscDesc from '../../components/icons/IconAscDesc';
 import {EmptyComponent} from './components/EmptyComponent';
 import {ChartBar} from './components/ChartBar';
+import Toast from 'react-native-toast-message';
+import {useData} from '../../services/ApiService';
+import {AuthContext} from '../../context/context';
 
 export function RunLogScreen({navigation, route}) {
   const {logData} = route.params;
@@ -33,12 +36,46 @@ export function RunLogScreen({navigation, route}) {
   const [isShowDate, setIsShowDate] = useState(false);
   const [isShowProduct, setIsShowProduct] = useState(false);
   const [sortShownProduct, setSortShownProduct] = useState(true);
+  const [lineArray, setLineArray] = useState([]);
+  const [productArray, setProductArray] = useState([]);
   const WIDTH = Dimensions.get('window').width;
+  const {ApiService} = useData();
+  const {refreshTokens} = useContext(AuthContext);
+
+  async function fetchProductData() {
+    try {
+      await ApiService.getProducts().then(async ({data}) => {
+        const produtSelected = _.map(data, 'id');
+        setProductArray(produtSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - product');
+      crashlytics().recordError(e.message);
+      setProductArray([]);
+      refreshTokens();
+    }
+  }
+
+  async function fetchLineData() {
+    try {
+      await ApiService.getLines().then(async ({data}) => {
+        const lineSelected = _.map(data, 'id');
+        setLineArray(lineSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - line');
+      crashlytics().recordError(e.message);
+      setLineArray([]);
+      refreshTokens();
+    }
+  }
 
   useEffect(() => {
     crashlytics().log('Run log screen');
     (async () => {
       await MaterialIcons.loadFont();
+      await fetchProductData();
+      await fetchLineData();
     })();
   }, []);
 
@@ -49,6 +86,7 @@ export function RunLogScreen({navigation, route}) {
   const handleSortShowDate = () => {
     setSortShownDate(!sortShownDate);
     setIsShowDate(true);
+    setIsShowProduct(false);
     let data;
     if (sortShownDate) {
       data = _.orderBy(
@@ -72,6 +110,7 @@ export function RunLogScreen({navigation, route}) {
   const handleSortShowProduct = () => {
     setSortShownProduct(!sortShownProduct);
     setIsShowProduct(true);
+    setIsShowDate(false);
     let data;
     if (sortShownProduct) {
       data = _.orderBy(nodeData, ['productName'], ['asc']);
@@ -104,6 +143,8 @@ export function RunLogScreen({navigation, route}) {
           filterResult={
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
+          allProducts={productArray}
+          allLines={lineArray}
         />
         <ReportHeaderBack
           navigation={navigation}
@@ -244,11 +285,22 @@ export function RunLogScreen({navigation, route}) {
                     <Fragment key={item.runId}>
                       <Divider style={styles.divider} />
                       <Pressable
-                        onPress={() =>
-                          navigation.navigate('CardDetailReport', {
-                            runId: item.runId,
-                          })
-                        }>
+                        onPress={() => {
+                          console.log('item.runId', item.runId);
+                          if (item.runId) {
+                            navigation.navigate('CardDetailReport', {
+                              runId: item.runId,
+                            });
+                          } else {
+                            Toast.show({
+                              type: 'error',
+                              position: 'top',
+                              text1: 'Line is not running',
+                              topOffset: Platform.OS === 'ios' ? 80 : 30,
+                              visibilityTime: 1500,
+                            });
+                          }
+                        }}>
                         {({pressed}) => (
                           <View
                             style={[

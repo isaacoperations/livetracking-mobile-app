@@ -6,9 +6,10 @@ import {
   Platform,
   Text,
   View,
+  Dimensions,
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-import {CommonActions, useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import crashlytics from '@react-native-firebase/crashlytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import _ from 'lodash';
@@ -24,6 +25,7 @@ import {localNotificationService} from '../../services/LocalNotificationServices
 export function NotificationScreen({navigation}) {
   const [tempNotify, setTempNotify] = useState([]);
   const [, dispatch] = useReducer(reducer, initialState);
+  const windowHeight = Dimensions.get('window').height;
 
   async function fetchData() {
     await AsyncStorage.getItem('notifyData').then((notify) => {
@@ -81,7 +83,7 @@ export function NotificationScreen({navigation}) {
         ) : (
           <View
             style={{
-              marginTop: 300,
+              marginTop: windowHeight / 3,
               marginBottom: 'auto',
               alignItems: 'center',
               justifyContent: 'center',

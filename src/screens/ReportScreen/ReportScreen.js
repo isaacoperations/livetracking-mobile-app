@@ -136,6 +136,7 @@ export function ReportScreen({navigation, route}) {
             topOffset: Platform.OS === 'ios' ? 80 : 30,
             visibilityTime: 1500,
           });
+          // fetchData();
         }
       });
   }

@@ -50,41 +50,43 @@ export function CardComponent({
           {status === 'notrunning' ? <View style={{height: 30}} /> : null}
           <View style={[styles.cardProgress, {marginBottom: 10}]}>
             <IconE />
-            {status !== 'notrunning' ? progressLine ? (
-              <>
-                <Text style={styles.cardProgressTitle}>
-                  {progressRun > 100
-                    ? _.floor(progressRun)
-                    : _.floor(progressRun, 1)}
-                  %
-                </Text>
-                <View style={styles.cardProgressRow}>
-                  <View
-                    style={[
-                      styles.cardProgressLineHead,
-                      {
-                        width:
-                          progressRun > 100
-                            ? '100%'
-                            : `${_.floor(progressRun)}%`,
-                      },
-                    ]}
-                  />
-                  <View
-                    style={[
-                      styles.cardProgressLineMiddle,
-                      {
-                        width:
-                          progressLine > 100
-                            ? '100%'
-                            : `${_.floor(progressLine)}%`,
-                      },
-                    ]}
-                  />
-                  <View style={styles.cardProgressLineFooter} />
-                </View>
-              </>
-            ) : null : null}
+            {status !== 'notrunning' ? (
+              progressLine ? (
+                <>
+                  <Text style={styles.cardProgressTitle}>
+                    {progressRun > 100
+                      ? _.floor(progressRun)
+                      : _.floor(progressRun, 1)}
+                    %
+                  </Text>
+                  <View style={styles.cardProgressRow}>
+                    <View
+                      style={[
+                        styles.cardProgressLineHead,
+                        {
+                          width:
+                            progressRun > 100
+                              ? '100%'
+                              : `${_.floor(progressRun)}%`,
+                        },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.cardProgressLineMiddle,
+                        {
+                          width:
+                            progressLine > 100
+                              ? '100%'
+                              : `${_.floor(progressLine)}%`,
+                        },
+                      ]}
+                    />
+                    <View style={styles.cardProgressLineFooter} />
+                  </View>
+                </>
+              ) : null
+            ) : null}
           </View>
           <View style={styles.cardTimerRow}>
             {status !== 'notrunning' ? (

@@ -9,8 +9,9 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import "RNSplashScreen.h"
 #import <React/RCTLinkingManager.h>
+
+#import "RNBootSplash.h"
 
 @import Firebase;
 
@@ -40,7 +41,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [FIRApp configure];
-  
+
   [FIRMessaging messaging].delegate = self;
 
 #ifdef FB_SONARKIT_ENABLED
@@ -72,9 +73,9 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
    [application registerForRemoteNotifications];
 
   [application registerForRemoteNotifications];
-      
+
       [FIRMessaging messaging].delegate = self;
-      
+
       [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result,
                                                           NSError * _Nullable error) {
         if (error != nil) {
@@ -83,11 +84,11 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
           NSLog(@"Remote instance ID token: %@", result.token);
         }
       }];
-      
+
       [FIRMessaging messaging].autoInitEnabled = YES;
 
  // End I added
-  
+
   [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
     if (error != nil) {
       NSLog(@"Error getting FCM registration token: %@", error);
@@ -116,12 +117,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
 
-  [RNSplashScreen show];
-
-  // Place this code after "[self.window makeKeyAndVisible]" and before "return YES;"
-  UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
-  UIViewController *vc = [sb instantiateInitialViewController];
-  rootView.loadingView = vc.view;
+  [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 
   return YES;
 }
@@ -156,10 +152,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
   if (userInfo[kGCMMessageIDKey]) {
       NSLog(@"Message ID: %@", userInfo[kGCMMessageIDKey]);
     }
-  
+
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
   [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-  
+
   // Print full message.
     NSLog(@"%@", userInfo);
 
@@ -199,7 +195,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
     didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
-  
+
   NSDictionary *userInfo = response.notification.request.content.userInfo;
     if (userInfo[kGCMMessageIDKey]) {
       NSLog(@"Message ID: %@", userInfo[kGCMMessageIDKey]);
@@ -210,13 +206,13 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 
     // Print full message.
     NSLog(@"%@", userInfo);
-  
+
   completionHandler();
 }
 
 - (NSString*) createDeviceTokenString:(NSData*) deviceToken {
     const unsigned char *tokenChars = deviceToken.bytes;
-    
+
     NSMutableString *tokenString = [NSMutableString string];
     for (int i=0; i < deviceToken.length; i++) {
         NSString *hex = [NSString stringWithFormat:@"%02x", tokenChars[i]];
@@ -227,7 +223,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 
 -(void) registerDevice:(NSData *) deviceToken identity:(NSString *) identity {
   // Create a POST request to the /register endpoint with device variables to register for Twilio Notifications
-    
+
   NSString *deviceTokenString = [self createDeviceTokenString:deviceToken];
 
 
