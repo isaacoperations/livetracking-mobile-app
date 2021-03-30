@@ -66,6 +66,7 @@ const App = () => {
     // );
     localNotificationService.createChannel();
     localNotificationService.getChannels();
+    fcmService.registerAppWithFCM();
 
     (async () => {
       await checkOnboarding();

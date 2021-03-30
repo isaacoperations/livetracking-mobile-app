@@ -8,7 +8,6 @@ import {name as appName} from './app.json';
 import messaging from '@react-native-firebase/messaging';
 import {localNotificationService} from './src/services/LocalNotificationServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// AsyncStorage.removeItem('notifyData');
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);

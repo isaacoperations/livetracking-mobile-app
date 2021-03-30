@@ -13,9 +13,16 @@ class FCMService {
   };
 
   registerAppWithFCM = async () => {
+    console.log(
+      'isDeviceRegisteredForRemoteMessages',
+      messaging().isDeviceRegisteredForRemoteMessages,
+      messaging().isAutoInitEnabled,
+    );
     if (Platform.OS === 'ios') {
-      await messaging().registerDeviceForRemoteMessages();
-      await messaging().setAutoInitEnabled(true);
+      if (!messaging().isDeviceRegisteredForRemoteMessages) {
+        await messaging().registerDeviceForRemoteMessages();
+        await messaging().setAutoInitEnabled(true);
+      }
     }
   };
 

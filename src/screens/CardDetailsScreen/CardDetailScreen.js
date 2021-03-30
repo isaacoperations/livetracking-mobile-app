@@ -7,13 +7,14 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {AccordionList} from 'accordion-collapse-react-native';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -38,10 +39,13 @@ export function CardDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const [currentIndexNegative, setCurrentIndexNegative] = useState(null);
   const scrollRef = useRef();
   let listViewRef;
   let _scrollViewBottom = 0;
   const [runData, setRunData] = useState({});
+  const [layoutData, setLayoutData] = useState([]);
   const {ApiService} = useData();
 
   const {runId} = route.params;
@@ -77,6 +81,7 @@ export function CardDetailScreen({navigation, route}) {
       .then(({data}) => {
         crashlytics().log('Get run report - get method');
         setRunData(data);
+        setLayoutData(data?.lostTimeList);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -97,8 +102,8 @@ export function CardDetailScreen({navigation, route}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderHeaderPositive = (item, index, isExpanded) => {
-    const result = runData?.lostTimeList.filter((list) => {
+  const renderHeaderPositive = (item, index, isExpanded = false) => {
+    const result = layoutData.filter((list) => {
       return list.lostTimePercent > 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
@@ -114,7 +119,7 @@ export function CardDetailScreen({navigation, route}) {
     );
   };
 
-  const renderContentPositive = (item, index, isExpanded) => {
+  const renderContentPositive = (item, index, isExpanded = true) => {
     return (
       <ProgressContent
         key={index + Math.random()}
@@ -127,8 +132,8 @@ export function CardDetailScreen({navigation, route}) {
     );
   };
 
-  const renderHeaderNegative = (item, index, isExpanded) => {
-    const result = runData?.lostTimeList.filter((list) => {
+  const renderHeaderNegative = (item, index, isExpanded = false) => {
+    const result = layoutData.filter((list) => {
       return list.lostTimePercent < 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
@@ -145,7 +150,7 @@ export function CardDetailScreen({navigation, route}) {
     );
   };
 
-  const renderContentNegative = (item, index, isExpanded) => {
+  const renderContentNegative = (item, index, isExpanded = true) => {
     return (
       <ProgressContent
         key={index + Math.random()}
@@ -164,14 +169,17 @@ export function CardDetailScreen({navigation, route}) {
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
-      return (
-        <AccordionList
-          list={resultSort}
-          header={renderHeaderPositive}
-          body={renderContentPositive}
-          keyExtractor={(item) => `${item.reasonName}`}
-        />
-      );
+      return resultSort.map((item, index) => (
+        <TouchableOpacity
+          onPress={() => {
+            setCurrentIndex(index === currentIndex ? null : index);
+          }}
+          key={index}
+          activeOpacity={1}>
+          {renderHeaderPositive(item, index)}
+          {currentIndex === index ? renderContentPositive(item, index) : null}
+        </TouchableOpacity>
+      ));
     } else {
       return <Text style={styles.textEmpty}>No effect data</Text>;
     }
@@ -183,14 +191,21 @@ export function CardDetailScreen({navigation, route}) {
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
     if (result.length > 0) {
-      return (
-        <AccordionList
-          list={resultSort}
-          header={renderHeaderNegative}
-          body={renderContentNegative}
-          keyExtractor={(item) => `${item.reasonName}`}
-        />
-      );
+      return resultSort.map((item, index) => (
+        <TouchableOpacity
+          onPress={() => {
+            setCurrentIndexNegative(
+              index === currentIndexNegative ? null : index,
+            );
+          }}
+          key={index}
+          activeOpacity={1}>
+          {renderHeaderNegative(item, index)}
+          {currentIndexNegative === index
+            ? renderContentNegative(item, index)
+            : null}
+        </TouchableOpacity>
+      ));
     } else {
       return <Text style={styles.textEmpty}>No effect data</Text>;
     }
@@ -229,70 +244,75 @@ export function CardDetailScreen({navigation, route}) {
             {/*    listViewRef?.scrollToEnd({animated: true});*/}
             {/*  }}*/}
             {/*/>*/}
-            <View>
-              <View style={styles.block}>
-                <CardTitle title={runData?.lineName} />
-                <CardProductTitle title={runData?.productName} />
-                <CardProductDesc description={runData?.productDescription} />
-                <Divider style={styles.divider} />
-                <CardTime
-                  startTime={runData?.runStartTime}
-                  endTime={runData?.runEndTime}
-                />
-              </View>
-              <View
-                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <CardOutput
-                  title={runData?.output}
-                  unit={runData?.displayableOutputUnit}
-                />
-              </View>
-              <Divider style={styles.divider} />
-              <View
-                style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
-                <CardSpeed
-                  speed={runData?.averageSpeed}
-                  unit={runData?.displayableSpeedUnit}
-                />
-              </View>
-              <Divider style={styles.divider} />
-              <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
-                <CardEfficiency
-                  efficiencyPercent={runData?.efficiencyPercent}
-                  efficiencyTarget={runData?.efficiencyTarget}
-                />
-              </View>
-              <View
-                style={[
-                  styles.block,
-                  {paddingBottom: 30, marginBottom: 0, height: '100%'},
-                ]}>
-                <Text style={styles.label}>Downtime Pareto</Text>
-                <View style={styles.tabContainer}>
-                  <SegmentedControlTab
-                    values={['Positive effect', 'Negative effect']}
-                    selectedIndex={selectedIndex}
-                    onTabPress={(index) => {
-                      setSelectedIndex(index);
-                    }}
-                    tabsContainerStyle={styles.tabsContainerStyle}
-                    tabStyle={styles.tabStyle}
-                    firstTabStyle={styles.firstTabStyle}
-                    borderRadius={0}
-                    tabTextStyle={styles.tabTextStyle}
-                    activeTabStyle={styles.activeTabStyle}
-                    activeTabTextStyle={styles.activeTabTextStyle}
+            <TouchableWithoutFeedback
+              onPress={() => {
+                console.log('TouchableWithoutFeedback');
+                setCurrentIndex(null);
+                setCurrentIndexNegative(null);
+              }}>
+              <View>
+                <View style={styles.block}>
+                  <CardTitle title={runData?.lineName} />
+                  <CardProductTitle title={runData?.productName} />
+                  <CardProductDesc description={runData?.productDescription} />
+                  <Divider style={styles.divider} />
+                  <CardTime
+                    startTime={runData?.runStartTime}
+                    endTime={runData?.runEndTime}
                   />
                 </View>
-                {selectedIndex === 0
-                  ? renderDataPositive(
-                      runData?.lostTimeList || runData?.lost_time_list,
-                    )
-                  : renderDataNegative(
-                      runData?.lostTimeList || runData?.lost_time_list,
-                    )}
+                <View
+                  style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                  <CardOutput
+                    title={runData?.output}
+                    unit={runData?.displayableOutputUnit}
+                  />
+                </View>
+                <Divider style={styles.divider} />
+                <View
+                  style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
+                  <CardSpeed
+                    speed={runData?.averageSpeed}
+                    unit={runData?.displayableSpeedUnit}
+                  />
+                </View>
+                <Divider style={styles.divider} />
+                <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
+                  <CardEfficiency
+                    efficiencyPercent={runData?.efficiencyPercent}
+                    efficiencyTarget={runData?.efficiencyTarget}
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.block,
+                    {paddingBottom: 30, marginBottom: 0, height: '100%'},
+                  ]}>
+                  <Text style={styles.label}>Downtime Pareto</Text>
+                  <View style={styles.tabContainer}>
+                    <SegmentedControlTab
+                      values={['Positive effect', 'Negative effect']}
+                      selectedIndex={selectedIndex}
+                      onTabPress={(index) => {
+                        setSelectedIndex(index);
+                        setCurrentIndex(null);
+                        setCurrentIndexNegative(null);
+                      }}
+                      tabsContainerStyle={styles.tabsContainerStyle}
+                      tabStyle={styles.tabStyle}
+                      firstTabStyle={styles.firstTabStyle}
+                      borderRadius={0}
+                      tabTextStyle={styles.tabTextStyle}
+                      activeTabStyle={styles.activeTabStyle}
+                      activeTabTextStyle={styles.activeTabTextStyle}
+                    />
+                  </View>
+                  {selectedIndex === 0
+                    ? renderDataPositive(layoutData)
+                    : renderDataNegative(layoutData)}
+                </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           </ScrollView>
         )}
       </SafeAreaView>

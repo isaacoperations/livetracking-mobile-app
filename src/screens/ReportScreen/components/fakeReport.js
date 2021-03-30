@@ -1,4 +1,11 @@
-import React, {useContext, useState, useCallback, useRef} from 'react';
+import React, {
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  Fragment,
+} from 'react';
 import {
   View,
   Text,
@@ -10,35 +17,36 @@ import {
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  LayoutAnimation,
+  UIManager,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
+// import {AccordionList} from 'accordion-collapse-react-native';
 import Toast from 'react-native-toast-message';
 import moment from 'moment';
 import _ from 'lodash';
 
-import {THEME} from '../../constants/theme';
-import {FONT} from '../../constants/fonts';
+import {THEME} from '../../../constants/theme';
+import {FONT} from '../../../constants/fonts';
 
-import {useData} from '../../services/ApiService';
-import {AuthContext} from '../../context/context';
+import {useData} from '../../../services/ApiService';
+import {AuthContext} from '../../../context/context';
 
-import HeaderStatus from '../../components/HeaderStatus';
-import {ProgressLine} from '../../components/ProgressLine';
-import {ReportHeaderInfo} from './components/ReportHeaderInfo';
-import {ReportHeaderFilter} from './components/ReportHeaderFilter';
-import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
-import {ProgressContent} from '../../components/ProgressContent';
+import HeaderStatus from '../../../components/HeaderStatus';
+import {ProgressLine} from '../../../components/ProgressLine';
+import {ReportHeaderInfo} from './../components/ReportHeaderInfo';
+import {ReportHeaderFilter} from './../components/ReportHeaderFilter';
+import {CardEfficiency} from '../../CardDetailsScreen/components/CardEfficiency';
+import {ProgressContent} from '../../../components/ProgressContent';
 
-export function ReportScreen({navigation, route}) {
+export function FakeReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [reportData, setReportData] = useState({});
   const [layoutData, setLayoutData] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(null);
-  const [currentIndexNegative, setCurrentIndexNegative] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
@@ -154,7 +162,7 @@ export function ReportScreen({navigation, route}) {
     return (
       <ProgressLine
         index={index}
-        title={item.reasonName}
+        title={item.reasonName || item}
         percent={item.lostTimePercent}
         isActive={isExpanded}
         sections={result}
@@ -162,7 +170,7 @@ export function ReportScreen({navigation, route}) {
     );
   };
 
-  const renderContentPositive = (item, index, isExpanded = true) => {
+  const renderContentPositive = (item, index, isExpanded = false) => {
     return (
       // <Animated.View
       //   style={[
@@ -193,7 +201,7 @@ export function ReportScreen({navigation, route}) {
     );
   };
 
-  const renderHeaderNegative = (item, index, isExpanded = false) => {
+  const renderHeaderNegative = (item, index, isExpanded) => {
     const result = layoutData.filter((list) => {
       return list.lostTimePercent < 0;
     });
@@ -209,7 +217,7 @@ export function ReportScreen({navigation, route}) {
     );
   };
 
-  const renderContentNegative = (item, index, isExpanded = true) => {
+  const renderContentNegative = (item, index, isExpanded) => {
     return (
       <ProgressContent
         index={index}
@@ -221,50 +229,166 @@ export function ReportScreen({navigation, route}) {
     );
   };
 
-  const renderDataPositive = (data) => {
+  // const renderDataPositive = (data) => {
+  //   const result = data.filter((item) => {
+  //     return item.lostTimePercent > 0;
+  //   });
+  //   const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+  //   if (result.length > 0) {
+  //     return (
+  //       <AccordionList
+  //         list={resultSort}
+  //         header={renderHeaderPositive}
+  //         body={renderContentPositive}
+  //         keyExtractor={(item) => `${item.reasonName}`}
+  //       />
+  //     );
+  //   } else {
+  //     return <Text style={styles.textEmpty}>No effect data</Text>;
+  //   }
+  // };
+  //
+  // const renderDataNegative = (data) => {
+  //   const result = data.filter((item) => {
+  //     return item.lostTimePercent < 0;
+  //   });
+  //   const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+  //   if (result.length > 0) {
+  //     return (
+  //       <AccordionList
+  //         list={resultSort}
+  //         header={renderHeaderNegative}
+  //         body={renderContentNegative}
+  //         keyExtractor={(item) => `${item.reasonName}`}
+  //       />
+  //     );
+  //   } else {
+  //     return <Text style={styles.textEmpty}>No effect data</Text>;
+  //   }
+  // };
+
+  if (Platform.OS === 'android') {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+
+  const updateLayout = (index, close = true, sort = true) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    let resultSort;
+    if (sort) {
+      const result = layoutData.filter((item) => {
+        return item.lostTimePercent > 0;
+      });
+      resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+    } else {
+      const result = layoutData.filter((item) => {
+        return item.lostTimePercent < 0;
+      });
+      resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+    }
+    const array = [...resultSort];
+    if (close) {
+      array.map((value, placeIndex) => {
+        placeIndex === index
+          ? (array[placeIndex].isExpanded = !array[placeIndex].isExpanded)
+          : (array[placeIndex].isExpanded = false);
+      });
+    } else {
+      array.map((value, placeIndex) => {
+        array[placeIndex].isExpanded = false;
+      });
+    }
+    setLayoutData(array);
+  };
+
+  const ExpandedComponentPositive = ({item, index, onPress}) => {
+    const [layoutHeight, setLayoutHeight] = useState(0);
+
+    useEffect(() => {
+      if (item.isExpanded) {
+        setLayoutHeight(null);
+      } else {
+        setLayoutHeight(0);
+      }
+    }, [item.isExpanded]);
+
+    return (
+      <Fragment key={index}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+          {renderHeaderPositive(item, index, !item.isExpanded)}
+        </TouchableOpacity>
+        <View
+          style={{
+            height: layoutHeight,
+            overflow: 'hidden',
+          }}>
+          {renderContentPositive(item, index, !item.isExpanded)}
+        </View>
+      </Fragment>
+    );
+  };
+
+  const ExpandedComponentNegative = ({item, index, onPress}) => {
+    const [layoutHeight, setLayoutHeight] = useState(0);
+
+    useEffect(() => {
+      if (item.isExpanded) {
+        setLayoutHeight(null);
+      } else {
+        setLayoutHeight(0);
+      }
+    }, [item.isExpanded]);
+
+    return (
+      <Fragment key={index}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+          {renderHeaderNegative(item, index, !item.isExpanded)}
+        </TouchableOpacity>
+        <View
+          style={{
+            height: layoutHeight,
+            overflow: 'hidden',
+          }}>
+          {renderContentNegative(item, index, !item.isExpanded)}
+        </View>
+      </Fragment>
+    );
+  };
+
+  const CollapseComponentPositive = (data) => {
     const result = data.filter((item) => {
       return item.lostTimePercent > 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
-
-    if (result.length > 0) {
+    if (resultSort.length > 0) {
       return resultSort.map((item, index) => (
-        <TouchableOpacity
-          onPress={() => {
-            setCurrentIndex(index === currentIndex ? null : index);
-          }}
+        <ExpandedComponentPositive
           key={index}
-          activeOpacity={1}>
-          {renderHeaderPositive(item, index)}
-          {currentIndex === index && renderContentPositive(item, index)}
-        </TouchableOpacity>
+          item={item}
+          index={index}
+          onPress={() => updateLayout(index)}
+        />
       ));
     } else {
-      return <Text style={styles.textEmpty}>No effect data</Text>;
+      return <Text style={styles.textEmpty}>No effect's</Text>;
     }
   };
 
-  const renderDataNegative = (data) => {
+  const CollapseComponentNegative = (data) => {
     const result = data.filter((item) => {
       return item.lostTimePercent < 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
-    if (result.length > 0) {
+    if (resultSort.length > 0) {
       return resultSort.map((item, index) => (
-        <TouchableOpacity
-          onPress={() => {
-            setCurrentIndexNegative(
-              index === currentIndexNegative ? null : index,
-            );
-          }}
+        <ExpandedComponentNegative
           key={index}
-          activeOpacity={1}>
-          {renderHeaderNegative(item, index)}
-          {currentIndexNegative === index && renderContentNegative(item, index)}
-        </TouchableOpacity>
+          item={item}
+          index={index}
+          onPress={() => updateLayout(index, true, false)}
+        />
       ));
     } else {
-      return <Text style={styles.textEmpty}>No effect data</Text>;
+      return <Text style={styles.textEmpty}>No effect's</Text>;
     }
   };
 
@@ -298,11 +422,7 @@ export function ReportScreen({navigation, route}) {
             />
           ) : (
             <>
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  setCurrentIndex(null);
-                  setCurrentIndexNegative(null);
-                }}>
+              <TouchableWithoutFeedback onPress={() => updateLayout(0, false)}>
                 <View>
                   <ReportHeaderInfo
                     navigation={navigation}
@@ -332,8 +452,7 @@ export function ReportScreen({navigation, route}) {
                         selectedIndex={selectedIndex}
                         onTabPress={(index) => {
                           setSelectedIndex(index);
-                          setCurrentIndex(null);
-                          setCurrentIndexNegative(null);
+                          updateLayout(0, false);
                         }}
                         tabsContainerStyle={styles.tabsContainerStyle}
                         tabStyle={styles.tabStyle}
@@ -345,8 +464,8 @@ export function ReportScreen({navigation, route}) {
                       />
                     </View>
                     {selectedIndex === 0
-                      ? renderDataPositive(layoutData)
-                      : renderDataNegative(layoutData)}
+                      ? CollapseComponentPositive(layoutData)
+                      : CollapseComponentNegative(layoutData)}
                   </View>
                 </View>
               </TouchableWithoutFeedback>

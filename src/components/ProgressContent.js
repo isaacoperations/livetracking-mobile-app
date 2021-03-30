@@ -21,7 +21,8 @@ export function ProgressContent({
       style={[
         styles.progressInfo,
         {
-          marginBottom: isActive ? 10 : 0,
+          marginTop: isActive ? -10 : 0,
+          marginBottom: 10,
           padding: isActive ? 30 : 0,
           paddingBottom: isActive ? 2 : 0,
         },
