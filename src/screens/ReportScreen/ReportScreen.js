@@ -108,6 +108,8 @@ export function ReportScreen({navigation, route}) {
         console.log('logout vi');
         setProductArray([]);
         setLineArray([]);
+        setCurrentIndex(null);
+        setCurrentIndexNegative(null);
         setLoading(true);
         navigation.setParams({filterData: undefined});
       };
@@ -235,8 +237,8 @@ export function ReportScreen({navigation, route}) {
           }}
           key={index}
           activeOpacity={1}>
-          {renderHeaderPositive(item, index)}
-          {currentIndex === index && renderContentPositive(item, index)}
+          {renderHeaderPositive(item, index, index === currentIndex)}
+          {currentIndex === index && renderContentPositive(item, index, index === currentIndex)}
         </TouchableOpacity>
       ));
     } else {

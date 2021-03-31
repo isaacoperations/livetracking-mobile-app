@@ -71,6 +71,8 @@ export function CardDetailScreen({navigation, route}) {
 
       return () => {
         clearInterval(refreshID);
+        setCurrentIndex(null);
+        setCurrentIndexNegative(null);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -176,8 +178,10 @@ export function CardDetailScreen({navigation, route}) {
           }}
           key={index}
           activeOpacity={1}>
-          {renderHeaderPositive(item, index)}
-          {currentIndex === index ? renderContentPositive(item, index) : null}
+          {renderHeaderPositive(item, index, index === currentIndex)}
+          {currentIndex === index
+            ? renderContentPositive(item, index, index === currentIndex)
+            : null}
         </TouchableOpacity>
       ));
     } else {
@@ -200,9 +204,9 @@ export function CardDetailScreen({navigation, route}) {
           }}
           key={index}
           activeOpacity={1}>
-          {renderHeaderNegative(item, index)}
+          {renderHeaderNegative(item, index, index === currentIndex)}
           {currentIndexNegative === index
-            ? renderContentNegative(item, index)
+            ? renderContentNegative(item, index, index === currentIndex)
             : null}
         </TouchableOpacity>
       ));
@@ -246,7 +250,6 @@ export function CardDetailScreen({navigation, route}) {
             {/*/>*/}
             <TouchableWithoutFeedback
               onPress={() => {
-                console.log('TouchableWithoutFeedback');
                 setCurrentIndex(null);
                 setCurrentIndexNegative(null);
               }}>
