@@ -1,19 +1,20 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Button} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import _ from 'lodash';
 import moment from 'moment';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
+import {useData} from '../../../services/ApiService';
 
-export function ReportHeaderFilter({
-  navigation,
-  filterResult,
-  allProducts,
-  allLines,
-}) {
+export function ReportHeaderFilter({navigation, filterResult}) {
+  const [lineArray, setLineArray] = useState([]);
+  const [productArray, setProductArray] = useState([]);
+  const {ApiService} = useData();
+
   let bool = _.isEmpty(filterResult);
   let countItems;
   let date = '';
@@ -32,6 +33,43 @@ export function ReportHeaderFilter({
     selectDay = filterResult.selectDay;
   }
 
+  async function fetchProductData() {
+    try {
+      await ApiService.getProducts().then(async ({data}) => {
+        const produtSelected = _.map(data, 'id');
+        setProductArray(produtSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - product');
+      crashlytics().recordError(e.message);
+      setProductArray([]);
+    }
+  }
+
+  async function fetchLineData() {
+    try {
+      await ApiService.getLines().then(async ({data}) => {
+        const lineSelected = _.map(data, 'id');
+        setLineArray(lineSelected);
+      });
+    } catch (e) {
+      crashlytics().log('Filters error - line');
+      crashlytics().recordError(e.message);
+      setLineArray([]);
+    }
+  }
+
+  useEffect(() => {
+    fetchLineData();
+    fetchProductData();
+    return () => {
+      console.log('setLineArray');
+      setLineArray([]);
+      setProductArray([]);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleResetFilter = () => {
     return navigation.navigate('FilterTab', {
       screen: 'ModalFilter',
@@ -45,6 +83,11 @@ export function ReportHeaderFilter({
       params: {filterDataTab: filterResult},
     });
   };
+
+  console.log('filterLine', _.size(filterLine));
+  console.log('filterProduct', _.size(filterProduct));
+  console.log('lineArray', _.size(lineArray));
+  console.log('productArray', _.size(productArray));
 
   return (
     <View style={styles.container}>
@@ -151,7 +194,7 @@ export function ReportHeaderFilter({
                   />
                 </>
               )}
-              {filterLine.length === allLines.length ? (
+              {_.size(filterLine) === _.size(lineArray) ? (
                 <Button
                   buttonStyle={styles.filterButton}
                   titleStyle={[styles.filterButtonText]}
@@ -159,7 +202,7 @@ export function ReportHeaderFilter({
                   activeOpacity={0.8}
                   onPress={handleResetFilter}
                 />
-              ) : filterLine.length > 0 ? (
+              ) : _.size(filterLine) > 0 ? (
                 filterLine?.map((item) => (
                   <Button
                     key={item.id}
@@ -171,7 +214,7 @@ export function ReportHeaderFilter({
                   />
                 ))
               ) : null}
-              {filterProduct.length === allProducts.length ? (
+              {_.size(filterProduct) === _.size(productArray) ? (
                 <Button
                   buttonStyle={styles.filterButton}
                   titleStyle={[styles.filterButtonText]}
@@ -179,7 +222,7 @@ export function ReportHeaderFilter({
                   activeOpacity={0.8}
                   onPress={handleResetFilter}
                 />
-              ) : filterProduct.length > 0 ? (
+              ) : _.size(filterProduct) > 0 ? (
                 filterProduct?.map((item) => (
                   <Button
                     key={item.id}

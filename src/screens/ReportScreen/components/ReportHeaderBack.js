@@ -31,9 +31,7 @@ export function ReportHeaderBack({
             size={25}
             color={THEME.PRIMARY_COLOR}
           />
-          <Text style={styles.text}>
-            {text}
-          </Text>
+          <Text style={styles.text}>{text}</Text>
         </View>
       </TouchableOpacity>
     </View>

@@ -138,7 +138,7 @@ export function CardDetailScreen({navigation, route}) {
     const result = layoutData.filter((list) => {
       return list.lostTimePercent < 0;
     });
-    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['asc']);
     return (
       <ProgressLine
         key={index + Math.random()}
@@ -193,7 +193,7 @@ export function CardDetailScreen({navigation, route}) {
     const result = data.filter((item) => {
       return item.lostTimePercent < 0;
     });
-    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['asc']);
     if (result.length > 0) {
       return resultSort.map((item, index) => (
         <TouchableOpacity
@@ -204,9 +204,9 @@ export function CardDetailScreen({navigation, route}) {
           }}
           key={index}
           activeOpacity={1}>
-          {renderHeaderNegative(item, index, index === currentIndex)}
+          {renderHeaderNegative(item, index, index === currentIndexNegative)}
           {currentIndexNegative === index
-            ? renderContentNegative(item, index, index === currentIndex)
+            ? renderContentNegative(item, index, index === currentIndexNegative)
             : null}
         </TouchableOpacity>
       ));

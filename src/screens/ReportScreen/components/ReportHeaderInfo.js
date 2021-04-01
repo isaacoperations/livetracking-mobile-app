@@ -25,7 +25,7 @@ export function ReportHeaderInfo({navigation, runData = [], filtersData}) {
         onPress={() =>
           navigation.navigate('RunLog', {
             logData: runData,
-            filterData: filtersData
+            filterData: filtersData,
           })
         }
         style={{flexDirection: 'row', alignItems: 'center'}}

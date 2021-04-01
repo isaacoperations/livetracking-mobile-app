@@ -99,6 +99,11 @@ export function HomeScreen({navigation}) {
               topOffset: Platform.OS === 'ios' ? 80 : 30,
               visibilityTime: 1500,
             });
+            sleep(500).then(() => {
+              if (data.error === 'Factory does not exist') {
+                navigation.navigate('SelectFactoryTab');
+              }
+            });
           } else {
             console.log('logout message');
             refreshTokens();

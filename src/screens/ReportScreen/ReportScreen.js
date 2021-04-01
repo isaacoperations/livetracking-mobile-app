@@ -32,6 +32,7 @@ import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
+import {sleep} from '../../utils/sleep';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -117,6 +118,9 @@ export function ReportScreen({navigation, route}) {
     }, [route]),
   );
 
+  console.log('lineArray', lineArray);
+  console.log('productArray', productArray);
+
   async function fetchData(line, product, date, fromDate, toDate) {
     const resData = {
       line_id_list: line,
@@ -143,6 +147,11 @@ export function ReportScreen({navigation, route}) {
             text1: data.error,
             topOffset: Platform.OS === 'ios' ? 80 : 30,
             visibilityTime: 1500,
+          });
+          sleep(500).then(() => {
+            if (data.error === 'Factory does not exist') {
+              navigation.navigate('SelectFactoryTab');
+            }
           });
           // fetchData();
         }
@@ -199,13 +208,14 @@ export function ReportScreen({navigation, route}) {
     const result = layoutData.filter((list) => {
       return list.lostTimePercent < 0;
     });
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['asc']);
     return (
       <ProgressLine
         index={index}
         title={item.reasonName}
         percent={item.lostTimePercent}
         isActive={isExpanded}
-        sections={result}
+        sections={resultSort}
         backgroundColor={THEME.GREEN_COLOR}
       />
     );
@@ -250,7 +260,7 @@ export function ReportScreen({navigation, route}) {
     const result = data.filter((item) => {
       return item.lostTimePercent < 0;
     });
-    const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
+    const resultSort = _.orderBy(result, ['lostTimePercent'], ['asc']);
     if (result.length > 0) {
       return resultSort.map((item, index) => (
         <TouchableOpacity
@@ -261,8 +271,9 @@ export function ReportScreen({navigation, route}) {
           }}
           key={index}
           activeOpacity={1}>
-          {renderHeaderNegative(item, index)}
-          {currentIndexNegative === index && renderContentNegative(item, index)}
+          {renderHeaderNegative(item, index, index === currentIndexNegative)}
+          {currentIndexNegative === index &&
+            renderContentNegative(item, index, index === currentIndexNegative)}
         </TouchableOpacity>
       ));
     } else {
@@ -279,10 +290,7 @@ export function ReportScreen({navigation, route}) {
           filterResult={
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
-          allProducts={productArray}
-          allLines={lineArray}
         />
-
         <Animated.ScrollView
           nestedScrollEnabled={true}
           scrollEventThrottle={16}

@@ -682,7 +682,8 @@ export function ModalFilterScreen({navigation, route}) {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                         }}>
-                        <ListItem.Title style={{color: THEME.DARK_COLOR, flex: 1}}>
+                        <ListItem.Title
+                          style={{color: THEME.DARK_COLOR, flex: 1}}>
                           {item.name}
                         </ListItem.Title>
                         <View>
@@ -711,9 +712,11 @@ export function ModalFilterScreen({navigation, route}) {
                   </Fragment>
                 ))
               ) : (
-                <EmptyComponent
-                  title={'You have no lines in your watch list'}
-                />
+                <View style={{height: 260, alignItems: 'center'}}>
+                  <EmptyComponent
+                    title={'You have no lines in your watch list'}
+                  />
+                </View>
               )}
             </ScrollView>
           </View>

@@ -1,4 +1,4 @@
-import React, {useState, Fragment, useEffect, useContext} from 'react';
+import React, {useState, Fragment, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import {useFocusEffect, CommonActions} from '@react-navigation/native';
 import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
@@ -25,8 +26,6 @@ import IconAscDesc from '../../components/icons/IconAscDesc';
 import {EmptyComponent} from './components/EmptyComponent';
 import {ChartBar} from './components/ChartBar';
 import Toast from 'react-native-toast-message';
-import {useData} from '../../services/ApiService';
-import {AuthContext} from '../../context/context';
 
 export function RunLogScreen({navigation, route}) {
   const {logData} = route.params;
@@ -36,48 +35,23 @@ export function RunLogScreen({navigation, route}) {
   const [isShowDate, setIsShowDate] = useState(false);
   const [isShowProduct, setIsShowProduct] = useState(false);
   const [sortShownProduct, setSortShownProduct] = useState(true);
-  const [lineArray, setLineArray] = useState([]);
-  const [productArray, setProductArray] = useState([]);
   const WIDTH = Dimensions.get('window').width;
-  const {ApiService} = useData();
-  const {refreshTokens} = useContext(AuthContext);
 
-  async function fetchProductData() {
-    try {
-      await ApiService.getProducts().then(async ({data}) => {
-        const produtSelected = _.map(data, 'id');
-        setProductArray(produtSelected);
-      });
-    } catch (e) {
-      crashlytics().log('Filters error - product');
-      crashlytics().recordError(e.message);
-      setProductArray([]);
-      refreshTokens();
-    }
-  }
-
-  async function fetchLineData() {
-    try {
-      await ApiService.getLines().then(async ({data}) => {
-        const lineSelected = _.map(data, 'id');
-        setLineArray(lineSelected);
-      });
-    } catch (e) {
-      crashlytics().log('Filters error - line');
-      crashlytics().recordError(e.message);
-      setLineArray([]);
-      refreshTokens();
-    }
-  }
-
-  useEffect(() => {
-    crashlytics().log('Run log screen');
-    (async () => {
-      await MaterialIcons.loadFont();
-      await fetchProductData();
-      await fetchLineData();
-    })();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      crashlytics().log('Run log screen');
+      (async () => {
+        await MaterialIcons.loadFont();
+      })();
+      if (nodeData.length <= 0) {
+        navigation.navigate('ReportScreen');
+      }
+      return () => {
+        setNodeData([]);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nodeData]),
+  );
 
   const updateSearch = (text) => {
     setSearch(text);
@@ -143,8 +117,6 @@ export function RunLogScreen({navigation, route}) {
           filterResult={
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
           }
-          allProducts={productArray}
-          allLines={lineArray}
         />
         <ReportHeaderBack
           navigation={navigation}

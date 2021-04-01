@@ -43,6 +43,7 @@ import {TabBadge} from './components/TabBadge';
 import {createAction} from '../utils/createAction';
 import reducer, {initialState} from '../reducer/reducer';
 import {useInterval} from '../hooks/useInterval';
+import {TokenScreen} from '../screens/SettingScreen/screens/TokenScreen';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -179,9 +180,7 @@ const ReportStackNavigator = ({navigation}) => {
           name="RunLog"
           component={RunLogScreen}
           options={() => ({
-            title:
-              app_metadata?.factories[isActive]?.id ||
-              'Test Factory Etobicoke South',
+            title: isActive || app_metadata?.factories[0]?.name,
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('SelectFactoryTab')}
@@ -351,6 +350,7 @@ function SettingNavigator() {
       />
       <SettingStack.Screen name="Security" component={SecurityScreen} />
       <SettingStack.Screen name="NotifySetting" component={NotifyScreen} />
+      <SettingStack.Screen name="TokenScreen" component={TokenScreen} />
     </SettingStack.Navigator>
   );
 }

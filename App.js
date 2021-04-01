@@ -51,9 +51,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    RNBootSplash.getVisibilityStatus().then((status) =>
-      console.log('status board ---------', status),
-    );
     RNBootSplash.hide();
     // localNotificationService.showNotification('title', 'body');
 
@@ -278,9 +275,7 @@ const App = () => {
             const includeToday = _.includes(isWeek, today);
             const isMinutes = moment().startOf('minute').format('HH:mm');
             const includeMinute = _.includes(timeSlots, isMinutes);
-            console.log('timeSlots', timeSlots);
             if (!includeMinute && !includeToday) {
-              console.log('includeMinute', !includeMinute && !includeToday);
               await getForeground(runID, title, message);
             } else {
               console.log('[onOpenNotification] dont Disturb');

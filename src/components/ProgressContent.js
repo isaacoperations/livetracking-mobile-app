@@ -23,6 +23,7 @@ export function ProgressContent({
         {
           marginTop: 0,
           marginBottom: 10,
+          marginHorizontal: -30,
           padding: isActive ? 30 : 0,
           paddingBottom: isActive ? 2 : 0,
         },

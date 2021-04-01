@@ -18,7 +18,7 @@ export function ProgressLine({
   if (index === 0) {
     indexWidth = 100;
   } else {
-    indexWidth = (percent * 100) / sections[0].lostTimePercent;
+    indexWidth = (Math.abs(percent) * 100) / Math.abs(sections[0].lostTimePercent);
     if (indexWidth > 100) {
       indexWidth = percent;
     }

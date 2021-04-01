@@ -17,8 +17,9 @@ import {UserContext} from '../../context/context';
 import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
+import {useNavigationState} from '@react-navigation/native';
 
-export function SelectFactoryScreen({navigation}) {
+export function SelectFactoryScreen({navigation, route, screenName}) {
   const user = useContext(UserContext);
   const [{factory}, dispatch] = useReducer(reducer, initialState);
   const organizations =

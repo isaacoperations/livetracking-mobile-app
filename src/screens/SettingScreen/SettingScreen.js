@@ -57,6 +57,12 @@ export function SettingScreen({navigation}) {
               onPress={() => navigation.navigate('Troubleshooting')}
             />
             <Divider style={styles.divider} />
+            <SettingBtn
+              title={'Token screen'}
+              onPress={() => navigation.navigate('TokenScreen')}
+            />
+            <Divider style={styles.divider} />
+            <Divider style={styles.divider} />
           </View>
           <View style={styles.containerBottom}>
             <Btn
