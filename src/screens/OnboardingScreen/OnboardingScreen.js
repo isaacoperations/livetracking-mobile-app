@@ -183,7 +183,7 @@ export function OnboardingScreen({navigation}) {
                     color: THEME.PEW_COLOR,
                     marginTop: 0,
                     marginBottom: Platform.OS === 'ios' ? 35 : 32,
-                    fontSize: 12,
+                    fontSize: 16,
                   }}>
                   Navigating multiple factories with ease
                 </Text>
@@ -201,7 +201,7 @@ export function OnboardingScreen({navigation}) {
               title: (
                 <Text
                   style={{
-                    fontSize: 15,
+                    fontSize: 16,
                     fontFamily: FONT.Regular,
                     color: THEME.DARK_COLOR,
                     textAlign: 'center',
@@ -257,13 +257,13 @@ const styles = StyleSheet.create({
     //boxShadow: '-1px -1px 10px rgba(0, 0, 0, 0.1)',
   },
   onboardingTitle: {
-    fontSize: 22,
+    fontSize: 26,
     fontFamily: FONT.SemiBold,
     color: THEME.PRIMARY_COLOR_DARK,
     marginBottom: 10,
   },
   onboardingSubtitle: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: FONT.Regular,
     color: '#999',
   },

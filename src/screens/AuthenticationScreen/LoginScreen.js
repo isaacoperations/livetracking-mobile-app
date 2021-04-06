@@ -37,6 +37,8 @@ export function LoginScreen({navigation}) {
   const [focusPassword, setFocusPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState('');
+  const [isErrorEmail, setIsErrorEmail] = useState(false);
+  const [isErrorPassword, setIsErrorPassword] = useState(false);
 
   const {login} = useContext(AuthContext);
 
@@ -55,26 +57,29 @@ export function LoginScreen({navigation}) {
       .min(3, 'Please enter more than 3 characters!')
       .max(70, 'Too Long!')
       .email('Invalid email')
-      .required(''),
+      .required('Required'),
     password: Yup.string()
       .min(6, 'Please enter more than 6 characters!')
       .max(24, 'Too Long!')
-      .required(''),
+      .required('Required'),
   });
 
   return (
     <>
       <HeaderStatus ios={'dark'} />
       <Formik
-        initialValues={{email: '', password: '', check: false}}
+        initialValues={{email: '', password: ''}} // check: false
         validationSchema={LoginSchema}
         onSubmit={async (values, actions) => {
           try {
+            console.log('values 2', values);
             crashlytics().log('Login - form');
             setIsLoading(true);
-            actions.resetForm();
+            actions.setSubmitting(false);
+            // actions.resetForm();
             await login(values.email.toLowerCase(), values.password);
           } catch (e) {
+            console.log('e', e);
             crashlytics().recordError(e.message);
             setIsError(e.message);
             setIsLoading(false);
@@ -86,7 +91,7 @@ export function LoginScreen({navigation}) {
           handleSubmit,
           values,
           errors,
-          setFieldValue,
+            isSubmitting,
           isValid,
           dirty,
         }) => (
@@ -100,37 +105,38 @@ export function LoginScreen({navigation}) {
                       width: '100%',
                       marginTop: 'auto',
                     }}>
-                    <>
-                      {isError && isError ? (
-                        <ErrorComponent
-                          text={isError}
-                          style={{marginTop: 15, color: 'red'}}
-                        />
-                      ) : null}
-                      <Text style={styles.label}>Email</Text>
-                      <TextInput
-                        style={[
-                          {
-                            borderColor: focusEmail
-                              ? THEME.PRIMARY_COLOR
-                              : THEME.GRAY_COLOR,
-                            backgroundColor: focusEmail
-                              ? THEME.WHITE_COLOR
-                              : THEME.GRAY_COLOR,
-                          },
-                          styles.input,
-                        ]}
-                        onFocus={() => setFocusEmail(true)}
-                        onChangeText={handleChange('email')}
-                        onBlur={() => {
-                          setFocusEmail(false);
-                          handleBlur('email');
-                        }}
-                        value={values.email}
+                    {isError ? (
+                      <ErrorComponent
+                        text={isError}
+                        style={{marginTop: 15, color: 'red'}}
                       />
-                    </>
+                    ) : null}
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput
+                      style={[
+                        {
+                          borderColor: focusEmail
+                            ? THEME.PRIMARY_COLOR
+                            : THEME.GRAY_COLOR,
+                          backgroundColor: focusEmail
+                            ? THEME.WHITE_COLOR
+                            : THEME.GRAY_COLOR,
+                        },
+                        styles.input,
+                      ]}
+                      onFocus={() => {
+                        setIsErrorEmail(false);
+                        setFocusEmail(true);
+                      }}
+                      onChangeText={handleChange('email')}
+                      onBlur={() => {
+                        setFocusEmail(false);
+                        handleBlur('email');
+                      }}
+                      value={values.email}
+                    />
 
-                    {focusEmail && errors.email ? (
+                    {isErrorEmail && errors.email ? (
                       <Text style={THEME.ERROR_TEXT}>{errors.email}</Text>
                     ) : null}
 
@@ -150,7 +156,10 @@ export function LoginScreen({navigation}) {
                           styles.input,
                         ]}
                         onChangeText={handleChange('password')}
-                        onFocus={() => setFocusPassword(true)}
+                        onFocus={() => {
+                          setIsErrorPassword(false);
+                          setFocusPassword(true);
+                        }}
                         onBlur={() => {
                           setFocusPassword(false);
                           handleBlur('password');
@@ -161,50 +170,47 @@ export function LoginScreen({navigation}) {
                         activeOpacity={0.7}
                         onPress={() => setShowPassword(!showPassword)}
                         style={styles.maskPassword}>
-                        {showPassword ? (
-                          <MaterialCommunityIcons
-                            style={{color: THEME.ASH_COLOR}}
-                            name="eye"
-                            size={20}
-                          />
-                        ) : (
-                          <MaterialCommunityIcons
-                            style={{color: THEME.ASH_COLOR}}
-                            name="eye-off"
-                            size={20}
-                          />
-                        )}
+                        <MaterialCommunityIcons
+                          style={{color: THEME.ASH_COLOR}}
+                          name={showPassword ? 'eye' : 'eye-off'}
+                          size={20}
+                        />
                       </TouchableOpacity>
                     </View>
 
-                    {focusPassword && errors.password ? (
+                    {isErrorPassword && errors.password ? (
                       <Text style={THEME.ERROR_TEXT}>{errors.password}</Text>
                     ) : null}
                   </View>
                   <View style={styles.containerBottom}>
                     <Pressable
-                      onPress={handleSubmit}
-                      disabled={!(isValid && dirty)}
+                      onPress={() => {
+                        setIsErrorEmail(true);
+                        setIsErrorPassword(true);
+                        handleSubmit();
+                      }}
+                      disabled={isSubmitting}
+                      // disabled={dirty} //!(isValid && dirty)
                       style={({pressed}) => [
                         {
                           backgroundColor: pressed
                             ? THEME.PRIMARY_COLOR_DARK
                             : THEME.PRIMARY_COLOR,
                           borderColor: THEME.WHITE_COLOR,
-                          opacity: !(isValid && dirty) ? 0.5 : 1,
+                          opacity: 1, // !(isValid && dirty) ? 0.5 : 1
                         },
                         THEME.BUTTON_PRIMARY_SMALL,
                       ]}>
                       {({pressed}) => (
-                        <View
-                          style={{
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            flexDirection: 'row',
-                          }}>
+                        <View style={styles.buttonContainer}>
                           {isLoading ? (
-                            <ActivityIndicator style={{marginLeft: 'auto', marginRight: 'auto'}} color={THEME.WHITE_COLOR} />
+                            <ActivityIndicator
+                              style={{
+                                marginLeft: 'auto',
+                                marginRight: 'auto',
+                              }}
+                              color={THEME.WHITE_COLOR}
+                            />
                           ) : (
                             <Text
                               style={[{color: THEME.WHITE_COLOR}, styles.text]}>
@@ -268,6 +274,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     borderColor: THEME.WHITE_COLOR,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    flexDirection: 'row',
   },
   text: {
     marginLeft: 'auto',

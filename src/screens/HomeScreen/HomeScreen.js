@@ -105,8 +105,10 @@ export function HomeScreen({navigation}) {
               }
             });
           } else {
-            console.log('logout message');
-            refreshTokens();
+            console.log('logout message', data.error);
+          }
+          if (status === 401) {
+            await refreshTokens();
           }
         }
       })();

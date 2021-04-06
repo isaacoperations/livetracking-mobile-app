@@ -29,11 +29,10 @@ moment.updateLocale('en', {
 export function NotificationComponent({
   title = 'Notification title',
   status = 'Downtime',
-  time = 'now',
+  time = moment().format('X'),
   line = 'Line 1',
   sku = 'SKU 229394, SKU 234823',
 }) {
-  console.log(time);
   return (
     <>
       <View style={styles.block}>

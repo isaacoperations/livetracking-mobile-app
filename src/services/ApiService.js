@@ -3,7 +3,6 @@ import axios from 'axios';
 import snakecaseKeys from 'snakecase-keys';
 import camelcaseKeys from 'camelcase-keys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import APIConfig from '../config';
 import {UserContext} from '../context/context';
 import {createAction} from '../utils/createAction';
@@ -46,7 +45,7 @@ export function useData() {
     return response;
   };
 
-  const errorHandler = (error) => {
+  const errorHandler = async (error) => {
     const {status, data} = error.response;
     console.log('config error ------------------------', status, data);
     return Promise.reject(error);

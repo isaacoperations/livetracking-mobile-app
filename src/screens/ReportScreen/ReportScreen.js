@@ -1,4 +1,10 @@
-import React, {useContext, useState, useCallback, useRef} from 'react';
+import React, {
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect, useLayoutEffect,
+} from 'react';
 import {
   View,
   Text,
@@ -10,6 +16,8 @@ import {
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  Dimensions,
+  Button,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -33,6 +41,7 @@ import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
 import {sleep} from '../../utils/sleep';
+import IconBox from '../../components/icons/IconBox';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -44,6 +53,7 @@ export function ReportScreen({navigation, route}) {
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
   const [bottomActions, setBottomActions] = useState(null);
+  const [isError, setIsError] = useState('');
   const {ApiService} = useData();
   const {refreshTokens} = useContext(AuthContext);
 
@@ -51,6 +61,7 @@ export function ReportScreen({navigation, route}) {
   const diffClamp = Animated.diffClamp(scrollY, 0, 45);
   const inputRange = [0, 0];
   const outputRange = [0, 0];
+  const HEIGHT = Dimensions.get('window').height;
 
   async function fetchProductData() {
     try {
@@ -62,7 +73,7 @@ export function ReportScreen({navigation, route}) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
       setProductArray([]);
-      refreshTokens();
+      // await refreshTokens();
     }
   }
 
@@ -76,7 +87,7 @@ export function ReportScreen({navigation, route}) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
       setLineArray([]);
-      refreshTokens();
+      // await refreshTokens();
     }
   }
 
@@ -88,6 +99,7 @@ export function ReportScreen({navigation, route}) {
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
+        console.log('route.params', route.params);
         if (!bool) {
           setLoading(true);
           const {
@@ -111,15 +123,13 @@ export function ReportScreen({navigation, route}) {
         setLineArray([]);
         setCurrentIndex(null);
         setCurrentIndexNegative(null);
-        setLoading(true);
+        // setLoading(true);
+
         navigation.setParams({filterData: undefined});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route]),
   );
-
-  console.log('lineArray', lineArray);
-  console.log('productArray', productArray);
 
   async function fetchData(line, product, date, fromDate, toDate) {
     const resData = {
@@ -134,26 +144,30 @@ export function ReportScreen({navigation, route}) {
         setReportData(data);
         setLayoutData(data?.lostTimeList);
       })
-      .catch((err) => {
+      .catch(async (err) => {
         const {status, data} = err.response;
+        console.log('data', data);
         crashlytics().recordError(err);
+        setIsError(data.error);
         if (status === 401) {
-          refreshTokens();
+          console.log('data2 ', data);
+          await refreshTokens();
         } else {
-          setLoading(true);
-          Toast.show({
-            type: 'error',
-            position: 'top',
-            text1: data.error,
-            topOffset: Platform.OS === 'ios' ? 80 : 30,
-            visibilityTime: 1500,
-          });
+          setLoading(false);
+          setReportData({});
+          setLayoutData([]);
+          // Toast.show({
+          //   type: 'error',
+          //   position: 'top',
+          //   text1: data.error,
+          //   topOffset: Platform.OS === 'ios' ? 80 : 30,
+          //   visibilityTime: 1500,
+          // });
           sleep(500).then(() => {
             if (data.error === 'Factory does not exist') {
               navigation.navigate('SelectFactoryTab');
             }
           });
-          // fetchData();
         }
       });
   }
@@ -248,7 +262,8 @@ export function ReportScreen({navigation, route}) {
           key={index}
           activeOpacity={1}>
           {renderHeaderPositive(item, index, index === currentIndex)}
-          {currentIndex === index && renderContentPositive(item, index, index === currentIndex)}
+          {currentIndex === index &&
+            renderContentPositive(item, index, index === currentIndex)}
         </TouchableOpacity>
       ));
     } else {
@@ -288,9 +303,10 @@ export function ReportScreen({navigation, route}) {
         <ReportHeaderFilter
           navigation={navigation}
           filterResult={
-            typeof route.params !== 'undefined' ? route.params?.filterData : {}
+            typeof route.params !== 'undefined' ? route.params?.filterData : undefined
           }
         />
+        {/*<Button title={'refresh'} onPress={() => refreshTokens()} />*/}
         <Animated.ScrollView
           nestedScrollEnabled={true}
           scrollEventThrottle={16}
@@ -313,52 +329,60 @@ export function ReportScreen({navigation, route}) {
                   setCurrentIndex(null);
                   setCurrentIndexNegative(null);
                 }}>
-                <View>
-                  <ReportHeaderInfo
-                    navigation={navigation}
-                    filtersData={
-                      typeof route.params !== 'undefined'
-                        ? route.params?.filterData
-                        : {}
-                    }
-                    runData={reportData?.tableInfoList}
-                  />
-                  <View
-                    style={[styles.block, {paddingBottom: 30, height: 220}]}>
-                    <CardEfficiency
-                      efficiencyPercent={reportData.efficiencyPercent}
-                      efficiencyTarget={70}
+                {!_.isEmpty(reportData) ? (
+                  <View>
+                    <ReportHeaderInfo
+                      navigation={navigation}
+                      filtersData={
+                        typeof route.params !== 'undefined'
+                          ? route.params?.filterData
+                          : {}
+                      }
+                      runData={reportData?.tableInfoList}
                     />
-                  </View>
-                  <View
-                    style={[
-                      styles.block,
-                      {paddingBottom: 30, marginBottom: 0, height: '100%'},
-                    ]}>
-                    <Text style={styles.label}>Downtime Pareto</Text>
-                    <View style={styles.tabContainer}>
-                      <SegmentedControlTab
-                        values={['Positive effect', 'Negative effect']}
-                        selectedIndex={selectedIndex}
-                        onTabPress={(index) => {
-                          setSelectedIndex(index);
-                          setCurrentIndex(null);
-                          setCurrentIndexNegative(null);
-                        }}
-                        tabsContainerStyle={styles.tabsContainerStyle}
-                        tabStyle={styles.tabStyle}
-                        firstTabStyle={styles.firstTabStyle}
-                        borderRadius={0}
-                        tabTextStyle={styles.tabTextStyle}
-                        activeTabStyle={styles.activeTabStyle}
-                        activeTabTextStyle={styles.activeTabTextStyle}
+                    <View
+                      style={[styles.block, {paddingBottom: 30, height: 220}]}>
+                      <CardEfficiency
+                        efficiencyPercent={reportData.efficiencyPercent}
+                        efficiencyTarget={70}
                       />
                     </View>
-                    {selectedIndex === 0
-                      ? renderDataPositive(layoutData)
-                      : renderDataNegative(layoutData)}
+                    <View
+                      style={[
+                        styles.block,
+                        {paddingBottom: 30, marginBottom: 0, height: '100%'},
+                      ]}>
+                      <Text style={styles.label}>Downtime Pareto</Text>
+                      <View style={styles.tabContainer}>
+                        <SegmentedControlTab
+                          values={['Positive effect', 'Negative effect']}
+                          selectedIndex={selectedIndex}
+                          onTabPress={(index) => {
+                            setSelectedIndex(index);
+                            setCurrentIndex(null);
+                            setCurrentIndexNegative(null);
+                          }}
+                          tabsContainerStyle={styles.tabsContainerStyle}
+                          tabStyle={styles.tabStyle}
+                          firstTabStyle={styles.firstTabStyle}
+                          borderRadius={0}
+                          tabTextStyle={styles.tabTextStyle}
+                          activeTabStyle={styles.activeTabStyle}
+                          activeTabTextStyle={styles.activeTabTextStyle}
+                        />
+                      </View>
+                      {selectedIndex === 0
+                        ? renderDataPositive(layoutData)
+                        : renderDataNegative(layoutData)}
+                    </View>
                   </View>
-                </View>
+                ) : (
+                  <View
+                    style={[styles.emptyContainer, {marginTop: HEIGHT / 3}]}>
+                    <IconBox style={{marginBottom: 15}} />
+                    <Text style={styles.subtitle}>{isError}</Text>
+                  </View>
+                )}
               </TouchableWithoutFeedback>
             </>
           )}
@@ -373,6 +397,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     flex: 1,
     backgroundColor: '#E5E5E5',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   block: {
     position: 'relative',
@@ -513,5 +541,11 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+  },
+  subtitle: {
+    fontSize: 15,
+    fontFamily: FONT.Regular,
+    color: THEME.PEW_COLOR,
+    textAlign: 'center',
   },
 });

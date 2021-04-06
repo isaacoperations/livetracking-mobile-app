@@ -8,8 +8,10 @@ import {
   Pressable,
   Dimensions,
   Platform,
+  Alert,
+  BackHandler,
 } from 'react-native';
-import {useFocusEffect, CommonActions} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
@@ -37,6 +39,14 @@ export function RunLogScreen({navigation, route}) {
   const [sortShownProduct, setSortShownProduct] = useState(true);
   const WIDTH = Dimensions.get('window').width;
 
+  const backAction = () => {
+    navigation.navigate('ReportScreen', {
+      filterData:
+        typeof route.params !== 'undefined' ? route.params?.filterData : {},
+    });
+    return true;
+  };
+
   useFocusEffect(
     useCallback(() => {
       crashlytics().log('Run log screen');
@@ -46,8 +56,11 @@ export function RunLogScreen({navigation, route}) {
       if (nodeData.length <= 0) {
         navigation.navigate('ReportScreen');
       }
+
+      BackHandler.addEventListener('hardwareBackPress', backAction);
       return () => {
         setNodeData([]);
+        BackHandler.removeEventListener('hardwareBackPress', backAction);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeData]),

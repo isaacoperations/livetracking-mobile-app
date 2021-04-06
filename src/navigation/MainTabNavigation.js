@@ -158,7 +158,7 @@ const ReportStackNavigator = ({navigation}) => {
             ),
             headerRight: () => <Text> </Text>,
           })}
-          initialParams={{filterData: undefined}}
+          // initialParams={{filterData: undefined}}
         />
         <ReportStack.Screen
           name="CardDetailReport"

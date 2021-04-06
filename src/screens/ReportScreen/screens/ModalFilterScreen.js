@@ -133,12 +133,12 @@ export function ModalFilterScreen({navigation, route}) {
       setCheckAllProduct(false);
     }
 
-    if (lineDataFull.length === lineData.length) {
+    if (_.size(lineDataFull) === _.size(lineData)) {
       setCheckAllLine(true);
       setIsCheckVisibleLine(false);
     }
 
-    if (productDataFull.length === productData.length) {
+    if (_.size(productDataFull) === _.size(productData)) {
       setCheckAllProduct(true);
       setIsCheckVisibleProduct(false);
     }
@@ -168,7 +168,7 @@ export function ModalFilterScreen({navigation, route}) {
     } catch (e) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
-      refreshTokens();
+      await refreshTokens();
     }
   }
 
@@ -195,7 +195,7 @@ export function ModalFilterScreen({navigation, route}) {
     } catch (e) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
-      refreshTokens();
+      await refreshTokens();
     }
   }
 
@@ -438,7 +438,7 @@ export function ModalFilterScreen({navigation, route}) {
           title={'Filters'}
           onPressClose={() =>
             navigation.navigate('ReportScreen', {
-              filterData: !bool ? route?.params?.filterDataTab : undefined,
+              filterData: typeof route.params !== 'undefined' ? route.params?.filterDataTab : {},
             })
           }
         />
@@ -665,7 +665,7 @@ export function ModalFilterScreen({navigation, route}) {
             </ListItem>
             <Divider style={styles.divider} />
             <ScrollView nestedScrollEnabled={true}>
-              {lineData.length > 0 ? (
+              {_.size(lineData) > 0 ? (
                 lineData.map((item, i) => (
                   <Fragment key={item.id}>
                     <ListItem
@@ -782,7 +782,7 @@ export function ModalFilterScreen({navigation, route}) {
           <RBSheet
             ref={refRBSheetProduct}
             closeOnDragDown={false}
-            height={HEIGHT - (Platform.OS === 'ios' ? 70 : 50)}
+            height={HEIGHT - (Platform.OS === 'ios' ? 70 : 30)}
             closeOnPressMask={false}
             customStyles={{
               wrapper: {

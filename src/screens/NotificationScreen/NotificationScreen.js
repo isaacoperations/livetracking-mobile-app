@@ -22,7 +22,7 @@ import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {localNotificationService} from '../../services/LocalNotificationServices';
 
-export function NotificationScreen({navigation}) {
+export function NotificationScreen() {
   const [tempNotify, setTempNotify] = useState([]);
   const [, dispatch] = useReducer(reducer, initialState);
   const windowHeight = Dimensions.get('window').height;
@@ -102,7 +102,7 @@ export function NotificationScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#E5E5E5',
   },
   subtitle: {
     fontSize: 15,

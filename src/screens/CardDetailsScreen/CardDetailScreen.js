@@ -89,7 +89,7 @@ export function CardDetailScreen({navigation, route}) {
       .catch((error) => {
         crashlytics().recordError(error.message);
         setIsLoading(true);
-        navigation.navigate('Home'); // goBack()
+        navigation.goBack();
       });
   }
 

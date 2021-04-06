@@ -7,10 +7,7 @@ import RNRestart from 'react-native-restart';
 import {createAction} from '../utils/createAction';
 import {sleep} from '../utils/sleep';
 import reducer, {initialState} from '../reducer/reducer';
-
 import {credentials} from '../config/auth0-configuration';
-import Toast from 'react-native-toast-message';
-import {Platform} from 'react-native';
 
 export function useAuth() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -50,7 +47,7 @@ export function useAuth() {
       refreshTokens: async () => {
         await RNSInfo.getItem('user', {}).then(async (userData) => {
           const data = JSON.parse(userData);
-          console.log('data --------------------', data);
+          console.log('data', data);
           await auth0.auth
             .refreshToken({
               refreshToken: data.authData.refreshToken,
@@ -75,15 +72,36 @@ export function useAuth() {
                   RNRestart.Restart();
                 });
             })
-            .catch((err) => {
+            .catch(async (err) => {
               console.log('refresh user err', err);
-              Toast.show({
-                type: 'error',
-                position: 'top',
-                text1: 'Please, sign out in app and sing in',
-                topOffset: Platform.OS === 'ios' ? 110 : 40,
-                visibilityTime: 1000,
-              });
+              // Toast.show({
+              //   type: 'error',
+              //   position: 'top',
+              //   text1: 'Please, sign out in app and sing in',
+              //   topOffset: Platform.OS === 'ios' ? 110 : 40,
+              //   visibilityTime: 1000,
+              // });
+              await auth0.auth
+                .revoke({refreshToken: data.authData.refreshToken})
+                .then((revoke) => {
+                  console.log('user revoke', revoke);
+                  // const payload = {
+                  //   token: newAccessToken.accessToken,
+                  //   authData: newAccessToken,
+                  //   userData: user,
+                  //   app_metadata:
+                  //     user['https://livetracking.ca/app_metadata']
+                  //       .organizations[0],
+                  //   user_metadata:
+                  //     user['https://livetracking.ca/user_metadata'],
+                  // };
+                  // await RNSInfo.setItem('user', JSON.stringify(payload), {});
+                  // dispatch(createAction('SET_USER', payload));
+                  // RNRestart.Restart();
+                })
+                .catch((error) => {
+                  console.log('err revoke', error);
+                });
             });
         });
       },

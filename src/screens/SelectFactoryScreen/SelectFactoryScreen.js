@@ -8,7 +8,7 @@ import React, {
 import {StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';
-
+import {CommonActions} from '@react-navigation/native';
 import {THEME} from '../../constants/theme';
 import HeaderStatus from '../../components/HeaderStatus';
 import {ModalHeader} from '../../components/ModalHeader';
@@ -17,9 +17,8 @@ import {UserContext} from '../../context/context';
 import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
-import {useNavigationState} from '@react-navigation/native';
 
-export function SelectFactoryScreen({navigation, route, screenName}) {
+export function SelectFactoryScreen({navigation, route}) {
   const user = useContext(UserContext);
   const [{factory}, dispatch] = useReducer(reducer, initialState);
   const organizations =

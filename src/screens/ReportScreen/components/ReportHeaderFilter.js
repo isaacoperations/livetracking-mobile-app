@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Button} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -6,6 +6,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
 
+import {useFocusEffect} from '@react-navigation/native';
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
 import {useData} from '../../../services/ApiService';
@@ -59,16 +60,20 @@ export function ReportHeaderFilter({navigation, filterResult}) {
     }
   }
 
-  useEffect(() => {
-    fetchLineData();
-    fetchProductData();
-    return () => {
-      console.log('setLineArray');
-      setLineArray([]);
-      setProductArray([]);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        await fetchLineData();
+        await fetchProductData();
+      })();
+      return () => {
+        console.log('ReportHeaderFilter logout');
+        setLineArray([]);
+        setProductArray([]);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const handleResetFilter = () => {
     return navigation.navigate('FilterTab', {
@@ -83,11 +88,6 @@ export function ReportHeaderFilter({navigation, filterResult}) {
       params: {filterDataTab: filterResult},
     });
   };
-
-  console.log('filterLine', _.size(filterLine));
-  console.log('filterProduct', _.size(filterProduct));
-  console.log('lineArray', _.size(lineArray));
-  console.log('productArray', _.size(productArray));
 
   return (
     <View style={styles.container}>
@@ -200,7 +200,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                   titleStyle={[styles.filterButtonText]}
                   title="All lines"
                   activeOpacity={0.8}
-                  onPress={handleResetFilter}
+                  onPress={handleOpenFilter}
                 />
               ) : _.size(filterLine) > 0 ? (
                 filterLine?.map((item) => (
@@ -220,7 +220,7 @@ export function ReportHeaderFilter({navigation, filterResult}) {
                   titleStyle={[styles.filterButtonText]}
                   title="All products"
                   activeOpacity={0.8}
-                  onPress={handleResetFilter}
+                  onPress={handleOpenFilter}
                 />
               ) : _.size(filterProduct) > 0 ? (
                 filterProduct?.map((item) => (

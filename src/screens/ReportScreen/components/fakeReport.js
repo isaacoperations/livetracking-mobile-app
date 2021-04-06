@@ -69,7 +69,7 @@ export function FakeReportScreen({navigation, route}) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
       setProductArray([]);
-      refreshTokens();
+      await refreshTokens();
     }
   }
 
@@ -83,7 +83,7 @@ export function FakeReportScreen({navigation, route}) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
       setLineArray([]);
-      refreshTokens();
+      await refreshTokens();
     }
   }
 
@@ -136,11 +136,11 @@ export function FakeReportScreen({navigation, route}) {
         setReportData(data);
         setLayoutData(data?.lostTimeList);
       })
-      .catch((err) => {
+      .catch(async (err) => {
         const {status, data} = err.response;
         crashlytics().recordError(err);
         if (status === 401) {
-          refreshTokens();
+          await refreshTokens();
         } else {
           setLoading(true);
           Toast.show({
