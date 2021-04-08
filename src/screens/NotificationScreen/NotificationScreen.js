@@ -42,6 +42,7 @@ export function NotificationScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      AsyncStorage.removeItem('@reportFilters');
       crashlytics().log('Notification Screen mounted.');
       if (Platform.OS === 'ios') {
         messaging()

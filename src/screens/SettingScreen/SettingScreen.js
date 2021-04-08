@@ -42,10 +42,10 @@ export function SettingScreen({navigation}) {
         <ScrollView contentContainerStyle={{height: '100%'}}>
           <View style={{marginBottom: 'auto'}}>
             <Divider style={styles.divider} />
-            <SettingBtn
-              title={'Notification'}
-              onPress={() => navigation.navigate('NotifySetting')}
-            />
+            {/*<SettingBtn*/}
+            {/*  title={'Notification'}*/}
+            {/*  onPress={() => navigation.navigate('NotifySetting')}*/}
+            {/*/>*/}
             <Divider style={styles.divider} />
             <SettingBtn
               title={'Security'}
@@ -57,11 +57,11 @@ export function SettingScreen({navigation}) {
               onPress={() => navigation.navigate('Troubleshooting')}
             />
             <Divider style={styles.divider} />
-            <SettingBtn
-              title={'Token screen'}
-              onPress={() => navigation.navigate('TokenScreen')}
-            />
-            <Divider style={styles.divider} />
+            {/*<SettingBtn*/}
+            {/*  title={'Token screen'}*/}
+            {/*  onPress={() => navigation.navigate('TokenScreen')}*/}
+            {/*/>*/}
+            {/*<Divider style={styles.divider} />*/}
             <Divider style={styles.divider} />
           </View>
           <View style={styles.containerBottom}>

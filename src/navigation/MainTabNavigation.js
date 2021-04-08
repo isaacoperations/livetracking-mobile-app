@@ -11,11 +11,12 @@ import {
   StyleSheet,
   Platform,
   PixelRatio,
+  Alert,
 } from 'react-native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, CommonActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {THEME} from '../constants/theme';
@@ -44,6 +45,7 @@ import {createAction} from '../utils/createAction';
 import reducer, {initialState} from '../reducer/reducer';
 import {useInterval} from '../hooks/useInterval';
 import {TokenScreen} from '../screens/SettingScreen/screens/TokenScreen';
+import {isIPhone} from '../utils/isIPhone';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -105,7 +107,7 @@ const HomeStackNavigator = ({navigation}) => {
   );
 };
 
-const ReportStackNavigator = ({navigation}) => {
+const ReportStackNavigator = ({navigation, route}) => {
   const user = useContext(UserContext);
   const factory = useContext(FactoryContext);
   const [isActive, setIsActive] = useState(factory);
@@ -125,9 +127,21 @@ const ReportStackNavigator = ({navigation}) => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isFocused]);
+  const config = {
+    animation: 'spring',
+    config: {
+      stiffness: 1000,
+      damping: 500,
+      mass: 3,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.01,
+      restSpeedThreshold: 0.01,
+    },
+  };
   return (
     <>
       <ReportStack.Navigator
+        initialRouteName="ReportScreen"
         screenOptions={{
           headerStyle: styles.headerStyle,
           headerLeftContainerStyle: styles.headerLeftContainerStyle,
@@ -157,6 +171,11 @@ const ReportStackNavigator = ({navigation}) => {
               </TouchableOpacity>
             ),
             headerRight: () => <Text> </Text>,
+            // animationTypeForReplace: 'pop',
+            // transitionSpec: {
+            //   open: config,
+            //   close: config,
+            // },
           })}
           // initialParams={{filterData: undefined}}
         />
@@ -181,13 +200,6 @@ const ReportStackNavigator = ({navigation}) => {
           component={RunLogScreen}
           options={() => ({
             title: isActive || app_metadata?.factories[0]?.name,
-            headerLeft: () => (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('SelectFactoryTab')}
-                style={{width: 40}}>
-                <LogoMini />
-              </TouchableOpacity>
-            ),
             headerRight: () => <Text> </Text>,
           })}
         />
@@ -308,6 +320,7 @@ function TabNavigator() {
         },
         tabStyle: {
           paddingTop: 7,
+          paddingBottom: isIPhone(10),
         },
       }}>
       <Tab.Screen
@@ -320,15 +333,15 @@ function TabNavigator() {
       <Tab.Screen
         name="Report"
         component={ReportStackNavigator}
-        options={{title: 'Report'}}
+        options={{title: 'Report', unmountOnBlur: true}}
       />
-      <Tab.Screen
-        name="Notification"
-        component={NotificationStackNavigator}
-        options={{
-          title: 'Notification',
-        }}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="Notification"*/}
+      {/*  component={NotificationStackNavigator}*/}
+      {/*  options={{*/}
+      {/*    title: 'Notification',*/}
+      {/*  }}*/}
+      {/*/>*/}
     </Tab.Navigator>
   );
 }

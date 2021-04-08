@@ -15,6 +15,7 @@ import {
   FlatList,
   RefreshControl,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
 import {useFocusEffect} from '@react-navigation/native';
@@ -26,6 +27,7 @@ import crashlytics from '@react-native-firebase/crashlytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import _ from 'lodash';
+import DeviceInfo from 'react-native-device-info';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -39,6 +41,8 @@ import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 import {sleep} from '../../utils/sleep';
+import {checkInternet} from '../../utils/checkInternet';
+import {ReportHeaderFilter} from '../ReportScreen/components/ReportHeaderFilter';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
@@ -53,18 +57,23 @@ export function HomeScreen({navigation}) {
   const [nodeData, setNodeData] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(false);
   const refRBSheet = useRef();
   const numColumns = 2;
   //const WIDTH = Dimensions.get('window').width;
 
   useEffect(() => {
     crashlytics().log('Home mounted.');
+    checkInternet().then((res) => {
+      setConnectionStatus(!res);
+    });
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
         try {
+          AsyncStorage.removeItem('@reportFilters');
           await MaterialIcons.loadFont();
           await MaterialCommunityIcons.loadFont();
 
@@ -92,18 +101,18 @@ export function HomeScreen({navigation}) {
           crashlytics().recordError(data.error);
           if (status === 400) {
             setNodeData([]);
-            Toast.show({
-              type: 'error',
-              position: 'top',
-              text1: data.error,
-              topOffset: Platform.OS === 'ios' ? 80 : 30,
-              visibilityTime: 1500,
-            });
-            sleep(500).then(() => {
-              if (data.error === 'Factory does not exist') {
-                navigation.navigate('SelectFactoryTab');
-              }
-            });
+            // Toast.show({
+            //   type: 'error',
+            //   position: 'top',
+            //   text1: data.error,
+            //   topOffset: Platform.OS === 'ios' ? 80 : 30,
+            //   visibilityTime: 1500,
+            // });
+            // sleep(500).then(() => {
+            //   if (data.error === 'Factory does not exist') {
+            //     navigation.navigate('SelectFactoryTab');
+            //   }
+            // });
           } else {
             console.log('logout message', data.error);
           }
@@ -211,6 +220,15 @@ export function HomeScreen({navigation}) {
       setFavorites(resultData);
     });
   };
+
+  if (connectionStatus) {
+    return (
+      <>
+        <HeaderStatus ios={'light'} />
+        <SafeAreaView style={styles.container} />
+      </>
+    );
+  }
 
   return (
     <>

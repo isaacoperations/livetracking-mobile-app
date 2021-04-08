@@ -13,6 +13,7 @@ export function SelectFactoryItem({
   onPress,
   iconShow = false,
   isActive,
+  disabled,
 }) {
   useEffect(() => {
     (async () => {
@@ -22,6 +23,7 @@ export function SelectFactoryItem({
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       style={({pressed}) => [
         {
           backgroundColor:

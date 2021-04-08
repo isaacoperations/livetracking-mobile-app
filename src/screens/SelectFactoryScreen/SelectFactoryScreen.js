@@ -8,7 +8,6 @@ import React, {
 import {StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {CommonActions} from '@react-navigation/native';
 import {THEME} from '../../constants/theme';
 import HeaderStatus from '../../components/HeaderStatus';
 import {ModalHeader} from '../../components/ModalHeader';
@@ -25,6 +24,7 @@ export function SelectFactoryScreen({navigation, route}) {
     user.userData['https://livetracking.ca/app_metadata'].organizations;
   const factoriesData = user.app_metadata?.factories[0]?.id;
   const [selected, setSelected] = useState(factory);
+  const [debounce, setDebounce] = useState(false);
   useEffect(() => {
     (async () => {
       crashlytics().log('Select factory - screen');
@@ -42,18 +42,26 @@ export function SelectFactoryScreen({navigation, route}) {
   }, [selected]);
 
   const requestFactoryId = async (id, url, name) => {
+    setDebounce(true);
     const data = {
       factoryId: id,
       factoryName: name,
       factoryUrl: url,
     };
     await AsyncStorage.setItem('factoryID', JSON.stringify(data));
+    AsyncStorage.removeItem('@reportFilters');
     setSelected(id);
     dispatch(createAction('SET_FACTORY', id));
-    sleep(500).then(() => {
-      navigation.goBack();
-    });
+    sleep(500)
+      .then(() => {
+        setDebounce(false);
+      })
+      .finally(() => {
+        navigation.goBack();
+      });
   };
+
+  console.log('debounce', debounce);
 
   let idx = 0;
 
@@ -86,7 +94,10 @@ export function SelectFactoryScreen({navigation, route}) {
                     <SelectFactoryItem
                       key={idx + index}
                       id={item.id}
-                      onPress={() => requestFactoryId(item.id, item.url, item.name)}
+                      disabled={debounce}
+                      onPress={() =>
+                        requestFactoryId(item.id, item.url, item.name)
+                      }
                       title={organization.name}
                       description={item.name}
                       isActive={selected}

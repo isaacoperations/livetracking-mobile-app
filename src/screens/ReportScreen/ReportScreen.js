@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  useEffect, useLayoutEffect,
-} from 'react';
+import React, {useContext, useState, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -19,12 +13,12 @@ import {
   Dimensions,
   Button,
 } from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import {CommonActions, useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
-import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -40,8 +34,8 @@ import {ReportHeaderInfo} from './components/ReportHeaderInfo';
 import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
-import {sleep} from '../../utils/sleep';
 import IconBox from '../../components/icons/IconBox';
+import {checkInternet} from '../../utils/checkInternet';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -52,7 +46,10 @@ export function ReportScreen({navigation, route}) {
   const [isLoading, setLoading] = useState(true);
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
+  const [reportArray, setReportArray] = useState({});
   const [bottomActions, setBottomActions] = useState(null);
+  const [filterDisabled, setFilterDisabled] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(false);
   const [isError, setIsError] = useState('');
   const {ApiService} = useData();
   const {refreshTokens} = useContext(AuthContext);
@@ -73,7 +70,6 @@ export function ReportScreen({navigation, route}) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
       setProductArray([]);
-      // await refreshTokens();
     }
   }
 
@@ -87,7 +83,6 @@ export function ReportScreen({navigation, route}) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
       setLineArray([]);
-      // await refreshTokens();
     }
   }
 
@@ -95,54 +90,134 @@ export function ReportScreen({navigation, route}) {
 
   useFocusEffect(
     useCallback(() => {
+      checkInternet().then((res) => {
+        setConnectionStatus(!res);
+      });
       crashlytics().log('Report Screen mounted.');
       (async () => {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
+        setFilterDisabled(false);
         console.log('route.params', route.params);
+        console.log('report filters 2 ', reportArray);
         if (!bool) {
+          console.log('route.params 2', route.params);
           setLoading(true);
+          console.log('setItem -----------', route?.params?.filterData);
+          AsyncStorage.setItem(
+            '@reportFilters',
+            JSON.stringify(route?.params?.filterData),
+          );
           const {
-            filterData: {lineData, productData, date, dateFrom, dateTo},
+            filterData: {
+              lineData,
+              productData,
+              date,
+              dateFrom,
+              dateTo,
+              selectDay,
+            },
           } = route.params;
-          await fetchData(lineData, productData, date, dateFrom, dateTo);
+          setReportArray(route?.params?.filterData);
+          await fetchData(
+            lineData,
+            productData,
+            date,
+            dateFrom,
+            dateTo,
+            selectDay,
+          );
         } else {
-          setLoading(true);
-          const yesterday = moment()
-            .subtract(1, 'days')
-            .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-          const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-          await fetchProductData();
-          await fetchLineData();
-          await fetchData(lineArray, productArray, today, yesterday, today);
+          await AsyncStorage.getItem('@reportFilters').then(
+            async (dataReport) => {
+              console.log('route.params 5', route.params);
+              console.log('getItem -------------', JSON.parse(dataReport));
+              if (dataReport !== null) {
+                setLoading(true);
+                const reportFilters = JSON.parse(dataReport);
+                setReportArray(reportFilters);
+                await fetchData(
+                  reportFilters.lineData,
+                  reportFilters.productData,
+                  reportFilters.date,
+                  reportFilters.dateFrom,
+                  reportFilters.dateTo,
+                  reportFilters.selectDay,
+                );
+                navigation.replace('ReportScreen', {
+                  filterData: reportFilters,
+                });
+                setLoading(false);
+                // navigation.reset({
+                //   index: 0,
+                //   routes: [
+                //     {
+                //       name: 'ReportScreen',
+                //       params: {filterData: reportFilters},
+                //     },
+                //   ],
+                // })
+
+                // navigation.dispatch({
+                //   ...CommonActions.setParams({filterData: reportFilters}),
+                //   source: route.key,
+                // });
+                console.log('reportFilters ------------------', reportFilters);
+              } else {
+                console.log('route.params 7', JSON.parse(dataReport));
+                setLoading(true);
+                const yesterday = moment()
+                  .subtract(1, 'days')
+                  .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+                const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+                await fetchProductData();
+                await fetchLineData();
+                await fetchData(
+                  lineArray,
+                  productArray,
+                  today,
+                  yesterday,
+                  today,
+                  false,
+                );
+              }
+            },
+          );
         }
       })();
       return () => {
         console.log('logout vi');
         setProductArray([]);
         setLineArray([]);
+        // setReportArray({});
         setCurrentIndex(null);
         setCurrentIndexNegative(null);
+        setFilterDisabled(true);
         // setLoading(true);
 
-        navigation.setParams({filterData: undefined});
+        navigation.dispatch(
+          CommonActions.setParams({
+            filterData: {},
+          }),
+        );
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route]),
   );
 
-  async function fetchData(line, product, date, fromDate, toDate) {
+  async function fetchData(line, product, date, fromDate, toDate, selectDay) {
     const resData = {
       line_id_list: line,
       product_id_list: product,
-      start_date: fromDate,
-      end_date: toDate,
+      start_date: selectDay ? date : fromDate,
+      end_date: selectDay ? date : toDate,
     };
     await ApiService.postReport(resData)
       .then(async ({data}) => {
-        setLoading(false);
+        setFilterDisabled(true);
         setReportData(data);
         setLayoutData(data?.lostTimeList);
+        setFilterDisabled(false);
       })
       .catch(async (err) => {
         const {status, data} = err.response;
@@ -162,13 +237,19 @@ export function ReportScreen({navigation, route}) {
           //   text1: data.error,
           //   topOffset: Platform.OS === 'ios' ? 80 : 30,
           //   visibilityTime: 1500,
+          // // });
+          // sleep(500).then(() => {
+          //   if (data.error === 'Factory does not exist') {
+          //     navigation.navigate('SelectFactoryTab');
+          //   }
           // });
-          sleep(500).then(() => {
-            if (data.error === 'Factory does not exist') {
-              navigation.navigate('SelectFactoryTab');
-            }
-          });
+          if (data.error === 'Factory does not exist') {
+            setFilterDisabled(true);
+          }
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
 
@@ -296,6 +377,21 @@ export function ReportScreen({navigation, route}) {
     }
   };
 
+  if (connectionStatus) {
+    return (
+      <>
+        <HeaderStatus ios={'light'} />
+        <SafeAreaView style={styles.container}>
+          <ReportHeaderFilter
+            navigation={navigation}
+            filterResult={undefined}
+            disabled={true}
+          />
+        </SafeAreaView>
+      </>
+    );
+  }
+
   return (
     <>
       <HeaderStatus ios={'light'} />
@@ -303,8 +399,11 @@ export function ReportScreen({navigation, route}) {
         <ReportHeaderFilter
           navigation={navigation}
           filterResult={
-            typeof route.params !== 'undefined' ? route.params?.filterData : undefined
+            typeof route.params !== 'undefined'
+              ? route.params?.filterData
+              : reportArray
           }
+          disabled={filterDisabled}
         />
         {/*<Button title={'refresh'} onPress={() => refreshTokens()} />*/}
         <Animated.ScrollView
@@ -336,7 +435,7 @@ export function ReportScreen({navigation, route}) {
                       filtersData={
                         typeof route.params !== 'undefined'
                           ? route.params?.filterData
-                          : {}
+                          : reportArray
                       }
                       runData={reportData?.tableInfoList}
                     />
@@ -355,7 +454,7 @@ export function ReportScreen({navigation, route}) {
                       <Text style={styles.label}>Downtime Pareto</Text>
                       <View style={styles.tabContainer}>
                         <SegmentedControlTab
-                          values={['Positive effect', 'Negative effect']}
+                          values={['Lost Time', 'Gained Time']}
                           selectedIndex={selectedIndex}
                           onTabPress={(index) => {
                             setSelectedIndex(index);

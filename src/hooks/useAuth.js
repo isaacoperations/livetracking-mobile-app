@@ -74,13 +74,6 @@ export function useAuth() {
             })
             .catch(async (err) => {
               console.log('refresh user err', err);
-              // Toast.show({
-              //   type: 'error',
-              //   position: 'top',
-              //   text1: 'Please, sign out in app and sing in',
-              //   topOffset: Platform.OS === 'ios' ? 110 : 40,
-              //   visibilityTime: 1000,
-              // });
               await auth0.auth
                 .revoke({refreshToken: data.authData.refreshToken})
                 .then((revoke) => {
@@ -102,6 +95,9 @@ export function useAuth() {
                 .catch((error) => {
                   console.log('err revoke', error);
                 });
+              // THIS LOGOUT
+              await RNSInfo.deleteItem('user', {});
+              dispatch(createAction('REMOVE_USER'));
             });
         });
       },

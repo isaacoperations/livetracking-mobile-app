@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Text,
-  Platform,
+  Platform, ActivityIndicator,
 } from 'react-native';
 import Onboarding from 'react-native-onboarding-swiper';
 import * as Animatable from 'react-native-animatable';
@@ -21,6 +21,9 @@ import Onboarding1 from './components/OnBoarding_1';
 import Onboarding2 from './components/OnBoarding_2';
 import Onboarding3 from './components/OnBoarding_3';
 import Onboarding4 from './components/OnBoarding_4';
+import SvgOnBoarding from '../../images/onboarding/SvgOnBording_1';
+import SvgOnBoarding2 from '../../images/onboarding/SvgOnBording_2';
+import SvgOnBoarding4 from '../../images/onboarding/SvgOnBording_4';
 
 export function OnboardingScreen({navigation}) {
   const [page, setPage] = useState(0);
@@ -139,30 +142,14 @@ export function OnboardingScreen({navigation}) {
           }}
           pages={[
             {
-              image: (
-                <Image
-                  source={IMAGE.ONBOARDING_1}
-                  style={{
-                    marginTop: Platform.OS === 'ios' ? 50 : 0,
-                    resizeMode: 'contain',
-                  }}
-                />
-              ),
+              image: <SvgOnBoarding />,
               backgroundColor: 'white',
               title: 'Viewing production lines and run reports',
               subtitle: 'Live View',
             },
             {
               backgroundColor: 'white',
-              image: (
-                <Image
-                  source={IMAGE.ONBOARDING_2}
-                  style={{
-                    marginTop: Platform.OS === 'ios' ? 10 : 0,
-                    resizeMode: 'contain',
-                  }}
-                />
-              ),
+              image: <SvgOnBoarding2 />,
               title: 'Customize your factory report for more insights',
               subtitle: 'Report',
             },
@@ -171,9 +158,12 @@ export function OnboardingScreen({navigation}) {
               image: (
                 <Image
                   source={IMAGE.ONBOARDING_3}
+                  onProgress={true}
                   style={{
+                    backgroundColor: 'white',
                     width: '100%',
-                    resizeMode: Platform.OS === 'ios' ? 'contain' : 'contain',
+                    height: 550,
+                    resizeMode: 'center',
                   }}
                 />
               ),
@@ -192,12 +182,7 @@ export function OnboardingScreen({navigation}) {
             },
             {
               backgroundColor: 'white',
-              image: (
-                <Image
-                  source={IMAGE.ONBOARDING_4}
-                  style={{marginTop: Platform.OS === 'ios' ? 50 : 18}}
-                />
-              ),
+              image: <SvgOnBoarding4 style={{marginTop: 50}} width={'50%'} height={'40%'}/>,
               title: (
                 <Text
                   style={{

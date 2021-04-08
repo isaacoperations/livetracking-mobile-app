@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, Fragment, useContext} from 'react';
+import React, {useEffect, useState, useRef, Fragment} from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {useHeaderHeight} from '@react-navigation/stack';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -27,7 +28,6 @@ import {FONT} from '../../../constants/fonts';
 
 import {sleep} from '../../../utils/sleep';
 import {useData} from '../../../services/ApiService';
-import {AuthContext} from '../../../context/context';
 
 import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
@@ -35,12 +35,21 @@ import DatePickerComponent from '../components/DatePickerComponent';
 import {Btn} from '../../../components/Button';
 import {RBSheetHeader} from '../../../components/RBSheetHeader';
 import {EmptyComponent} from '../components/EmptyComponent';
+import {isIPhone} from '../../../utils/isIPhone';
 
 export function ModalFilterScreen({navigation, route}) {
   const [modalValueText, setModalValueText] = useState('One day');
   const [selectOneDay, setSelectOneDay] = useState(true);
-  const [isCheckVisibleLine, setIsCheckVisibleLine] = useState(false);
-  const [isCheckVisibleProduct, setIsCheckVisibleProduct] = useState(false);
+  const [isCheckVisibleLine, setIsCheckVisibleLine] = useState('check-circle');
+  const [isUnCheckVisibleLine, setIsUnCheckVisibleLine] = useState(
+    'circle-outline',
+  );
+  const [isCheckVisibleProduct, setIsCheckVisibleProduct] = useState(
+    'check-circle',
+  );
+  const [isUnCheckVisibleProduct, setIsUnCheckVisibleProduct] = useState(
+    'circle-outline',
+  );
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleDate, setModalVisibleDate] = useState(false);
   const [countCheckProduct, setCountCheckProduct] = useState('All Products');
@@ -57,11 +66,13 @@ export function ModalFilterScreen({navigation, route}) {
 
   const HEIGHT = Dimensions.get('window').height;
   const WIDTH = Dimensions.get('window').width;
-  const minDate = new Date(2020, 0, 1);
-  const maxDate = new Date(2050, 11, 30);
+  const minDate = new Date(2000, 0, 1);
+  const maxDate = new Date(2100, 11, 30);
 
   const {ApiService} = useData();
-  const {refreshTokens} = useContext(AuthContext);
+
+  const headerHeight = useHeaderHeight();
+  console.log('headerHeight', headerHeight);
 
   useEffect(() => {
     (async () => {
@@ -113,9 +124,11 @@ export function ModalFilterScreen({navigation, route}) {
       const uniqDataBy = _.uniqBy(lineDataFull, 'selected');
       const some = _.some(uniqDataBy, ['selected', true]);
       if (some) {
-        setIsCheckVisibleLine(true);
+        setIsCheckVisibleLine('check-circle');
+        setIsUnCheckVisibleLine('circle-outline');
       } else {
-        setIsCheckVisibleLine(false);
+        setIsCheckVisibleLine('minus-circle');
+        setIsUnCheckVisibleLine('minus-circle');
       }
     } else {
       setCheckAllLine(false);
@@ -125,9 +138,11 @@ export function ModalFilterScreen({navigation, route}) {
       const uniqDataBy = _.uniqBy(productDataFull, 'selected');
       const some = _.some(uniqDataBy, ['selected', true]);
       if (some) {
-        setIsCheckVisibleProduct(true);
+        setIsCheckVisibleProduct('check-circle');
+        setIsUnCheckVisibleProduct('circle-outline');
       } else {
-        setIsCheckVisibleProduct(false);
+        setIsCheckVisibleProduct('minus-circle');
+        setIsUnCheckVisibleProduct('minus-circle');
       }
     } else {
       setCheckAllProduct(false);
@@ -135,12 +150,12 @@ export function ModalFilterScreen({navigation, route}) {
 
     if (_.size(lineDataFull) === _.size(lineData)) {
       setCheckAllLine(true);
-      setIsCheckVisibleLine(false);
+      setIsCheckVisibleLine('check-circle');
     }
 
     if (_.size(productDataFull) === _.size(productData)) {
       setCheckAllProduct(true);
-      setIsCheckVisibleProduct(false);
+      setIsCheckVisibleProduct('check-circle');
     }
 
     const reject = _.reject(productDataFull, function (o) {
@@ -163,12 +178,12 @@ export function ModalFilterScreen({navigation, route}) {
           };
         });
         setLineData(dataX);
-        setIsCheckVisibleLine(false);
+        setIsCheckVisibleLine('check-circle');
+        setIsUnCheckVisibleLine('circle-outline');
       });
     } catch (e) {
       crashlytics().log('Filters error - line');
       crashlytics().recordError(e.message);
-      await refreshTokens();
     }
   }
 
@@ -190,12 +205,12 @@ export function ModalFilterScreen({navigation, route}) {
         const size = _.size(reject);
         setCountCheckProduct(`Products (${size})`);
         setProductData(dataX);
-        setIsCheckVisibleProduct(false);
+        setIsCheckVisibleProduct('check-circle');
+        setIsUnCheckVisibleProduct('circle-outline');
       });
     } catch (e) {
       crashlytics().log('Filters error - product');
       crashlytics().recordError(e.message);
-      await refreshTokens();
     }
   }
 
@@ -215,12 +230,24 @@ export function ModalFilterScreen({navigation, route}) {
         selected: item.selected || false,
       };
     });
-    const uniqDataBy = _.uniqBy(data, 'selected');
-    const some = _.some(uniqDataBy, ['selected', true]);
+    // const uniqDataBy = _.uniqBy(data, 'selected');
+    const uniqDataBy = _.filter(data, ['selected', true]);
+    const sizeFilter = _.size(uniqDataBy);
+    const dataSize = _.size(data);
+    const some = _.some(data, ['selected', true]);
+    console.log('some', uniqDataBy);
     if (some) {
-      setIsCheckVisibleLine(true);
+      setIsCheckVisibleLine('minus-circle');
+      setIsUnCheckVisibleLine('minus-circle');
     } else {
-      setIsCheckVisibleLine(false);
+      setCheckAllLine(false);
+      setIsCheckVisibleLine('circle-outline');
+      setIsUnCheckVisibleLine('circle-outline');
+    }
+    if (dataSize === sizeFilter) {
+      setCheckAllLine(true);
+      setIsCheckVisibleLine('check-circle');
+      setIsUnCheckVisibleLine('circle-outline');
     }
     setLineData(data);
   };
@@ -235,7 +262,8 @@ export function ModalFilterScreen({navigation, route}) {
       };
     });
     setLineData(data);
-    setIsCheckVisibleLine(false);
+    setIsCheckVisibleLine('check-circle');
+    setIsUnCheckVisibleLine('circle-outline');
   };
 
   // ==== PRODUCT ==== //
@@ -256,12 +284,25 @@ export function ModalFilterScreen({navigation, route}) {
         selected: item.selected || false,
       };
     });
+    const uniqDataBy = _.filter(data, ['selected', true]);
+    const sizeFilter = _.size(uniqDataBy);
+    const dataSize = _.size(data);
     const some = _.some(data, ['selected', true]);
     if (some) {
-      setIsCheckVisibleProduct(true);
+      setIsCheckVisibleProduct('minus-circle');
+      setIsUnCheckVisibleProduct('minus-circle');
     } else {
-      setIsCheckVisibleProduct(false);
+      setCheckAllProduct(false);
+      setIsCheckVisibleProduct('circle-outline');
+      setIsUnCheckVisibleProduct('circle-outline');
     }
+    if (dataSize === sizeFilter) {
+      setCheckAllProduct(true);
+      setIsCheckVisibleProduct('check-circle');
+      setIsUnCheckVisibleProduct('circle-outline');
+    }
+
+
     const reject = _.reject(data, function (o) {
       return !o.selected;
     });
@@ -285,7 +326,8 @@ export function ModalFilterScreen({navigation, route}) {
     const size = _.size(reject);
     setCountCheckProduct(`Products (${size})`);
     setProductData(data);
-    setIsCheckVisibleProduct(false);
+    setIsCheckVisibleProduct('check-circle');
+    setIsUnCheckVisibleProduct('circle-outline');
   };
 
   const renderProductItem = ({item}) => (
@@ -361,19 +403,19 @@ export function ModalFilterScreen({navigation, route}) {
     const productSelected = _.map(filterProduct, 'id');
     const yesterday = moment()
       .subtract(1, 'days')
-      .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-    const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+      .format('YYYY-MM-DDT00:00:00[.000Z]');
+    const today = moment().format('YYYY-MM-DDT00:00:00[.000Z]');
     const data = {
       lineData: lineSelected.length > 0 ? lineSelected : null,
       lineDataFull: lineData,
       productData: productSelected.length > 0 ? productSelected : null,
       productDataFull: productData,
       selectDay: selectOneDay,
-      date: date ? date.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
+      date: date ? date.format('YYYY-MM-DDT00:00:00[.000Z]') : today,
       dateFrom: startDate
-        ? startDate.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
+        ? startDate.format('YYYY-MM-DDT00:00:00[.000Z]')
         : yesterday,
-      dateTo: endDate ? endDate.format('YYYY-MM-DDTHH:mm:ss[.000Z]') : today,
+      dateTo: endDate ? endDate.format('YYYY-MM-DDT00:00:00[.000Z]') : today,
     };
     navigation.navigate('ReportScreen', {
       filterData: data,
@@ -397,7 +439,7 @@ export function ModalFilterScreen({navigation, route}) {
       };
     });
     const filterLineId = _.map(dataLine, 'id');
-    setIsCheckVisibleLine(false);
+    setIsCheckVisibleLine('check-circle');
     setLineData(dataLine);
 
     const dataProduct = productData.map((item) => {
@@ -410,7 +452,7 @@ export function ModalFilterScreen({navigation, route}) {
     const filterProductId = _.map(dataProduct, 'id');
     setCountCheckProduct('All products');
     setProductData(dataProduct);
-    setIsCheckVisibleProduct(false);
+    setIsCheckVisibleProduct('check-circle');
 
     const yesterday = moment()
       .subtract(1, 'days')
@@ -430,6 +472,8 @@ export function ModalFilterScreen({navigation, route}) {
     });
   };
 
+  console.log('isCheckVisibleLine', isCheckVisibleLine);
+
   return (
     <>
       <HeaderStatus ios={'dark'} />
@@ -438,7 +482,10 @@ export function ModalFilterScreen({navigation, route}) {
           title={'Filters'}
           onPressClose={() =>
             navigation.navigate('ReportScreen', {
-              filterData: typeof route.params !== 'undefined' ? route.params?.filterDataTab : {},
+              filterData:
+                typeof route.params !== 'undefined'
+                  ? route.params?.filterDataTab
+                  : {},
             })
           }
         />
@@ -634,33 +681,27 @@ export function ModalFilterScreen({navigation, route}) {
                   }}>
                   All lines
                 </ListItem.Title>
-                <View>
-                  <CheckBox
-                    checkedIcon={
-                      <MaterialIcons
-                        name={
-                          !isCheckVisibleLine ? 'check-circle' : 'remove-circle'
-                        }
-                        size={24}
-                        color={THEME.PRIMARY_COLOR}
-                      />
-                    }
-                    uncheckedIcon={
-                      <MaterialCommunityIcons
-                        name={
-                          isCheckVisibleLine ? 'minus-circle' : 'circle-outline'
-                        }
-                        size={24}
-                        color={THEME.PRIMARY_COLOR}
-                      />
-                    }
-                    checked={checkAllLine}
-                    onPress={() => {
-                      handleAllLine();
-                      setCheckAllLine(!checkAllLine);
-                    }}
-                  />
-                </View>
+                <CheckBox
+                  checkedIcon={
+                    <MaterialCommunityIcons
+                      name={isCheckVisibleLine}
+                      size={24}
+                      color={THEME.PRIMARY_COLOR}
+                    />
+                  }
+                  uncheckedIcon={
+                    <MaterialCommunityIcons
+                      name={isUnCheckVisibleLine}
+                      size={24}
+                      color={THEME.PRIMARY_COLOR}
+                    />
+                  }
+                  checked={checkAllLine}
+                  onPress={() => {
+                    handleAllLine();
+                    setCheckAllLine(!checkAllLine);
+                  }}
+                />
               </ListItem.Content>
             </ListItem>
             <Divider style={styles.divider} />
@@ -781,9 +822,9 @@ export function ModalFilterScreen({navigation, route}) {
         <View>
           <RBSheet
             ref={refRBSheetProduct}
-            closeOnDragDown={false}
-            height={HEIGHT - (Platform.OS === 'ios' ? 70 : 30)}
-            closeOnPressMask={false}
+            closeOnDragDown={Platform.OS === 'ios'}
+            height={HEIGHT - isIPhone(50, 70)}
+            closeOnPressMask={true}
             customStyles={{
               wrapper: {
                 backgroundColor: 'transparent',
@@ -822,23 +863,15 @@ export function ModalFilterScreen({navigation, route}) {
                 <View>
                   <CheckBox
                     checkedIcon={
-                      <MaterialIcons
-                        name={
-                          isCheckVisibleProduct
-                            ? 'remove-circle'
-                            : 'check-circle'
-                        }
+                      <MaterialCommunityIcons
+                        name={isCheckVisibleProduct}
                         size={24}
                         color={THEME.PRIMARY_COLOR}
                       />
                     }
                     uncheckedIcon={
                       <MaterialCommunityIcons
-                        name={
-                          isCheckVisibleProduct
-                            ? 'minus-circle'
-                            : 'circle-outline'
-                        }
+                        name={isUnCheckVisibleProduct}
                         size={24}
                         color={THEME.PRIMARY_COLOR}
                       />

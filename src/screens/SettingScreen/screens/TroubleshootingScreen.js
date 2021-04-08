@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {getVersion} from 'react-native-device-info';
+import {getVersion, getBuildNumber} from 'react-native-device-info';
 
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
@@ -18,10 +18,10 @@ import {ModalHeader} from '../../../components/ModalHeader';
 import {sendEmail} from '../../../utils/sendEmail';
 
 export function TroubleShootingScreen({navigation}) {
-  const supportedURL = 'https://www.livetracking.io/privacy-policy';
   // const brand = getBrand();
   const version = getVersion();
-  const emailURL = 'support@livetracking.io';
+  const build = getBuildNumber();
+  const emailURL = 'support@livetracking.com';
   const emailSubject = 'Mobile App Support Request';
   const emailBody = `
 ===============<br/>
@@ -43,25 +43,29 @@ OS: <span style='text-transform: capitalize'>${Platform.OS}</span>`;
         />
         <ScrollView>
           <View style={{padding: 30}}>
+            <Text style={styles.label}>Not seeing your factory data?</Text>
             <Text style={styles.content}>
-              We use the Device Information that we collect to help us screen
-              for potential risk and fraud (in particular, your IP address), and
-              more generally to improve and optimize our Site and Apps (for
-              example, by generating analytics about how our customers browse
-              and interact with the Site, and to assess the success of our
-              product roadmap decisions).
+              The LiveTracking mobile application is intended to be connected at
+              all times. Please ensure you have a connection to the internet via
+              cell or wifi networks.
             </Text>
+            <Text style={styles.label}>Need to change your factory?</Text>
+            <Text style={styles.content}>
+              If you are a member of multiple factories, please tap on the
+              LiveTracking icon at the top left of the app to scroll your
+              assigned facilities
+            </Text>
+            <Text style={styles.label}>Have any other questions?</Text>
             <Text style={[styles.content]}>
-              For more information about our privacy practices, if you have
-              questions, or if you would like to make a complaint, please
-              contact us by e-mail at{' '}
+              Please contact us via the button below, or by emailing{' '}
               <Text
-                style={styles.content}
+                style={[styles.content, {color: THEME.PRIMARY_COLOR_DARK}]}
                 onPress={() => {
                   sendEmail(emailSubject, emailURL, emailBody);
                 }}>
-                support@livetracking.io
-              </Text>
+                support@livetracking.com.
+              </Text>{' '}
+              We will respond as soon as possible.
             </Text>
           </View>
         </ScrollView>
@@ -82,6 +86,9 @@ OS: <span style='text-transform: capitalize'>${Platform.OS}</span>`;
             size={THEME.BUTTON_PRIMARY_SMALL}
           />
         </View>
+        <Text style={{textAlign: 'center', fontSize: 11, marginBottom: 10}}>
+          version: {version} {Platform.OS === 'ios' && `(${build})`}
+        </Text>
       </SafeAreaView>
     </>
   );
@@ -109,6 +116,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
     marginTop: 'auto',
-    marginBottom: 50,
+    marginBottom: 30,
   },
 });

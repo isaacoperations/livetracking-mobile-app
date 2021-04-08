@@ -7,7 +7,6 @@ import {
   Text,
   Platform,
   Linking,
-  Alert,
 } from 'react-native';
 import {getDeviceToken, getVersion} from 'react-native-device-info';
 
@@ -67,7 +66,7 @@ OS: <span style='text-transform: capitalize'>${Platform.OS}</span>`;
               questions, or if you would like to make a complaint, please
               contact us by e-mail at{' '}
               <Text
-                style={styles.content}
+                style={[styles.content, {color: THEME.PRIMARY_COLOR_DARK}]}
                 onPress={() => {
                   sendEmail(emailSubject, emailURL, emailBody);
                 }}>

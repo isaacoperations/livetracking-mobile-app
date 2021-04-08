@@ -26,6 +26,8 @@ import {sleep} from './src/utils/sleep';
 import reducer, {initialState} from './src/reducer/reducer';
 import {createAction} from './src/utils/createAction';
 import {createTimeSlots} from './src/utils/createTimeSlots';
+import {checkInternet} from './src/utils/checkInternet';
+import {NoInternetModal} from './src/components/NoInternetModal';
 
 const App = () => {
   const navigationRef = useRef(null);
@@ -36,6 +38,7 @@ const App = () => {
   const [isEnableDisturb, setIsEnabledDisturb] = useState(false);
   const [isWeek, setIsWeek] = useState(null);
   const [timeSlots, setTimeSlots] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState(false);
 
   const checkOnboarding = async () => {
     try {
@@ -64,6 +67,10 @@ const App = () => {
     localNotificationService.createChannel();
     localNotificationService.getChannels();
     fcmService.registerAppWithFCM();
+
+    checkInternet().then((res) => {
+      setConnectionStatus(!res);
+    });
 
     (async () => {
       await checkOnboarding();
@@ -316,6 +323,7 @@ const App = () => {
             <Toast ref={(ref) => Toast.setRef(ref)} />
           </>
         )}
+        {connectionStatus && <NoInternetModal />}
       </NavigationContainer>
     </AuthContext.Provider>
   );

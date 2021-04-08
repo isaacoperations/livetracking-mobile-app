@@ -1,4 +1,4 @@
-import React, {useState, Fragment, useCallback} from 'react';
+import React, {useState, Fragment, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,13 @@ import {
   Alert,
   BackHandler,
 } from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
@@ -47,24 +47,30 @@ export function RunLogScreen({navigation, route}) {
     return true;
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      crashlytics().log('Run log screen');
-      (async () => {
-        await MaterialIcons.loadFont();
-      })();
-      if (nodeData.length <= 0) {
-        navigation.navigate('ReportScreen');
-      }
+  // const focused = useIsFocused();
+  //
+  // if (!focused) {
+  //   navigation.replace('ReportScreen', {
+  //     filterData:
+  //       typeof route.params !== 'undefined' ? route.params?.filterData : {},
+  //   });
+  // }
 
-      BackHandler.addEventListener('hardwareBackPress', backAction);
-      return () => {
-        setNodeData([]);
-        BackHandler.removeEventListener('hardwareBackPress', backAction);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nodeData]),
-  );
+  // useFocusEffect(
+  useEffect(() => {
+    crashlytics().log('Run log screen');
+    (async () => {
+      await MaterialIcons.loadFont();
+    })();
+    console.log('route.params 121312321', route);
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      setNodeData([]);
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // );
 
   const updateSearch = (text) => {
     setSearch(text);

@@ -448,7 +448,7 @@ export function FakeReportScreen({navigation, route}) {
                     <Text style={styles.label}>Downtime Pareto</Text>
                     <View style={styles.tabContainer}>
                       <SegmentedControlTab
-                        values={['Positive effect', 'Negative effect']}
+                        values={['Lost Time', 'Gained Time']}
                         selectedIndex={selectedIndex}
                         onTabPress={(index) => {
                           setSelectedIndex(index);

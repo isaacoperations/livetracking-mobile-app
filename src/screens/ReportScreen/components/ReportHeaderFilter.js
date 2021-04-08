@@ -1,24 +1,23 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Button} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import _ from 'lodash';
 import moment from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
-
 import {useFocusEffect} from '@react-navigation/native';
 import {FONT} from '../../../constants/fonts';
 import {THEME} from '../../../constants/theme';
 import {useData} from '../../../services/ApiService';
 
-export function ReportHeaderFilter({navigation, filterResult}) {
+export function ReportHeaderFilter({navigation, filterResult, disabled}) {
   const [lineArray, setLineArray] = useState([]);
   const [productArray, setProductArray] = useState([]);
   const {ApiService} = useData();
 
   let bool = _.isEmpty(filterResult);
   let countItems;
-  let date = '';
+  let date = moment().format('MMM DD, YYYY');
   let starDate = '';
   let endDate = '';
   let selectDay;
@@ -96,141 +95,191 @@ export function ReportHeaderFilter({navigation, filterResult}) {
           {bool ? (
             <>
               <Button
+                disabledStyle={[
+                  styles.filterTransparentButton,
+                  styles.disabledStyle,
+                ]}
+                disabledTitleStyle={styles.disabledTitleStyle}
                 buttonStyle={[
                   styles.filterButton,
-                  {
-                    backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: 'white',
-                  },
+                  styles.filterTransparentButton,
                 ]}
                 titleStyle={[styles.filterButtonText, {color: 'white'}]}
                 icon={
                   <MaterialIcons
                     size={20}
                     name={'filter-list'}
-                    color={THEME.WHITE_COLOR}
+                    color={disabled ? THEME.DARK_COLOR : THEME.WHITE_COLOR}
                   />
                 }
                 title="0"
                 activeOpacity={0.8}
                 onPress={handleResetFilter}
+                disabled={disabled}
               />
               <Button
+                disabledStyle={[
+                  styles.filterTransparentButton,
+                  styles.disabledStyle,
+                ]}
+                disabledTitleStyle={styles.disabledTitleStyle}
                 buttonStyle={[
                   styles.filterButton,
-                  {
-                    backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: 'white',
-                  },
+                  styles.filterTransparentButton,
                 ]}
                 titleStyle={[styles.filterButtonText, {color: 'white'}]}
                 title={`${moment().format('MMM DD, YYYY')}`}
                 activeOpacity={0.8}
                 onPress={handleResetFilter}
+                disabled={disabled}
               />
               <Button
+                disabledStyle={[
+                  styles.filterTransparentButton,
+                  styles.disabledStyle,
+                ]}
+                disabledTitleStyle={styles.disabledTitleStyle}
                 buttonStyle={[
                   styles.filterButton,
-                  {
-                    backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: 'white',
-                  },
+                  styles.filterTransparentButton,
                 ]}
                 titleStyle={[styles.filterButtonText, {color: 'white'}]}
                 title="All lines"
                 activeOpacity={0.8}
                 onPress={handleResetFilter}
+                disabled={disabled}
               />
               <Button
+                disabledStyle={[
+                  styles.filterTransparentButton,
+                  styles.disabledStyle,
+                ]}
+                disabledTitleStyle={styles.disabledTitleStyle}
                 buttonStyle={[
                   styles.filterButton,
-                  {
-                    backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: 'white',
-                  },
+                  styles.filterTransparentButton,
                 ]}
                 titleStyle={[styles.filterButtonText, {color: 'white'}]}
                 title="All products"
                 activeOpacity={0.8}
                 onPress={handleResetFilter}
+                disabled={disabled}
               />
             </>
           ) : (
             <>
               <Button
+                disabledStyle={[
+                  styles.filterTransparentButton,
+                  styles.disabledStyle,
+                ]}
+                disabledTitleStyle={styles.disabledTitleStyle}
                 buttonStyle={styles.filterButton}
                 titleStyle={styles.filterButtonText}
                 icon={
                   <MaterialIcons
                     size={20}
                     name={'filter-list'}
-                    color={THEME.PRIMARY_COLOR_DARK}
+                    color={disabled ? THEME.DARK_COLOR : THEME.PRIMARY_COLOR_DARK}
                   />
                 }
                 title={`${countItems}`}
                 activeOpacity={0.8}
                 onPress={handleOpenFilter}
+                disabled={disabled}
               />
               {selectDay ? (
                 <Button
+                  disabledStyle={[
+                    styles.filterTransparentButton,
+                    styles.disabledStyle,
+                  ]}
+                  disabledTitleStyle={styles.disabledTitleStyle}
                   buttonStyle={styles.filterButton}
                   titleStyle={styles.filterButtonText}
                   title={date}
                   activeOpacity={0.8}
                   onPress={handleOpenFilter}
+                  disabled={disabled}
                 />
               ) : (
                 <>
                   <Button
+                    disabledStyle={[
+                      styles.filterTransparentButton,
+                      styles.disabledStyle,
+                    ]}
+                    disabledTitleStyle={styles.disabledTitleStyle}
                     buttonStyle={styles.filterButton}
                     titleStyle={styles.filterButtonText}
                     title={`${starDate} - ${endDate}`}
                     activeOpacity={0.8}
                     onPress={handleOpenFilter}
+                    disabled={disabled}
                   />
                 </>
               )}
               {_.size(filterLine) === _.size(lineArray) ? (
                 <Button
+                  disabledStyle={[
+                    styles.filterTransparentButton,
+                    styles.disabledStyle,
+                  ]}
+                  disabledTitleStyle={styles.disabledTitleStyle}
                   buttonStyle={styles.filterButton}
                   titleStyle={[styles.filterButtonText]}
                   title="All lines"
                   activeOpacity={0.8}
                   onPress={handleOpenFilter}
+                  disabled={disabled}
                 />
               ) : _.size(filterLine) > 0 ? (
                 filterLine?.map((item) => (
                   <Button
+                    disabledStyle={[
+                      styles.filterTransparentButton,
+                      styles.disabledStyle,
+                    ]}
+                    disabledTitleStyle={styles.disabledTitleStyle}
                     key={item.id}
                     buttonStyle={styles.filterButton}
                     titleStyle={styles.filterButtonText}
                     title={item.name}
                     activeOpacity={0.8}
                     onPress={handleOpenFilter}
+                    disabled={disabled}
                   />
                 ))
               ) : null}
               {_.size(filterProduct) === _.size(productArray) ? (
                 <Button
+                  disabledStyle={[
+                    styles.filterTransparentButton,
+                    styles.disabledStyle,
+                  ]}
+                  disabledTitleStyle={styles.disabledTitleStyle}
                   buttonStyle={styles.filterButton}
                   titleStyle={[styles.filterButtonText]}
                   title="All products"
                   activeOpacity={0.8}
                   onPress={handleOpenFilter}
+                  disabled={disabled}
                 />
               ) : _.size(filterProduct) > 0 ? (
                 filterProduct?.map((item) => (
                   <Button
+                    disabledStyle={[
+                      styles.filterTransparentButton,
+                      styles.disabledStyle,
+                    ]}
+                    disabledTitleStyle={styles.disabledTitleStyle}
                     key={item.id}
                     buttonStyle={styles.filterButton}
                     titleStyle={styles.filterButtonText}
                     title={item.name}
                     activeOpacity={0.8}
                     onPress={handleOpenFilter}
+                    disabled={disabled}
                   />
                 ))
               ) : null}
@@ -269,5 +318,17 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 12,
     fontFamily: FONT.Regular,
+  },
+  filterTransparentButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'white',
+  },
+  disabledStyle: {
+    backgroundColor: THEME.WHITE_COLOR,
+    opacity: 0.5,
+  },
+  disabledTitleStyle: {
+    color: 'black',
   },
 });
