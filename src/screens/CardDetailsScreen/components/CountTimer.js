@@ -6,9 +6,9 @@ import {THEME} from '../../../constants/theme';
 import {FONT} from '../../../constants/fonts';
 
 export function CountTimer({durationSeconds, status}) {
-  let hours = moment().startOf('day').seconds(durationSeconds).format('HH');
-  let minutes = moment().startOf('day').seconds(durationSeconds).format('mm');
-  let secondes = moment().startOf('day').seconds(durationSeconds).format('ss');
+  let hours = moment.utc().startOf('day').seconds(durationSeconds).format('HH');
+  let minutes = moment.utc().startOf('day').seconds(durationSeconds).format('mm');
+  let secondes = moment.utc().startOf('day').seconds(durationSeconds).format('ss');
 
   return (
     <View style={{flex: 1, flexDirection: 'row'}}>

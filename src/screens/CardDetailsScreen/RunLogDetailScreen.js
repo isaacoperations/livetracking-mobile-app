@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useRef} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,8 @@ import {Divider} from 'react-native-elements';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import crashlytics from '@react-native-firebase/crashlytics';
+import _ from 'lodash';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -32,23 +34,18 @@ import {CardEfficiency} from './components/CardEfficiency';
 import {useData} from '../../services/ApiService';
 import {sleep} from '../../utils/sleep';
 import {CardProductDesc} from './components/CardProductDesc';
-import crashlytics from '@react-native-firebase/crashlytics';
-import _ from 'lodash';
 
-export function CardDetailScreen({navigation, route}) {
+export function RunLogDetailScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  //const [refreshing, setRefreshing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [currentIndexNegative, setCurrentIndexNegative] = useState(null);
-  const scrollRef = useRef();
-  let listViewRef;
-  let _scrollViewBottom = 0;
-  const [runData, setRunData] = useState({});
-  const [layoutData, setLayoutData] = useState([]);
-  const {ApiService} = useData();
+  // const [runData, setRunData] = useState({});
+  // const [layoutData, setLayoutData] = useState([]);
+  // const {ApiService} = useData();
 
-  const {runId} = route.params;
+  const {runLogData} = route.params;
 
   useFocusEffect(
     useCallback(() => {
@@ -58,19 +55,20 @@ export function CardDetailScreen({navigation, route}) {
         crashlytics().log('Run report - screen');
 
         setIsLoading(true);
-        if (runId) {
-          await fetchData();
+        if (runLogData.runId) {
+          setIsLoading(false);
+          // await fetchData();
         } else {
           setIsLoading(false);
         }
       })();
 
-      const refreshID = setInterval(async () => {
-        await fetchData();
-      }, 10000);
+      // const refreshID = setInterval(async () => {
+      //   await fetchData();
+      // }, 10000);
 
       return () => {
-        clearInterval(refreshID);
+        // clearInterval(refreshID);
         setCurrentIndex(null);
         setCurrentIndexNegative(null);
       };
@@ -78,34 +76,34 @@ export function CardDetailScreen({navigation, route}) {
     }, []),
   );
 
-  async function fetchData() {
-    await ApiService.getByRunId(runId)
-      .then(({data}) => {
-        crashlytics().log('Get run report - get method');
-        setRunData(data);
-        setLayoutData(data?.lostTimeList);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        crashlytics().recordError(error.message);
-        setIsLoading(true);
-        navigation.goBack();
-      });
-  }
+  // async function fetchData() {
+  //   await ApiService.getByRunId(runId)
+  //     .then(({data}) => {
+  //       crashlytics().log('Get run report - get method');
+  //       setRunData(data);
+  //       setLayoutData(data?.lostTimeList);
+  //       setIsLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       crashlytics().recordError(error.message);
+  //       setIsLoading(true);
+  //       navigation.goBack();
+  //     });
+  // }
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    const refreshId = sleep(1000).then(async () => {
-      await fetchData().then(() => {
-        setRefreshing(false);
-      });
-    });
-    return () => clearTimeout(refreshId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // const onRefresh = useCallback(() => {
+  //   setRefreshing(true);
+  //   const refreshId = sleep(1000).then(async () => {
+  //     await fetchData().then(() => {
+  //       setRefreshing(false);
+  //     });
+  //   });
+  //   return () => clearTimeout(refreshId);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const renderHeaderPositive = (item, index, isExpanded = false) => {
-    const result = layoutData.filter((list) => {
+    const result = runLogData.unitInfo.filter((list) => {
       return list.lostTimePercent > 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['desc']);
@@ -135,7 +133,7 @@ export function CardDetailScreen({navigation, route}) {
   };
 
   const renderHeaderNegative = (item, index, isExpanded = false) => {
-    const result = layoutData.filter((list) => {
+    const result = runLogData.unitInfo.filter((list) => {
       return list.lostTimePercent < 0;
     });
     const resultSort = _.orderBy(result, ['lostTimePercent'], ['asc']);
@@ -229,19 +227,19 @@ export function CardDetailScreen({navigation, route}) {
           <ScrollView
             ref={(ref) => {
               console.log('ref', ref);
-              listViewRef = ref;
             }}
             style={styles.container}
             onContentSizeChange={(contentWidth, contentHeight) => {
               console.log('contentHeight', contentHeight);
             }}
-            refreshControl={
-              <RefreshControl
-                tintColor={THEME.PRIMARY_COLOR}
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-              />
-            }>
+            // refreshControl={
+            //   <RefreshControl
+            //     tintColor={THEME.PRIMARY_COLOR}
+            //     refreshing={refreshing}
+            //     onRefresh={onRefresh}
+            //   />
+            // }
+          >
             <TouchableWithoutFeedback
               onPress={() => {
                 setCurrentIndex(null);
@@ -249,35 +247,35 @@ export function CardDetailScreen({navigation, route}) {
               }}>
               <View>
                 <View style={styles.block}>
-                  <CardTitle title={runData?.lineName} />
-                  <CardProductTitle title={runData?.productName} />
-                  <CardProductDesc description={runData?.productDescription} />
+                  <CardTitle title={runLogData?.lineName} />
+                  <CardProductTitle title={runLogData?.productName} />
+                  <CardProductDesc description={runLogData?.productDescription} />
                   <Divider style={styles.divider} />
                   <CardTime
-                    startTime={runData?.runStartTime}
-                    endTime={runData?.runEndTime}
+                    startTime={runLogData?.runStartTime}
+                    endTime={runLogData?.runEndTime}
                   />
                 </View>
                 <View
                   style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
                   <CardOutput
-                    title={runData?.output}
-                    unit={runData?.displayableOutputUnit}
+                    title={runLogData?.output}
+                    unit={runLogData?.displayableOutputUnit}
                   />
                 </View>
                 <Divider style={styles.divider} />
                 <View
                   style={[styles.block, {paddingBottom: 30, marginBottom: 0}]}>
                   <CardSpeed
-                    speed={runData?.averageSpeed}
-                    unit={runData?.displayableSpeedUnit}
+                    speed={runLogData?.averageSpeed}
+                    unit={runLogData?.displayableSpeedUnit}
                   />
                 </View>
                 <Divider style={styles.divider} />
                 <View style={[styles.block, {paddingBottom: 30, height: 220}]}>
                   <CardEfficiency
-                    efficiencyPercent={runData?.efficiencyPercent}
-                    efficiencyTarget={runData?.efficiencyTarget}
+                    efficiencyPercent={runLogData?.efficiencyPercent}
+                    efficiencyTarget={runLogData?.efficiencyTarget}
                   />
                 </View>
                 <View
@@ -305,8 +303,8 @@ export function CardDetailScreen({navigation, route}) {
                     />
                   </View>
                   {selectedIndex === 0
-                    ? renderDataPositive(layoutData)
-                    : renderDataNegative(layoutData)}
+                    ? renderDataPositive(runLogData.unitInfo)
+                    : renderDataNegative(runLogData.unitInfo)}
                 </View>
               </View>
             </TouchableWithoutFeedback>

@@ -162,21 +162,19 @@ export function ReportScreen({navigation, route}) {
                 //   ...CommonActions.setParams({filterData: reportFilters}),
                 //   source: route.key,
                 // });
-                console.log('reportFilters ------------------', reportFilters);
               } else {
-                console.log('route.params 7', JSON.parse(dataReport));
                 setLoading(true);
-                const yesterday = moment()
+                const yesterday = moment.utc()
                   .subtract(1, 'days')
-                  .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-                const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+                  .format('YYYY-MM-DDT00:00:00[.000Z]');
+                const today = moment.utc().format('YYYY-MM-DDT00:00:00[.000Z]');
                 await fetchProductData();
                 await fetchLineData();
                 await fetchData(
                   lineArray,
                   productArray,
                   today,
-                  yesterday,
+                  today,
                   today,
                   false,
                 );
@@ -212,6 +210,7 @@ export function ReportScreen({navigation, route}) {
       start_date: selectDay ? date : fromDate,
       end_date: selectDay ? date : toDate,
     };
+    console.log('resData', resData);
     await ApiService.postReport(resData)
       .then(async ({data}) => {
         setFilterDisabled(true);
@@ -348,7 +347,7 @@ export function ReportScreen({navigation, route}) {
         </TouchableOpacity>
       ));
     } else {
-      return <Text style={styles.textEmpty}>No effect data</Text>;
+      return <Text style={styles.textEmpty}>No data</Text>;
     }
   };
 
@@ -373,7 +372,7 @@ export function ReportScreen({navigation, route}) {
         </TouchableOpacity>
       ));
     } else {
-      return <Text style={styles.textEmpty}>No effect data</Text>;
+      return <Text style={styles.textEmpty}>No data</Text>;
     }
   };
 

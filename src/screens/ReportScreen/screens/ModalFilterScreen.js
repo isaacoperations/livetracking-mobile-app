@@ -19,7 +19,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {useHeaderHeight} from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -57,10 +57,11 @@ export function ModalFilterScreen({navigation, route}) {
   const [productData, setProductData] = useState([]);
   const [checkAllLine, setCheckAllLine] = useState(false);
   const [checkAllProduct, setCheckAllProduct] = useState(false);
-  const [date, setDate] = useState(moment());
+  const [date, setDate] = useState(moment.utc().format());
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const refRBSheetProduct = useRef();
+  const [debounce, setDebounce] = useState(false);
 
   let bool = _.isEmpty(route?.params?.filterDataTab);
 
@@ -70,9 +71,6 @@ export function ModalFilterScreen({navigation, route}) {
   const maxDate = new Date(2100, 11, 30);
 
   const {ApiService} = useData();
-
-  const headerHeight = useHeaderHeight();
-  console.log('headerHeight', headerHeight);
 
   useEffect(() => {
     (async () => {
@@ -90,7 +88,7 @@ export function ModalFilterScreen({navigation, route}) {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [debounce]);
 
   // ==== LOCAL DATA ==== //
 
@@ -110,9 +108,9 @@ export function ModalFilterScreen({navigation, route}) {
 
     setSelectOneDay(selectDay);
     setModalValueText(selectDay ? 'One day' : 'Multi-day');
-    setDate(moment(date));
-    setStartDate(moment(dateFrom));
-    setEndDate(moment(dateTo));
+    setDate(moment.utc(date).format());
+    setStartDate(moment.utc(dateFrom).format());
+    setEndDate(moment.utc(dateTo).format());
 
     const tempLine = _.filter(lineDataFull, ['selected', true]);
     const sizeLine = _.size(tempLine);
@@ -124,11 +122,11 @@ export function ModalFilterScreen({navigation, route}) {
       const uniqDataBy = _.uniqBy(lineDataFull, 'selected');
       const some = _.some(uniqDataBy, ['selected', true]);
       if (some) {
-        setIsCheckVisibleLine('check-circle');
-        setIsUnCheckVisibleLine('circle-outline');
-      } else {
         setIsCheckVisibleLine('minus-circle');
         setIsUnCheckVisibleLine('minus-circle');
+      } else {
+        setIsCheckVisibleLine('check-circle');
+        setIsUnCheckVisibleLine('circle-outline');
       }
     } else {
       setCheckAllLine(false);
@@ -138,11 +136,11 @@ export function ModalFilterScreen({navigation, route}) {
       const uniqDataBy = _.uniqBy(productDataFull, 'selected');
       const some = _.some(uniqDataBy, ['selected', true]);
       if (some) {
-        setIsCheckVisibleProduct('check-circle');
-        setIsUnCheckVisibleProduct('circle-outline');
-      } else {
         setIsCheckVisibleProduct('minus-circle');
         setIsUnCheckVisibleProduct('minus-circle');
+      } else {
+        setIsCheckVisibleProduct('check-circle');
+        setIsUnCheckVisibleProduct('circle-outline');
       }
     } else {
       setCheckAllProduct(false);
@@ -235,7 +233,6 @@ export function ModalFilterScreen({navigation, route}) {
     const sizeFilter = _.size(uniqDataBy);
     const dataSize = _.size(data);
     const some = _.some(data, ['selected', true]);
-    console.log('some', uniqDataBy);
     if (some) {
       setIsCheckVisibleLine('minus-circle');
       setIsUnCheckVisibleLine('minus-circle');
@@ -301,7 +298,6 @@ export function ModalFilterScreen({navigation, route}) {
       setIsCheckVisibleProduct('check-circle');
       setIsUnCheckVisibleProduct('circle-outline');
     }
-
 
     const reject = _.reject(data, function (o) {
       return !o.selected;
@@ -396,37 +392,45 @@ export function ModalFilterScreen({navigation, route}) {
   // ==== SUBMIT FORM ==== //
 
   const handleSubmit = () => {
+    setDebounce(true);
+    let bounce = true;
     crashlytics().log('Filters - button apply');
     const filterLine = _.filter(lineData, ['selected', true]);
     const filterProduct = _.filter(productData, ['selected', true]);
     const lineSelected = _.map(filterLine, 'id');
     const productSelected = _.map(filterProduct, 'id');
-    const yesterday = moment()
+    const yesterday = moment.utc()
       .subtract(1, 'days')
       .format('YYYY-MM-DDT00:00:00[.000Z]');
-    const today = moment().format('YYYY-MM-DDT00:00:00[.000Z]');
+    const today = moment.utc().format('YYYY-MM-DDT00:00:00[.000Z]');
     const data = {
       lineData: lineSelected.length > 0 ? lineSelected : null,
       lineDataFull: lineData,
       productData: productSelected.length > 0 ? productSelected : null,
       productDataFull: productData,
       selectDay: selectOneDay,
-      date: date ? date.format('YYYY-MM-DDT00:00:00[.000Z]') : today,
+      date: date ? moment.utc(date).format('YYYY-MM-DDT00:00:00[.000Z]') : today,
       dateFrom: startDate
-        ? startDate.format('YYYY-MM-DDT00:00:00[.000Z]')
+        ? moment.utc(startDate).format('YYYY-MM-DDT00:00:00[.000Z]')
         : yesterday,
-      dateTo: endDate ? endDate.format('YYYY-MM-DDT00:00:00[.000Z]') : today,
+      dateTo: endDate ? moment.utc(endDate).format('YYYY-MM-DDT00:00:00[.000Z]') : today,
     };
-    navigation.navigate('ReportScreen', {
-      filterData: data,
-    });
+    console.log('data', data);
+    if (bounce) {
+      navigation.navigate('ReportScreen', {
+        filterData: data,
+      });
+      bounce = false;
+    }
   };
 
   const handleReset = () => {
+    setDebounce(true);
+    let bounce = true;
     crashlytics().log('Filters - button reset');
-    setDate(moment().subtract(1, 'days'));
-    setStartDate(moment().subtract(1, 'days'));
-    setEndDate(moment());
+    setDate(moment.utc().subtract(1, 'days').format());
+    setStartDate(moment.utc().subtract(1, 'days').format());
+    setEndDate(moment.utc().format());
     setModalVisibleDate(false);
     setModalVisible(false);
     setSelectOneDay(true);
@@ -454,10 +458,10 @@ export function ModalFilterScreen({navigation, route}) {
     setProductData(dataProduct);
     setIsCheckVisibleProduct('check-circle');
 
-    const yesterday = moment()
+    const yesterday = moment.utc()
       .subtract(1, 'days')
       .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-    const today = moment().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+    const today = moment.utc().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
     const data = {
       lineData: filterLineId,
       lineDataFull: dataLine,
@@ -467,12 +471,18 @@ export function ModalFilterScreen({navigation, route}) {
       dateFrom: yesterday,
       dateTo: today,
     };
-    navigation.navigate('ReportScreen', {
-      filterData: undefined,
-    });
+    AsyncStorage.removeItem('@reportFilters');
+    if (bounce) {
+      navigation.navigate('ReportScreen', {
+        filterData: undefined,
+      });
+      bounce = false;
+    }
   };
 
-  console.log('isCheckVisibleLine', isCheckVisibleLine);
+  console.log('date', date);
+  console.log('start', startDate);
+  console.log('end', endDate);
 
   return (
     <>
@@ -527,8 +537,8 @@ export function ModalFilterScreen({navigation, route}) {
                   <DatePickerComponent
                     date={
                       date
-                        ? date.format('MMM DD, YYYY')
-                        : moment().format('MMM DD, YYYY')
+                        ? moment.utc(date).format('MMM DD, YYYY')
+                        : moment.utc().format('MMM DD, YYYY')
                     }
                     title={'Date'}
                     onPress={() => setModalVisibleDate(true)}
@@ -587,8 +597,8 @@ export function ModalFilterScreen({navigation, route}) {
                       <DatePickerComponent
                         date={
                           startDate
-                            ? startDate.format('MMM DD, YYYY')
-                            : moment()
+                            ? moment.utc(startDate).format('MMM DD, YYYY')
+                            : moment.utc()
                                 .subtract(1, 'days')
                                 .format('MMM DD, YYYY')
                         }
@@ -600,8 +610,8 @@ export function ModalFilterScreen({navigation, route}) {
                       <DatePickerComponent
                         date={
                           endDate
-                            ? endDate.format('MMM DD, YYYY')
-                            : moment().format('MMM DD, YYYY')
+                            ? moment.utc(endDate).format('MMM DD, YYYY')
+                            : moment.utc().format('MMM DD, YYYY')
                         }
                         title={'To'}
                         onPress={() => setModalVisible(true)}
@@ -788,6 +798,7 @@ export function ModalFilterScreen({navigation, route}) {
             },
           ]}>
           <Pressable
+            disabled={debounce}
             onPress={handleReset}
             style={{flex: 1, height: 44, justifyContent: 'center'}}>
             {({pressed}) => (
@@ -806,6 +817,7 @@ export function ModalFilterScreen({navigation, route}) {
           <View style={{flex: 1, marginTop: 'auto'}}>
             <Btn
               navigation={navigation}
+              disabled={debounce}
               title={'Apply'}
               onPress={handleSubmit}
               borderColor={THEME.PRIMARY_COLOR}

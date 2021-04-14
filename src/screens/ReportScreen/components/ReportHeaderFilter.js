@@ -17,7 +17,7 @@ export function ReportHeaderFilter({navigation, filterResult, disabled}) {
 
   let bool = _.isEmpty(filterResult);
   let countItems;
-  let date = moment().format('MMM DD, YYYY');
+  let date = moment.utc().format('MMM DD, YYYY');
   let starDate = '';
   let endDate = '';
   let selectDay;
@@ -27,9 +27,9 @@ export function ReportHeaderFilter({navigation, filterResult, disabled}) {
     filterLine = _.filter(filterResult.lineDataFull, ['selected', true]);
     filterProduct = _.filter(filterResult.productDataFull, ['selected', true]);
     countItems = _.size(filterLine) + _.size(filterProduct) + 1;
-    date = moment(filterResult.date).format('MMM DD, YYYY');
-    starDate = moment(filterResult.dateFrom).format('MMM DD, YYYY');
-    endDate = moment(filterResult.dateTo).format('MMM DD, YYYY');
+    date = moment.utc(filterResult.date).format('MMM DD, YYYY');
+    starDate = moment.utc(filterResult.dateFrom).format('MMM DD, YYYY');
+    endDate = moment.utc(filterResult.dateTo).format('MMM DD, YYYY');
     selectDay = filterResult.selectDay;
   }
 

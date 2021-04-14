@@ -32,9 +32,7 @@ export function CardTime({startTime = null, endTime = null}) {
             style={{marginRight: 10}}
           />
           <Text style={styles.textBlue}>
-            {startTime
-              ? moment.utc(startTime).format('h:mm:ss a')
-              : 'In Progress'}
+            {startTime ? moment.utc(startTime).format('LTS') : 'In Progress'}
           </Text>
         </View>
       </View>
@@ -45,9 +43,7 @@ export function CardTime({startTime = null, endTime = null}) {
             <IconCheck />
             <View style={{marginLeft: 15}}>
               <Text style={styles.textBlue}>
-                {endTime
-                  ? moment.utc(startTime).format('h:mm:ss a')
-                  : 'In Progress'}
+                {endTime ? moment.utc(endTime).format('LTS') : 'In Progress'}
               </Text>
             </View>
           </View>
@@ -56,9 +52,7 @@ export function CardTime({startTime = null, endTime = null}) {
             <IconCheck />
             <View style={{marginLeft: 15}}>
               <Text style={styles.textBlue}>
-                {endTime
-                  ? moment.utc(startTime).format('h:mm:ss a')
-                  : 'In Progress'}
+                {endTime ? moment.utc(endTime).format('LTS') : 'In Progress'}
               </Text>
             </View>
           </View>

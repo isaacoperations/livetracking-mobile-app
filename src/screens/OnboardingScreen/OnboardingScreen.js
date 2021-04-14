@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Text,
-  Platform, ActivityIndicator,
+  Platform,
 } from 'react-native';
 import Onboarding from 'react-native-onboarding-swiper';
 import * as Animatable from 'react-native-animatable';
@@ -158,12 +158,11 @@ export function OnboardingScreen({navigation}) {
               image: (
                 <Image
                   source={IMAGE.ONBOARDING_3}
-                  onProgress={true}
                   style={{
                     backgroundColor: 'white',
                     width: '100%',
                     height: 550,
-                    resizeMode: 'center',
+                    resizeMode: Platform.OS === 'ios' ? 'stretch' : 'center',
                   }}
                 />
               ),
@@ -182,7 +181,13 @@ export function OnboardingScreen({navigation}) {
             },
             {
               backgroundColor: 'white',
-              image: <SvgOnBoarding4 style={{marginTop: 50}} width={'50%'} height={'40%'}/>,
+              image: (
+                <SvgOnBoarding4
+                  style={{marginTop: 50}}
+                  width={'50%'}
+                  height={'40%'}
+                />
+              ),
               title: (
                 <Text
                   style={{

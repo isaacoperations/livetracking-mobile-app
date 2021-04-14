@@ -18,6 +18,7 @@ export function useData() {
 
   const customAxios = axios.create({
     baseURL: APIConfig.BASE_URL,
+    timeout: 5000,
     headers: {
       Authorization: `${tokenType} ${idToken}`,
       'Content-Type': 'application/json',

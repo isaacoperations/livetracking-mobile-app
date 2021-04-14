@@ -18,6 +18,7 @@ export function Btn({
   size = THEME.BUTTON_PRIMARY_BIG,
   onPress,
   marginLeft = 'auto',
+  disabled = false,
 }) {
   useEffect(() => {
     (async () => {
@@ -26,6 +27,7 @@ export function Btn({
   }, []);
   return (
     <Pressable
+      disabled={disabled}
       onPress={onPress}
       style={({pressed}) => [
         {

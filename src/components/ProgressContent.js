@@ -13,8 +13,8 @@ export function ProgressContent({
   isActive,
 }) {
   const [visible, setVisible] = useState(true);
-  const minute = moment().startOf('hour').seconds(time).format('mm');
-  const second = moment().startOf('hour').seconds(time).format('ss');
+  const minute = moment.utc().startOf('hour').seconds(time).format('mm');
+  const second = moment.utc().startOf('hour').seconds(time).format('ss');
   return (
     <View
       key={index}

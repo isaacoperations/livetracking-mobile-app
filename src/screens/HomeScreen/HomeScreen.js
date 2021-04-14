@@ -27,7 +27,6 @@ import crashlytics from '@react-native-firebase/crashlytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import _ from 'lodash';
-import DeviceInfo from 'react-native-device-info';
 
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
@@ -42,7 +41,7 @@ import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 import {sleep} from '../../utils/sleep';
 import {checkInternet} from '../../utils/checkInternet';
-import {ReportHeaderFilter} from '../ReportScreen/components/ReportHeaderFilter';
+import {encryptHex} from '../../utils/encrypt';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
@@ -60,19 +59,40 @@ export function HomeScreen({navigation}) {
   const [connectionStatus, setConnectionStatus] = useState(false);
   const refRBSheet = useRef();
   const numColumns = 2;
-  //const WIDTH = Dimensions.get('window').width;
 
   useEffect(() => {
-    crashlytics().log('Home mounted.');
-    checkInternet().then((res) => {
-      setConnectionStatus(!res);
-    });
+    (async () => {
+      crashlytics().log('Home mounted.');
+      const tokenFB = await AsyncStorage.getItem('tokenDevice');
+      // const data = {
+      //   user_data: user,
+      //   firebase_token: tokenFB,
+      //   device: Platform.OS === 'ios' ? 'IOS' : 'Android',
+      // };
+
+      // const data = {
+      //   user_id: user.userData.sub,
+      // };
+      //
+      // const re =
+      //   '{"messages": [{"date": "2021-04-13T11:23:33.688440Z", "title": "its work", "body": "Lorey was here"}, {"date": "2021-04-13T11:19:27.862106Z", "title": "its work", "body": "Lorey was here"}, {"date": "2021-04-13T11:19:16.126985Z", "title": "its work", "body": "Lorey was here"}, {"date": "2021-04-13T11:18:59.704072Z", "title": "its work", "body": "Lorey was here"}, {"date": "2021-04-13T11:17:23.714157Z", "title": "its work", "body": "Lorey was here"}, {"date": "2021-04-13T10:51:02.970998Z", "title": "its work", "body": "yep its work"}, {"date": "2021-04-13T10:49:54.203760Z", "title": "its work", "body": "yep its work"}, {"date": "2021-04-13T10:49:22.526488Z", "title": "We notify", "body": "Test message"}, {"date": "2021-04-13T10:48:30.936375Z", "title": "We notify", "body": "Test message"}]}';
+      //
+      // console.log('re', JSON.parse(re));
+      // console.log('user', user.userData.sub);
+      //
+      // const jsonText = JSON.stringify(data);
+      // const hex = await encryptHex(jsonText);
+      // console.log('hex', hex);
+    })();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
         try {
+          checkInternet().then((res) => {
+            setConnectionStatus(!res);
+          });
           AsyncStorage.removeItem('@reportFilters');
           await MaterialIcons.loadFont();
           await MaterialCommunityIcons.loadFont();
@@ -130,7 +150,7 @@ export function HomeScreen({navigation}) {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+    }, [connectionStatus]),
   );
 
   async function fetchData() {
@@ -481,7 +501,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   activeTabTextStyle: {
-    color: '#fff',
+    color: 'white',
   },
   containerBottom: {
     width: '100%',

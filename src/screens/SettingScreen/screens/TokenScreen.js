@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 
 export function TokenScreen({navigation}) {
   const [copiedText, setCopiedText] = useState('');
+
   const copyToClipboard = async () => {
     await AsyncStorage.getItem('tokenDevice').then((token) => {
       Clipboard.setString(token);

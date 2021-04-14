@@ -68,10 +68,6 @@ const App = () => {
     localNotificationService.getChannels();
     fcmService.registerAppWithFCM();
 
-    checkInternet().then((res) => {
-      setConnectionStatus(!res);
-    });
-
     (async () => {
       await checkOnboarding();
     })();
@@ -88,6 +84,9 @@ const App = () => {
     (async () => {
       await getFormNotify();
       await checkOnboarding();
+      checkInternet().then((res) => {
+        setConnectionStatus(!res);
+      });
     })();
   }, 5000);
 
@@ -295,6 +294,15 @@ const App = () => {
     } else {
       console.log('[Notification] disabled in App');
     }
+  }
+
+  if (connectionStatus) {
+    return (
+      <>
+        <SplashScreenComponent />
+        <NoInternetModal />
+      </>
+    );
   }
 
   if (state.loading) {

@@ -11,13 +11,11 @@ import {
   Alert,
   BackHandler,
 } from 'react-native';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {Divider, SearchBar} from 'react-native-elements';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
@@ -30,6 +28,7 @@ import {ChartBar} from './components/ChartBar';
 import Toast from 'react-native-toast-message';
 
 export function RunLogScreen({navigation, route}) {
+  console.log('route.params', route.params);
   const {logData} = route.params;
   const [search, setSearch] = useState('');
   const [nodeData, setNodeData] = useState(logData || []);
@@ -38,6 +37,7 @@ export function RunLogScreen({navigation, route}) {
   const [isShowProduct, setIsShowProduct] = useState(false);
   const [sortShownProduct, setSortShownProduct] = useState(true);
   const WIDTH = Dimensions.get('window').width;
+  const [debounce, setDebounce] = useState(false);
 
   const backAction = () => {
     navigation.navigate('ReportScreen', {
@@ -62,7 +62,6 @@ export function RunLogScreen({navigation, route}) {
     (async () => {
       await MaterialIcons.loadFont();
     })();
-    console.log('route.params 121312321', route);
     BackHandler.addEventListener('hardwareBackPress', backAction);
     return () => {
       setNodeData([]);
@@ -127,6 +126,71 @@ export function RunLogScreen({navigation, route}) {
     }
   });
 
+  const handleRunReport = (
+    runId,
+    actualOutputPieces,
+    actualSeconds,
+    averageSpeedPiecesPerMin,
+    downtimeSeconds,
+    lineEfficiencyPercent,
+    lineName,
+    potentialSeconds,
+    productDescription,
+    productName,
+    runEfficiencyPercent,
+    runEndTime,
+    runEndTimeEst,
+    runFinishedGoodsCases,
+    runName,
+    runStartTime,
+    runStartTimeEst,
+    targetOutputPieces,
+    targetSpeedPiecesPerMin,
+    unitInfo,
+  ) => {
+    setDebounce(true);
+    let bounce = true;
+    if (bounce) {
+      if (runId) {
+        navigation.navigate('CardDetailReport', {
+          runId,
+          // runLogData: {
+          //   runId,
+          //   // actualOutputPieces,
+          //   // actualSeconds,
+          //   // averageSpeedPiecesPerMin,
+          //   // downtimeSeconds,
+          //   // lineEfficiencyPercent,
+          //   // lineName,
+          //   // potentialSeconds,
+          //   // productDescription,
+          //   // productName,
+          //   // runEfficiencyPercent,
+          //   // runEndTime,
+          //   // runEndTimeEst,
+          //   // runFinishedGoodsCases,
+          //   // runName,
+          //   // runStartTime,
+          //   // runStartTimeEst,
+          //   // targetOutputPieces,
+          //   // targetSpeedPiecesPerMin,
+          //   // unitInfo,
+          // },
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: 'Line is not running',
+          topOffset: Platform.OS === 'ios' ? 80 : 30,
+          visibilityTime: 1500,
+        });
+      }
+      setDebounce(false);
+    }
+    bounce = false;
+  };
+
   return (
     <>
       <HeaderStatus ios={'light'} />
@@ -138,6 +202,7 @@ export function RunLogScreen({navigation, route}) {
           }
         />
         <ReportHeaderBack
+          disabled={debounce}
           navigation={navigation}
           result={
             typeof route.params !== 'undefined' ? route.params?.filterData : {}
@@ -276,21 +341,30 @@ export function RunLogScreen({navigation, route}) {
                     <Fragment key={item.runId}>
                       <Divider style={styles.divider} />
                       <Pressable
+                        disabled={debounce}
                         onPress={() => {
-                          console.log('item.runId', item.runId);
-                          if (item.runId) {
-                            navigation.navigate('CardDetailReport', {
-                              runId: item.runId,
-                            });
-                          } else {
-                            Toast.show({
-                              type: 'error',
-                              position: 'top',
-                              text1: 'Line is not running',
-                              topOffset: Platform.OS === 'ios' ? 80 : 30,
-                              visibilityTime: 1500,
-                            });
-                          }
+                          handleRunReport(
+                            item.runId,
+                            item.actualOutputPieces,
+                            item.actualSeconds,
+                            item.averageSpeedPiecesPerMin,
+                            item.downtimeSeconds,
+                            item.lineEfficiencyPercent,
+                            item.lineName,
+                            item.potentialSeconds,
+                            item.productDescription,
+                            item.productName,
+                            item.runEfficiencyPercent,
+                            item.runEndTime,
+                            item.runEndTimeEst,
+                            item.runFinishedGoodsCases,
+                            item.runName,
+                            item.runStartTime,
+                            item.runStartTimeEst,
+                            item.targetOutputPieces,
+                            item.targetSpeedPiecesPerMin,
+                            item.unitInfo,
+                          );
                         }}>
                         {({pressed}) => (
                           <View
@@ -312,16 +386,16 @@ export function RunLogScreen({navigation, route}) {
                                     : THEME.DARK_COLOR,
                                 },
                               ]}>
-                              {moment(item.runStartTime).format(
-                                'dddd YYYY-MM-DD',
-                              )}
+                              {moment
+                                .utc(item.runStartTimeEst)
+                                .format('dddd YYYY-MM-DD LTS')}
                             </Text>
                             <Text
                               style={[
                                 styles.title,
                                 {
                                   width: 130,
-                                  paddingLeft: 10,
+                                  paddingHorizontal: 10,
                                   color: pressed
                                     ? THEME.WHITE_COLOR
                                     : THEME.DARK_COLOR,
@@ -334,6 +408,7 @@ export function RunLogScreen({navigation, route}) {
                                 styles.title,
                                 {
                                   width: 100,
+                                  paddingRight: 10,
                                   color: pressed
                                     ? THEME.WHITE_COLOR
                                     : THEME.DARK_COLOR,

@@ -52,6 +52,7 @@
     "react-native-screens": "^2.16.1",
     "react-native-segmented-control-tab": "^3.4.1",
     "react-native-sensitive-info": "^6.0.0-alpha.9",
+    "react-native-simple-crypto": "^0.2.15",
     "react-native-svg": "^12.1.0",
     "react-native-toast-message": "^1.4.7",
     "react-native-vector-icons": "^7.1.0",

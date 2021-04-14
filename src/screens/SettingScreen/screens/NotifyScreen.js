@@ -23,11 +23,12 @@ import HeaderStatus from '../../../components/HeaderStatus';
 import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {encryptHex} from '../../../utils/encrypt';
 
 export function NotifyScreen({navigation}) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [isEnabledTime, setIsEnabledTime] = useState(false);
-  const [isEnabledTimeFrom, setIsEnabledTimeFrom] = useState(false);
+  const [isEnabledTimeFrom, setIsEnabledTimeFrom] = useState(true);
   const [isEnabledTimeTo, setIsEnabledTimeTo] = useState(false);
   const [dateFrom, setDateFrom] = useState(new Date());
   const [dateTo, setDateTo] = useState(new Date());
@@ -42,10 +43,9 @@ export function NotifyScreen({navigation}) {
         .then((data) => {
           if (data) {
             const formData = JSON.parse(data);
-            console.log('data', formData);
-            const setTimeFrom = moment(formData?.timeFrom, 'HH:mm');
-            const setTimeTo = moment(formData?.timeTo, 'HH:mm');
-            console.log('data', setTimeTo, setTimeFrom);
+            console.log('formData?.timeFrom', formData?.timeFrom);
+            const setTimeFrom = moment(formData?.timeFrom, 'HH:mm').utc();
+            const setTimeTo = moment(formData?.timeTo, 'HH:mm').utc();
             setIsEnabled(formData.showInNotify);
             setIsEnabledTime(formData.showInDisturb);
             setSelectedDays(formData.daysText);
@@ -79,17 +79,15 @@ export function NotifyScreen({navigation}) {
 
   if (Platform.OS === 'ios') {
     onChangeFrom = (event, selectedDate) => {
-      console.log('onChangeFrom', selectedDate);
       const currentDate = selectedDate || dateFrom;
-      setIsEnabledTimeFrom(false);
+      setIsEnabledTimeFrom(true);
       setDateFrom(currentDate);
       setDateMin(currentDate);
     };
   } else {
     onChangeFrom = (selectedDate) => {
-      console.log('onChangeFrom', selectedDate);
       const currentDate = selectedDate || dateFrom;
-      setIsEnabledTimeFrom(false);
+      setIsEnabledTimeFrom(true);
       setDateFrom(currentDate);
       setDateMin(currentDate);
     };
@@ -98,16 +96,14 @@ export function NotifyScreen({navigation}) {
   let onChangeTo;
   if (Platform.OS === 'ios') {
     onChangeTo = (event, selectedDate) => {
-      console.log('onChangeTo', selectedDate);
       const currentDate = selectedDate || dateTo;
-      setIsEnabledTimeTo(false);
+      setIsEnabledTimeTo(true);
       setDateTo(currentDate);
     };
   } else {
     onChangeTo = (selectedDate) => {
-      console.log('onChangeTo', selectedDate);
       const currentDate = selectedDate || dateTo;
-      setIsEnabledTimeTo(false);
+      setIsEnabledTimeTo(true);
       setDateTo(currentDate);
     };
   }
@@ -131,7 +127,9 @@ export function NotifyScreen({navigation}) {
 
   const handleSave = async () => {
     crashlytics().log('Notify setting - save button');
-    const form = {
+    const tokenFB = await AsyncStorage.getItem('tokenDevice');
+
+    const formLocale = {
       daysText: selectedDays,
       daysIndex: selectedIndex,
       showInNotify: isEnabled,
@@ -139,7 +137,19 @@ export function NotifyScreen({navigation}) {
       timeFrom: moment(dateFrom).format('HH:mm'),
       timeTo: moment(dateTo).format('HH:mm'),
     };
-    await AsyncStorage.setItem('formNotify', JSON.stringify(form));
+    const formApi = {
+      daysText: selectedDays,
+      daysIndex: selectedIndex,
+      dnd: isEnabledTime ? 1 : 0,
+      startTime: moment(dateFrom).format('HH:mm'),
+      endTime: moment(dateTo).format('HH:mm'),
+      firebase_token: tokenFB,
+      device: Platform.OS === 'ios' ? 'IOS' : 'Android',
+    };
+    const jsonText = JSON.stringify(formApi);
+    const hex = await encryptHex(jsonText);
+    console.log('hex', hex);
+    await AsyncStorage.setItem('formNotify', JSON.stringify(formLocale));
     Toast.show({
       type: 'success',
       position: 'top',
@@ -199,7 +209,7 @@ export function NotifyScreen({navigation}) {
                               : THEME.PEW_COLOR,
                           },
                         ]}>
-                        {moment(dateFrom).format('HH:mm')}
+                        {moment.utc(dateFrom).format('LT')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -207,10 +217,11 @@ export function NotifyScreen({navigation}) {
                   {isEnabledTimeFrom ? (
                     Platform.OS === 'ios' ? (
                       <RNDateTimePicker
-                        locale="es-ES"
+                        locale="us-US"
+                        timeZoneOffsetInMinutes={0}
                         value={dateFrom}
                         mode={'time'}
-                        is24Hour={true}
+                        is24Hour={false}
                         display="spinner"
                         onChange={onChangeFrom}
                         textColor="black"
@@ -218,10 +229,11 @@ export function NotifyScreen({navigation}) {
                     ) : (
                       <View style={{alignItems: 'center'}}>
                         <DatePicker
-                          locale="es"
+                          locale="us-US"
+                          timeZoneOffsetInMinutes={0}
                           date={dateFrom}
                           androidVariant={'nativeAndroid'}
-                          is24hourSource="locale"
+                          // is24hourSource="locale"
                           mode={'time'}
                           textColor="black"
                           onDateChange={onChangeFrom}
@@ -247,7 +259,7 @@ export function NotifyScreen({navigation}) {
                               : THEME.PEW_COLOR,
                           },
                         ]}>
-                        {moment(dateTo).format('HH:mm')}
+                        {moment.utc(dateTo).format('LT')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -255,11 +267,12 @@ export function NotifyScreen({navigation}) {
                   {isEnabledTimeTo ? (
                     Platform.OS === 'ios' ? (
                       <RNDateTimePicker
-                        locale="es-ES"
+                        locale="us-US"
                         value={dateTo}
+                        timeZoneOffsetInMinutes={0}
                         mode={'time'}
                         minimumDate={dateMin}
-                        is24Hour={true}
+                        // is24Hour={true}
                         display="spinner"
                         onChange={onChangeTo}
                         textColor="black"
@@ -267,10 +280,11 @@ export function NotifyScreen({navigation}) {
                     ) : (
                       <View style={{alignItems: 'center'}}>
                         <DatePicker
-                          locale="es"
+                          locale="us-US"
+                          timeZoneOffsetInMinutes={0}
                           date={dateTo}
                           androidVariant={'nativeAndroid'}
-                          is24hourSource="locale"
+                          // is24hourSource="locale"
                           mode={'time'}
                           minimumDate={dateMin}
                           textColor="black"

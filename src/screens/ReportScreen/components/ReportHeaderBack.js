@@ -10,6 +10,7 @@ export function ReportHeaderBack({
   navigation,
   result = {},
   text = 'Back to Report',
+  disabled = false,
 }) {
   useEffect(() => {
     (async () => {
@@ -19,6 +20,7 @@ export function ReportHeaderBack({
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        disabled={disabled}
         activeOpacity={0.8}
         onPress={() =>
           navigation.navigate('ReportScreen', {

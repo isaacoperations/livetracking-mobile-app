@@ -29,7 +29,7 @@ moment.updateLocale('en', {
 export function NotificationComponent({
   title = 'Notification title',
   status = 'Downtime',
-  time = moment().format('X'),
+  time = moment.utc().format('X'),
   line = 'Line 1',
   sku = 'SKU 229394, SKU 234823',
 }) {

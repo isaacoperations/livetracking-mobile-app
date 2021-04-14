@@ -2131,7 +2131,7 @@ base-64@^0.1.0:
   resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
   integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
 
-base64-js@^1.1.2, base64-js@^1.2.3, base64-js@^1.3.1:
+base64-js@^1.1.2, base64-js@^1.2.3, base64-js@^1.3.0, base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
@@ -3912,6 +3912,11 @@ hermes-profile-transformer@^0.0.6:
   integrity sha512-cnN7bQUm65UWOy6cbGcCcZ3rpwW8Q/j4OP5aWRhEry4Z2t2aR1cjrbp0BS+KiBN0smvP1caBgAuxutvyvJILzQ==
   dependencies:
     source-map "^0.7.3"
+
+hex-lite@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/hex-lite/-/hex-lite-1.5.0.tgz#482db64f673dcacdb8be93c629a799ce5a76b24d"
+  integrity sha512-bXFMCFoKcksmJ1kDRq6B0+Go5Wgq84Dq/3rX99+0OzBQZKUBEMLguPd1lZSpvmzJACb516n07eyswF4KHAF9cg==
 
 hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
@@ -6548,6 +6553,14 @@ react-native-sensitive-info@^6.0.0-alpha.9:
   version "6.0.0-alpha.9"
   resolved "https://registry.yarnpkg.com/react-native-sensitive-info/-/react-native-sensitive-info-6.0.0-alpha.9.tgz#b488fab715d36efdf80b377a21545cfe888ab8d2"
   integrity sha512-W2R1gUHgBAmy+wVl0BvA7s01SqqTitnG4Sdj2zmck0OS5a54kq+pTnXRqDljMa2NQs4Mue2IHyvd+Tf0X1ZL6Q==
+
+react-native-simple-crypto@^0.2.15:
+  version "0.2.15"
+  resolved "https://registry.yarnpkg.com/react-native-simple-crypto/-/react-native-simple-crypto-0.2.15.tgz#a665659c58a153e9a32d507c30f327e3c5bdf0e2"
+  integrity sha512-Mc0PgbCyvySOvq2BEVFelOrU0WPlju49ufnwMbL1Ss8aIXLZ52oXfvVWy47yxtrPuOxcxiGi3qMjJt5mKD1hOA==
+  dependencies:
+    base64-js "^1.3.0"
+    hex-lite "^1.5.0"
 
 react-native-size-matters@^0.3.1:
   version "0.3.1"

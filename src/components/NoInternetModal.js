@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Animatable from 'react-native-animatable';
-import {Text, View} from 'react-native';
+import {Platform, Text, View} from 'react-native';
 
 import {THEME} from '../constants/theme';
 import {FONT} from '../constants/fonts';
@@ -16,7 +16,7 @@ export function NoInternetModal({animate = 'fadeInUpBig'}) {
         backgroundColor: 'transparent',
         position: 'absolute',
         width: '100%',
-        bottom: 70,
+        bottom: Platform.OS === 'ios' ? 110 : 70,
       }}>
       <View
         style={{
