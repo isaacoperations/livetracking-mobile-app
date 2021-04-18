@@ -72,14 +72,12 @@ export function LoginScreen({navigation}) {
         validationSchema={LoginSchema}
         onSubmit={async (values, actions) => {
           try {
-            console.log('values 2', values);
             crashlytics().log('Login - form');
             setIsLoading(true);
             actions.setSubmitting(false);
             // actions.resetForm();
             await login(values.email.toLowerCase(), values.password);
           } catch (e) {
-            console.log('e', e);
             crashlytics().recordError(e.message);
             setIsError(e.message);
             setIsLoading(false);
@@ -91,7 +89,7 @@ export function LoginScreen({navigation}) {
           handleSubmit,
           values,
           errors,
-            isSubmitting,
+          isSubmitting,
           isValid,
           dirty,
         }) => (

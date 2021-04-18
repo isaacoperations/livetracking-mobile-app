@@ -24,12 +24,15 @@ import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {encryptHex} from '../../../utils/encrypt';
+import {useData} from '../../../services/ApiService';
+import {getDataNotify} from '../../../services/NotifyService';
 
 export function NotifyScreen({navigation}) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [isEnabledTime, setIsEnabledTime] = useState(false);
   const [isEnabledTimeFrom, setIsEnabledTimeFrom] = useState(true);
   const [isEnabledTimeTo, setIsEnabledTimeTo] = useState(false);
+  const {NotifyApiService} = useData();
   const [dateFrom, setDateFrom] = useState(new Date());
   const [dateTo, setDateTo] = useState(new Date());
   const [dateMin, setDateMin] = useState(new Date());
@@ -43,7 +46,6 @@ export function NotifyScreen({navigation}) {
         .then((data) => {
           if (data) {
             const formData = JSON.parse(data);
-            console.log('formData?.timeFrom', formData?.timeFrom);
             const setTimeFrom = moment(formData?.timeFrom, 'HH:mm').utc();
             const setTimeTo = moment(formData?.timeTo, 'HH:mm').utc();
             setIsEnabled(formData.showInNotify);
@@ -148,7 +150,9 @@ export function NotifyScreen({navigation}) {
     };
     const jsonText = JSON.stringify(formApi);
     const hex = await encryptHex(jsonText);
-    console.log('hex', hex);
+    await getDataNotify(`/api/dnd?data=${hex}`).catch((error) => {
+      console.log('error 2', error);
+    });
     await AsyncStorage.setItem('formNotify', JSON.stringify(formLocale));
     Toast.show({
       type: 'success',
@@ -271,7 +275,7 @@ export function NotifyScreen({navigation}) {
                         value={dateTo}
                         timeZoneOffsetInMinutes={0}
                         mode={'time'}
-                        minimumDate={dateMin}
+                        // minimumDate={dateMin}
                         // is24Hour={true}
                         display="spinner"
                         onChange={onChangeTo}
@@ -286,7 +290,7 @@ export function NotifyScreen({navigation}) {
                           androidVariant={'nativeAndroid'}
                           // is24hourSource="locale"
                           mode={'time'}
-                          minimumDate={dateMin}
+                          // minimumDate={dateMin}
                           textColor="black"
                           onDateChange={onChangeTo}
                         />

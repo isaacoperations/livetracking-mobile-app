@@ -38,7 +38,7 @@ export function NotificationComponent({
       <View style={styles.block}>
         <View style={styles.flexBetween}>
           <Text style={styles.status}>{status}</Text>
-          <Text style={styles.line}>{moment.unix(time).fromNow(true)}</Text>
+          <Text style={styles.line}>{moment.utc(time).fromNow(true)}</Text>
         </View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.line}>{line}</Text>

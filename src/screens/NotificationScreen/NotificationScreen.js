@@ -1,4 +1,4 @@
-import React, {useCallback, useReducer, useState} from 'react';
+import React, {useCallback, useContext, useReducer, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -21,23 +21,33 @@ import {THEME} from '../../constants/theme';
 import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {localNotificationService} from '../../services/LocalNotificationServices';
+import {encryptHex} from '../../utils/encrypt';
+import {UserContext} from '../../context/context';
+import {getDataNotify} from '../../services/NotifyService';
 
 export function NotificationScreen() {
+  const user = useContext(UserContext);
   const [tempNotify, setTempNotify] = useState([]);
   const [, dispatch] = useReducer(reducer, initialState);
   const windowHeight = Dimensions.get('window').height;
 
   async function fetchData() {
-    await AsyncStorage.getItem('notifyData').then((notify) => {
-      if (notify) {
-        const dataN = JSON.parse(notify);
-        const order = _.orderBy(dataN, ['date'], ['desc']);
-        setTempNotify(order);
-      } else {
-        console.log('notify error');
-        setTempNotify([]);
-      }
-    });
+    const data = {
+      user_id: user.userData.sub,
+    };
+    const jsonText = JSON.stringify(data);
+    const hex = await encryptHex(jsonText);
+    await getDataNotify(`/api/history?data=${hex}`)
+      .then((messages) => {
+        return messages.json();
+      })
+      .then((resultData) => {
+        console.log('getNotifyMessages resultData', resultData.messages);
+        setTempNotify(resultData.messages);
+      })
+      .catch((error) => {
+        console.log('error 1', error);
+      });
   }
 
   useFocusEffect(
@@ -58,14 +68,14 @@ export function NotificationScreen() {
         await fetchData();
       })();
       const intervalID2 = setInterval(async () => {
-        console.log('intervalID2');
         await AsyncStorage.setItem('notifyIcon', 'false');
         dispatch(createAction('SET_BADGE', false));
         await fetchData();
-      }, 1000);
+      }, 2000);
       return () => {
         clearInterval(intervalID2);
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
 

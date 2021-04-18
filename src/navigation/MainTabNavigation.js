@@ -11,12 +11,11 @@ import {
   StyleSheet,
   Platform,
   PixelRatio,
-  Alert,
 } from 'react-native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useIsFocused, CommonActions} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {THEME} from '../constants/theme';
@@ -335,13 +334,13 @@ function TabNavigator() {
         component={ReportStackNavigator}
         options={{title: 'Report', unmountOnBlur: true}}
       />
-      {/*<Tab.Screen*/}
-      {/*  name="Notification"*/}
-      {/*  component={NotificationStackNavigator}*/}
-      {/*  options={{*/}
-      {/*    title: 'Notification',*/}
-      {/*  }}*/}
-      {/*/>*/}
+      <Tab.Screen
+        name="Notification"
+        component={NotificationStackNavigator}
+        options={{
+          title: 'Notification',
+        }}
+      />
     </Tab.Navigator>
   );
 }

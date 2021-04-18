@@ -5,6 +5,7 @@ platform :ios, '10.0'
 
 pod 'Firebase/Analytics'
 pod 'Firebase/Messaging'
+pod 'Firebase/Crashlytics'
 
 target 'livetracking' do
   config = use_native_modules!
