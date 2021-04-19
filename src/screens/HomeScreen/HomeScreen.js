@@ -47,16 +47,16 @@ import {getDataNotify} from '../../services/NotifyService';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
-  const {refreshTokens} = useContext(AuthContext);
-  const {ApiService, NotifyApiService} = useData();
+  const {refreshTokens, logout} = useContext(AuthContext);
+  const {ApiService} = useData();
   const organizations =
     user.userData['https://livetracking.ca/app_metadata'].organizations;
   const factoriesData = user.app_metadata?.factories[0]?.id;
   const [isLoading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [factoryIds, setFactoryIds] = useState(factoriesData || '');
+  const [factoryIds, setFactoryIds] = useState(factoriesData);
   const [nodeData, setNodeData] = useState([]);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState(false);
   const refRBSheet = useRef();
@@ -91,48 +91,36 @@ export function HomeScreen({navigation}) {
           await MaterialIcons.loadFont();
           await MaterialCommunityIcons.loadFont();
 
-          const factoryData = await AsyncStorage.getItem('factoryID');
-          const {factoryId} = JSON.parse(factoryData);
-
-          if (factoryId !== null) {
-            setFactoryIds(factoryId);
-          } else {
-            setFactoryIds(factoriesData);
-          }
-
-          await AsyncStorage.getItem('favorites').then((favorite) => {
-            let data;
-            if (favorite !== null) {
-              data = JSON.parse(favorite);
+          await AsyncStorage.getItem('factoryID').then((factoryIdData) => {
+            if (factoryIdData !== null) {
+              const {factoryId} = JSON.parse(factoryIdData);
+              setFactoryIds(factoryId);
+            } else {
+              setFactoryIds(factoriesData);
             }
-            setFavorites(data);
           });
 
-          await fetchData();
+          await fetchData().then(async () => {
+            await AsyncStorage.getItem('favorites').then((favorite) => {
+              let data = {};
+              if (favorite !== null) {
+                data = JSON.parse(favorite);
+              }
+              setFavorites(data);
+            });
+          });
         } catch (error) {
           const {data, status} = error.response;
           crashlytics().log(data.error);
           crashlytics().recordError(data.error);
           if (status === 400) {
             setNodeData([]);
-            // Toast.show({
-            //   type: 'error',
-            //   position: 'top',
-            //   text1: data.error,
-            //   topOffset: Platform.OS === 'ios' ? 80 : 30,
-            //   visibilityTime: 1500,
-            // });
-            // sleep(500).then(() => {
-            //   if (data.error === 'Factory does not exist') {
-            //     navigation.navigate('SelectFactoryTab');
-            //   }
-            // });
-          } else {
-            console.log('logout message', data.error);
           }
-          console.log('data.error', data.error, status);
-          if (status === 401) {
-            // await refreshTokens();
+          if (data.error === 'invalid_factory') {
+            await logout();
+          }
+          if (data.error === 'token_expired') {
+            await refreshTokens();
           }
         }
       })();
@@ -145,7 +133,7 @@ export function HomeScreen({navigation}) {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [connectionStatus]),
+    }, [connectionStatus, favorites]),
   );
 
   async function fetchData() {
@@ -325,7 +313,7 @@ export function HomeScreen({navigation}) {
                   flex: 1,
                 },
               ]}>
-              {typeof favorites !== 'undefined' ? (
+              {!_.isEmpty(favorites) ? (
                 !_.isEmpty(favorites[factoryIds]) ? (
                   <ScrollView
                     style={[

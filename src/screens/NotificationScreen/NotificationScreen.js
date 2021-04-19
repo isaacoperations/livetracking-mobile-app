@@ -30,11 +30,10 @@ export function NotificationScreen() {
   const [tempNotify, setTempNotify] = useState([]);
   const [, dispatch] = useReducer(reducer, initialState);
   const windowHeight = Dimensions.get('window').height;
-
+  const data = {
+    user_id: user.userData.sub,
+  };
   async function fetchData() {
-    const data = {
-      user_id: user.userData.sub,
-    };
     const jsonText = JSON.stringify(data);
     const hex = await encryptHex(jsonText);
     await getDataNotify(`/api/history?data=${hex}`)

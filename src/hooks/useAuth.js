@@ -8,6 +8,7 @@ import {createAction} from '../utils/createAction';
 import {sleep} from '../utils/sleep';
 import reducer, {initialState} from '../reducer/reducer';
 import {credentials} from '../config/auth0-configuration';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function useAuth() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -41,6 +42,19 @@ export function useAuth() {
           });
       },
       logout: async () => {
+        //await AsyncStorage.clear();
+        const keys = [
+          'factoryID',
+          'favorites',
+          '@reportFilters',
+          'notifyIcon',
+          'formNotify',
+          'foreground',
+          'notifyData',
+          'formNotify',
+          'notifyData',
+        ];
+        await AsyncStorage.multiRemove(keys);
         await RNSInfo.deleteItem('user', {});
         dispatch(createAction('REMOVE_USER'));
       },
@@ -78,19 +92,6 @@ export function useAuth() {
                 .revoke({refreshToken: data.authData.refreshToken})
                 .then((revoke) => {
                   console.log('user revoke', revoke);
-                  // const payload = {
-                  //   token: newAccessToken.accessToken,
-                  //   authData: newAccessToken,
-                  //   userData: user,
-                  //   app_metadata:
-                  //     user['https://livetracking.ca/app_metadata']
-                  //       .organizations[0],
-                  //   user_metadata:
-                  //     user['https://livetracking.ca/user_metadata'],
-                  // };
-                  // await RNSInfo.setItem('user', JSON.stringify(payload), {});
-                  // dispatch(createAction('SET_USER', payload));
-                  // RNRestart.Restart();
                 })
                 .catch((error) => {
                   console.log('err revoke', error);

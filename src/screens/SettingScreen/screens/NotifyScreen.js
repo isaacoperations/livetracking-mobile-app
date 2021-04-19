@@ -130,7 +130,7 @@ export function NotifyScreen({navigation}) {
   const handleSave = async () => {
     crashlytics().log('Notify setting - save button');
     const tokenFB = await AsyncStorage.getItem('tokenDevice');
-
+    console.log('isEnabledTime', isEnabledTime);
     const formLocale = {
       daysText: selectedDays,
       daysIndex: selectedIndex,

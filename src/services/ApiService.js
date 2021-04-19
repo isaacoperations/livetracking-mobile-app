@@ -4,12 +4,13 @@ import snakecaseKeys from 'snakecase-keys';
 import camelcaseKeys from 'camelcase-keys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import APIConfig from '../config';
-import {UserContext} from '../context/context';
+import {AuthContext, UserContext} from '../context/context';
 import {createAction} from '../utils/createAction';
 import reducer, {initialState} from '../reducer/reducer';
 
 export function useData() {
   const user = useContext(UserContext);
+  const {logout, refreshTokens} = useContext(AuthContext);
   const [, dispatch] = useReducer(reducer, initialState);
   const {
     authData: {idToken, tokenType},
@@ -35,9 +36,9 @@ export function useData() {
         request.baseURL = factoryUrl;
       } else {
         request.headers.common['FACTORY-ID'] = app_metadata?.factories[0]?.id;
+        request.baseURL = app_metadata?.factories[0]?.url;
       }
     });
-
     return request;
   };
 
@@ -48,7 +49,13 @@ export function useData() {
 
   const errorHandler = async (error) => {
     const {status, data} = error.response;
-    console.log('config error ------------------------', status, data);
+    console.log('config error ------------------------', status, data.code);
+    if (data.code === 'invalid_factory') {
+      await logout();
+    }
+    if (data.code === 'token_expired') {
+      await refreshTokens();
+    }
     return Promise.reject(error);
   };
 

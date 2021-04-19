@@ -52,7 +52,7 @@ export function ReportScreen({navigation, route}) {
   const [connectionStatus, setConnectionStatus] = useState(false);
   const [isError, setIsError] = useState('');
   const {ApiService} = useData();
-  const {refreshTokens} = useContext(AuthContext);
+  const {refreshTokens, logout} = useContext(AuthContext);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const diffClamp = Animated.diffClamp(scrollY, 0, 45);
@@ -225,7 +225,12 @@ export function ReportScreen({navigation, route}) {
         setIsError(data.error);
         if (status === 401) {
           console.log('data2 ', data);
-          await refreshTokens();
+          if (data.error === 'invalid_factory') {
+            await logout();
+          }
+          if (data.error === 'token_expired') {
+            await refreshTokens();
+          }
         } else {
           setLoading(false);
           setReportData({});
