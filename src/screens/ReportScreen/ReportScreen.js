@@ -166,8 +166,8 @@ export function ReportScreen({navigation, route}) {
                 setLoading(true);
                 const yesterday = moment.utc()
                   .subtract(1, 'days')
-                  .format('YYYY-MM-DDT00:00:00[.000Z]');
-                const today = moment.utc().format('YYYY-MM-DDT00:00:00[.000Z]');
+                  .format('YYYY-MM-DDT12:00:00[.000Z]');
+                const today = moment.utc().format('YYYY-MM-DDT12:00:00[.000Z]');
                 await fetchProductData();
                 await fetchLineData();
                 await fetchData(

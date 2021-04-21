@@ -39,6 +39,8 @@ export function RunLogScreen({navigation, route}) {
   const WIDTH = Dimensions.get('window').width;
   const [debounce, setDebounce] = useState(false);
 
+  console.log('route.params logData', logData);
+
   const backAction = () => {
     navigation.navigate('ReportScreen', {
       filterData:
@@ -386,9 +388,7 @@ export function RunLogScreen({navigation, route}) {
                                     : THEME.DARK_COLOR,
                                 },
                               ]}>
-                              {moment
-                                .utc(item.runStartTimeEst)
-                                .format('dddd YYYY-MM-DD LTS')}
+                              {moment(item.runStartTimeEst).utcOffset('-0400').format('dddd YYYY-MM-DD LTS')}
                             </Text>
                             <Text
                               style={[
