@@ -480,10 +480,6 @@ export function ModalFilterScreen({navigation, route}) {
     }
   };
 
-  console.log('date', date);
-  console.log('start', startDate);
-  console.log('end', endDate);
-
   return (
     <>
       <HeaderStatus ios={'dark'} />
