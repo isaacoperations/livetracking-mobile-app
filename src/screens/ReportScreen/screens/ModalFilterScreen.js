@@ -401,19 +401,19 @@ export function ModalFilterScreen({navigation, route}) {
     const productSelected = _.map(filterProduct, 'id');
     const yesterday = moment.utc()
       .subtract(1, 'days')
-      .format('YYYY-MM-DDT00:00:00[.000Z]');
-    const today = moment.utc().format('YYYY-MM-DDT00:00:00[.000Z]');
+      .format('YYYY-MM-DDT12:00:00[.000Z]');
+    const today = moment.utc().format('YYYY-MM-DDT12:00:00[.000Z]');
     const data = {
       lineData: lineSelected.length > 0 ? lineSelected : null,
       lineDataFull: lineData,
       productData: productSelected.length > 0 ? productSelected : null,
       productDataFull: productData,
       selectDay: selectOneDay,
-      date: date ? moment.utc(date).format('YYYY-MM-DDT00:00:00[.000Z]') : today,
+      date: date ? moment.utc(date).format('YYYY-MM-DDT12:00:00[.000Z]') : today,
       dateFrom: startDate
-        ? moment.utc(startDate).format('YYYY-MM-DDT00:00:00[.000Z]')
+        ? moment.utc(startDate).format('YYYY-MM-DDT12:00:00[.000Z]')
         : yesterday,
-      dateTo: endDate ? moment.utc(endDate).format('YYYY-MM-DDT00:00:00[.000Z]') : today,
+      dateTo: endDate ? moment.utc(endDate).format('YYYY-MM-DDT12:00:00[.000Z]') : today,
     };
     console.log('data', data);
     if (bounce) {
@@ -460,8 +460,8 @@ export function ModalFilterScreen({navigation, route}) {
 
     const yesterday = moment.utc()
       .subtract(1, 'days')
-      .format('YYYY-MM-DDTHH:mm:ss[.000Z]');
-    const today = moment.utc().format('YYYY-MM-DDTHH:mm:ss[.000Z]');
+      .format('YYYY-MM-DDT12:00:00[.000Z]');
+    const today = moment.utc().format('YYYY-MM-DDT12:00:00[.000Z]');
     const data = {
       lineData: filterLineId,
       lineDataFull: dataLine,

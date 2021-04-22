@@ -386,8 +386,8 @@ export function RunLogScreen({navigation, route}) {
                                     : THEME.DARK_COLOR,
                                 },
                               ]}>
-                              {moment
-                                .utc(item.runStartTimeEst)
+                              {moment(item.runStartTimeEst)
+                                .utcOffset('-0400')
                                 .format('dddd YYYY-MM-DD LTS')}
                             </Text>
                             <Text
