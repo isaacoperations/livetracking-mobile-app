@@ -41,11 +41,11 @@ export function SettingScreen({navigation}) {
         <SettingUserInfo name={name} email={email} avatar={picture} />
         <ScrollView contentContainerStyle={{height: '100%'}}>
           <View style={{marginBottom: 'auto'}}>
-            {/*<Divider style={styles.divider} />*/}
-            {/*<SettingBtn*/}
-            {/*  title={'Notification'}*/}
-            {/*  onPress={() => navigation.navigate('NotifySetting')}*/}
-            {/*/>*/}
+            <Divider style={styles.divider} />
+            <SettingBtn
+              title={'Notification'}
+              onPress={() => navigation.navigate('NotifySetting')}
+            />
             <Divider style={styles.divider} />
             <SettingBtn
               title={'Security'}
