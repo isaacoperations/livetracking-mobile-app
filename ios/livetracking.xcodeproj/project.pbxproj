@@ -18,13 +18,14 @@
 		2DCD954D1E0B4F2C00145EB5 /* livetrackingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* livetrackingTests.m */; };
 		328394550B2F46AAAAB63518 /* SFProDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 18EE1B0ACC2E4A5AAFDD704E /* SFProDisplay-Medium.otf */; };
 		3E147918677D836F08E42CED /* libPods-livetracking-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31667061A618CCF98D13ECFB /* libPods-livetracking-tvOSTests.a */; };
-		3F08CBF825C9EACE00075F72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */; };
+		3F08CBF825C9EACE00075F72 /* GoogleService-Info-old.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F08CBF725C9EACE00075F72 /* GoogleService-Info-old.plist */; };
 		3F103E4C25C43E5500C526ED /* Icon@4x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E4B25C43E5500C526ED /* Icon@4x.png */; };
 		3F103E5D25C43EE400C526ED /* Icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E5C25C43EE400C526ED /* Icon@3x.png */; };
 		3F103E6E25C43F5B00C526ED /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E6D25C43F5B00C526ED /* Icon@2x.png */; };
 		3F103E7F25C43FB700C526ED /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F103E7E25C43FB700C526ED /* Icon.png */; };
-		3F30F46925C46554007FE769 /* GoogleService-Info-old2.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */; };
 		3F614BE9260DBAAE00556544 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F614BE8260DBAAE00556544 /* BootSplash.storyboard */; };
+		3FEE0D2526394F86005E229F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3FEE0D2426394F86005E229F /* GoogleService-Info.plist */; };
+		3FEE0D2B2639506E005E229F /* AuthKey_WPAF23XJJ4.p8 in Resources */ = {isa = PBXBuildFile; fileRef = 3FEE0D2A2639506D005E229F /* AuthKey_WPAF23XJJ4.p8 */; };
 		4178C1A158E7DE72532B65EC /* libPods-livetracking-livetrackingTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47FD5B0CB3DA81902E510955 /* libPods-livetracking-livetrackingTests.a */; };
 		4A8396CEB4914136A6232F7B /* SFProDisplay-LightItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = CBA63B6A4CD5419C95CED580 /* SFProDisplay-LightItalic.otf */; };
 		6E5E5F3F38A948238E4719F8 /* SFProDisplay-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AAE6F01A54774410A3606D10 /* SFProDisplay-Semibold.otf */; };
@@ -95,7 +96,7 @@
 		31667061A618CCF98D13ECFB /* libPods-livetracking-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-livetracking-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32A5EDE1819D4D7FBC0D56CD /* SFProDisplay-ThinItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFProDisplay-ThinItalic.otf"; path = "../assets/fonts/SFProDisplay-ThinItalic.otf"; sourceTree = "<group>"; };
 		384D60D1CB566DE41AECCF78 /* Pods-livetracking-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-livetracking-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-livetracking-tvOSTests/Pods-livetracking-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3F08CBF725C9EACE00075F72 /* GoogleService-Info-old.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-old.plist"; sourceTree = "<group>"; };
 		3F103E4B25C43E5500C526ED /* Icon@4x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@4x.png"; sourceTree = "<group>"; };
 		3F103E5C25C43EE400C526ED /* Icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@3x.png"; sourceTree = "<group>"; };
 		3F103E6D25C43F5B00C526ED /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
@@ -104,8 +105,9 @@
 		3F17399F25A33D4D00740468 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		3F1739A125A33D4D00740468 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F173B2C25A3858900740468 /* livetracking.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = livetracking.entitlements; path = livetracking/livetracking.entitlements; sourceTree = "<group>"; };
-		3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-old2.plist"; sourceTree = "<group>"; };
 		3F614BE8260DBAAE00556544 /* BootSplash.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BootSplash.storyboard; sourceTree = "<group>"; };
+		3FEE0D2426394F86005E229F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3FEE0D2A2639506D005E229F /* AuthKey_WPAF23XJJ4.p8 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AuthKey_WPAF23XJJ4.p8; sourceTree = "<group>"; };
 		3FF1EE1A259CCBA200579D68 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		3FF1EE1B259CCBA200579D68 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		3FF1EE1C259CCBA200579D68 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
@@ -227,12 +229,13 @@
 			children = (
 				3F173B2C25A3858900740468 /* livetracking.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
-				3F30F46825C46554007FE769 /* GoogleService-Info-old2.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				3F08CBF725C9EACE00075F72 /* GoogleService-Info.plist */,
+				3FEE0D2426394F86005E229F /* GoogleService-Info.plist */,
+				3F08CBF725C9EACE00075F72 /* GoogleService-Info-old.plist */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				3FEE0D2A2639506D005E229F /* AuthKey_WPAF23XJJ4.p8 */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				3F614BE8260DBAAE00556544 /* BootSplash.storyboard */,
@@ -462,7 +465,7 @@
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 2SF3W8G6X7;
 						LastSwiftMigration = 1120;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -521,9 +524,9 @@
 				ABC126B66A824CFCBE5F6C62 /* SFProDisplay-HeavyItalic.otf in Resources */,
 				7822C80587A04D0DAB606F23 /* SFProDisplay-Light.otf in Resources */,
 				3F103E4C25C43E5500C526ED /* Icon@4x.png in Resources */,
+				3FEE0D2526394F86005E229F /* GoogleService-Info.plist in Resources */,
 				3F103E5D25C43EE400C526ED /* Icon@3x.png in Resources */,
-				3F08CBF825C9EACE00075F72 /* GoogleService-Info.plist in Resources */,
-				3F30F46925C46554007FE769 /* GoogleService-Info-old2.plist in Resources */,
+				3F08CBF825C9EACE00075F72 /* GoogleService-Info-old.plist in Resources */,
 				4A8396CEB4914136A6232F7B /* SFProDisplay-LightItalic.otf in Resources */,
 				328394550B2F46AAAAB63518 /* SFProDisplay-Medium.otf in Resources */,
 				C32C970F59F247B58940E141 /* SFProDisplay-MediumItalic.otf in Resources */,
@@ -533,6 +536,7 @@
 				3F614BE9260DBAAE00556544 /* BootSplash.storyboard in Resources */,
 				F41202651FB742818AF28129 /* SFProDisplay-SemiboldItalic.otf in Resources */,
 				82B57E171B704E1A8198E23E /* SFProDisplay-Thin.otf in Resources */,
+				3FEE0D2B2639506E005E229F /* AuthKey_WPAF23XJJ4.p8 in Resources */,
 				96DF56F44CFC4244B9F7E57A /* SFProDisplay-ThinItalic.otf in Resources */,
 				F3360CC1ADF042BFA1DAD6F1 /* SFProDisplay-Ultralight.otf in Resources */,
 				0BBA4887D7EF4F23A07E2204 /* SFProDisplay-UltralightItalic.otf in Resources */,
@@ -962,10 +966,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = livetracking/livetracking.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2SF3W8G6X7;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = livetracking/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -978,7 +982,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.livetracking.LMAapp;
 				PRODUCT_NAME = livetracking;
-				PROVISIONING_PROFILE_SPECIFIER = "Livetracking App Store";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

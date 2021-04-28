@@ -27,7 +27,13 @@ export function CountTimer({durationSeconds, status}) {
           {hours}
         </Text>
       </View>
-      <Text style={styles.timeSeparator}>:</Text>
+      <Text
+        style={[
+          styles.timeSeparator,
+          {paddingBottom: status === 'down' ? 25 : 0},
+        ]}>
+        :
+      </Text>
       <View style={[styles.timeCountContainer]}>
         <Text style={[styles.timeCountLabel]}>MIN</Text>
         <Text
@@ -43,7 +49,7 @@ export function CountTimer({durationSeconds, status}) {
           {minutes}
         </Text>
       </View>
-      <Text style={styles.timeSeparator}>:</Text>
+      <Text style={[styles.timeSeparator, {paddingBottom: status === 'down' ? 25 : 0}]}>:</Text>
       <View style={[styles.timeCountContainer]}>
         <Text style={[styles.timeCountLabel]}>SEC</Text>
         <Text
@@ -78,7 +84,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: FONT.Bold,
     marginHorizontal: 10,
-    height: Platform.OS === 'ios' ? 21 : 28,
+    height: Platform.OS === 'ios' ? 22 : 28,
     marginTop: 'auto',
   },
   timeCountLabel: {

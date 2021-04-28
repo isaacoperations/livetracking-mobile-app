@@ -41,7 +41,6 @@ export function NotificationScreen() {
         return messages.json();
       })
       .then((resultData) => {
-        console.log('getNotifyMessages resultData', resultData.messages);
         setTempNotify(resultData.messages);
       })
       .catch((error) => {

@@ -101,23 +101,6 @@ const App = () => {
   }
 
   async function onNotification(notify) {
-    if (notify) {
-      let dataN = [];
-      let resultN = [];
-
-      await AsyncStorage.getItem('notifyData').then(async (notifys) => {
-        if (notifys) {
-          dataN = JSON.parse(notifys);
-        }
-        let res = {
-          title: notify.title || 'Livetracking title',
-          body: notify.body || 'Livetracking body',
-          date: Math.floor(new Date().getTime() / 1000),
-        };
-        resultN.push(...dataN, res);
-        await AsyncStorage.setItem('notifyData', JSON.stringify(resultN));
-      });
-    }
     console.log('[Notification] onNotification: ', notify);
     await AsyncStorage.setItem('notifyIcon', 'true');
     dispatch(createAction('SET_BADGE', true));
@@ -142,29 +125,12 @@ const App = () => {
       const runID =
         Number(notify?.twi_action) || Number(notify?.data?.twi_action) || null;
       if (isEnable) {
-        if (isEnableDisturb) {
-          const today = moment().weekday();
-          const includeToday = _.includes(isWeek, today);
-          const isMinutes = moment().startOf('minute').format('HH:mm');
-          const includeMinute = _.includes(timeSlots, isMinutes);
-          if (!includeMinute && !includeToday) {
-            localNotificationService.showNotification(
-              title,
-              message,
-              notify, //data
-              options, //options
-            );
-          } else {
-            console.log('[onNotification] Dont Disturb', isEnableDisturb);
-          }
-        } else {
-          localNotificationService.showNotification(
-            title,
-            message,
-            notify, //data
-            options, //options
-          );
-        }
+        localNotificationService.showNotification(
+          title,
+          message,
+          notify, //data
+          options, //options
+        );
       } else {
         console.log('disabled in app notify');
       }
@@ -276,19 +242,7 @@ const App = () => {
             // smallIcon: notify?.icon || notify?.data?.icon || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
             // imageUrl: notify?.image || notify?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
           };
-          if (isEnableDisturb) {
-            const today = moment().weekday();
-            const includeToday = _.includes(isWeek, today);
-            const isMinutes = moment().startOf('minute').format('HH:mm');
-            const includeMinute = _.includes(timeSlots, isMinutes);
-            if (!includeMinute && !includeToday) {
-              await getForeground(runID, title, message);
-            } else {
-              console.log('[onOpenNotification] dont Disturb');
-            }
-          } else {
-            await getForeground(runID, title, message);
-          }
+          await getForeground(runID, title, message);
         });
       }
     } else {

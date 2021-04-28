@@ -1,40 +1,41 @@
 {
   "project_info": {
-    "project_number": "470072842195",
-    "project_id": "formidable-card-291708",
-    "storage_bucket": "formidable-card-291708.appspot.com"
+    "project_number": "129283392983",
+    "project_id": "livetracking-b2c90",
+    "storage_bucket": "livetracking-b2c90.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:470072842195:android:d26fed2673ac2ea16d4126",
+        "mobilesdk_app_id": "1:129283392983:android:1597e0c2384314c1433792",
         "android_client_info": {
           "package_name": "com.livetracking.lmaapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "470072842195-t9or0bfpk6kmbqrvbnoctfg16hm9ca4n.apps.googleusercontent.com",
+          "client_id": "129283392983-0h1cla5pjd42dgf041gid2n7spb0qvkt.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDXcGaFdZpgSW_9izA3pxi_lxuNlgo10eY"
+          "current_key": "AIzaSyDRx91yAKAtZLGfYu4i1nS0RwTQtBxfgWg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "470072842195-t9or0bfpk6kmbqrvbnoctfg16hm9ca4n.apps.googleusercontent.com",
+              "client_id": "129283392983-0h1cla5pjd42dgf041gid2n7spb0qvkt.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "470072842195-2idl7s2asnp0o8akeo6536aid9sbrbt3.apps.googleusercontent.com",
+              "client_id": "129283392983-fj31motic8v631tb6i6l0993k5u5n6u0.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.livetracking.LMAapp"
+                "bundle_id": "com.livetracking.LMAapp",
+                "app_store_id": "1551325909"
               }
             }
           ]

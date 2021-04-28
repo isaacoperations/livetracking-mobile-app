@@ -8,6 +8,7 @@ import {
   Switch,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native';
 import {Divider, ButtonGroup} from 'react-native-elements';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -24,7 +25,6 @@ import {ModalHeader} from '../../../components/ModalHeader';
 import {Btn} from '../../../components/Button';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {encryptHex} from '../../../utils/encrypt';
-import {useData} from '../../../services/ApiService';
 import {getDataNotify} from '../../../services/NotifyService';
 
 export function NotifyScreen({navigation}) {
@@ -32,7 +32,6 @@ export function NotifyScreen({navigation}) {
   const [isEnabledTime, setIsEnabledTime] = useState(false);
   const [isEnabledTimeFrom, setIsEnabledTimeFrom] = useState(true);
   const [isEnabledTimeTo, setIsEnabledTimeTo] = useState(false);
-  const {NotifyApiService} = useData();
   const [dateFrom, setDateFrom] = useState(new Date());
   const [dateTo, setDateTo] = useState(new Date());
   const [dateMin, setDateMin] = useState(new Date());
@@ -130,7 +129,6 @@ export function NotifyScreen({navigation}) {
   const handleSave = async () => {
     crashlytics().log('Notify setting - save button');
     const tokenFB = await AsyncStorage.getItem('tokenDevice');
-    console.log('isEnabledTime', isEnabledTime);
     const formLocale = {
       daysText: selectedDays,
       daysIndex: selectedIndex,
@@ -150,9 +148,15 @@ export function NotifyScreen({navigation}) {
     };
     const jsonText = JSON.stringify(formApi);
     const hex = await encryptHex(jsonText);
-    await getDataNotify(`/api/dnd?data=${hex}`).catch((error) => {
-      console.log('error 2', error);
-    });
+    await getDataNotify(`/api/dnd?data=${hex}`)
+      .then((res) => {
+        Alert.alert('Result', JSON.stringify(res));
+        console.log('res 2', res);
+      })
+      .catch((error) => {
+        Alert.alert('Error', JSON.stringify(error));
+        console.log('error 2', error);
+      });
     await AsyncStorage.setItem('formNotify', JSON.stringify(formLocale));
     Toast.show({
       type: 'success',
