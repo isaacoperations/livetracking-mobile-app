@@ -98,12 +98,8 @@ export function ReportScreen({navigation, route}) {
         await MaterialIcons.loadFont();
         await MaterialCommunityIcons.loadFont();
         setFilterDisabled(false);
-        console.log('route.params', route.params);
-        console.log('report filters 2 ', reportArray);
         if (!bool) {
-          console.log('route.params 2', route.params);
           setLoading(true);
-          console.log('setItem -----------', route?.params?.filterData);
           AsyncStorage.setItem(
             '@reportFilters',
             JSON.stringify(route?.params?.filterData),
@@ -130,8 +126,6 @@ export function ReportScreen({navigation, route}) {
         } else {
           await AsyncStorage.getItem('@reportFilters').then(
             async (dataReport) => {
-              console.log('route.params 5', route.params);
-              console.log('getItem -------------', JSON.parse(dataReport));
               if (dataReport !== null) {
                 setLoading(true);
                 const reportFilters = JSON.parse(dataReport);
@@ -210,7 +204,6 @@ export function ReportScreen({navigation, route}) {
       start_date: selectDay ? date : fromDate,
       end_date: selectDay ? date : toDate,
     };
-    console.log('resData', resData);
     await ApiService.postReport(resData)
       .then(async ({data}) => {
         setFilterDisabled(true);
@@ -220,11 +213,9 @@ export function ReportScreen({navigation, route}) {
       })
       .catch(async (err) => {
         const {status, data} = err.response;
-        console.log('data', data);
         crashlytics().recordError(err);
         setIsError(data.error);
         if (status === 401) {
-          console.log('data2 ', data);
           if (data.error === 'invalid_factory') {
             await logout();
           }

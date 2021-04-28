@@ -334,13 +334,13 @@ function TabNavigator() {
         component={ReportStackNavigator}
         options={{title: 'Report', unmountOnBlur: true}}
       />
-      <Tab.Screen
-        name="Notification"
-        component={NotificationStackNavigator}
-        options={{
-          title: 'Notification',
-        }}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="Notification"*/}
+      {/*  component={NotificationStackNavigator}*/}
+      {/*  options={{*/}
+      {/*    title: 'Notification',*/}
+      {/*  }}*/}
+      {/*/>*/}
     </Tab.Navigator>
   );
 }
