@@ -45,8 +45,8 @@ export function NotifyScreen({navigation}) {
         .then((data) => {
           if (data) {
             const formData = JSON.parse(data);
-            const setTimeFrom = moment(formData?.timeFrom, 'HH:mm').utc();
-            const setTimeTo = moment(formData?.timeTo, 'HH:mm').utc();
+            const setTimeFrom = moment(formData?.timeFrom, 'HH:mm');
+            const setTimeTo = moment(formData?.timeTo, 'HH:mm');
             setIsEnabled(formData.showInNotify);
             setIsEnabledTime(formData.showInDisturb);
             setSelectedDays(formData.daysText);
@@ -127,6 +127,8 @@ export function NotifyScreen({navigation}) {
   };
 
   const handleSave = async () => {
+    console.log('dateFrom', dateFrom);
+    console.log('dateTo', dateTo);
     crashlytics().log('Notify setting - save button');
     const tokenFB = await AsyncStorage.getItem('tokenDevice');
     const formLocale = {
@@ -141,22 +143,16 @@ export function NotifyScreen({navigation}) {
       daysText: selectedDays,
       daysIndex: selectedIndex,
       dnd: isEnabledTime ? 1 : 0,
-      startTime: moment(dateFrom).format('HH:mm'),
-      endTime: moment(dateTo).format('HH:mm'),
+      startTime: moment.utc(dateFrom).format('HH:mm'),
+      endTime: moment.utc(dateTo).format('HH:mm'),
       firebase_token: tokenFB,
       device: Platform.OS === 'ios' ? 'IOS' : 'Android',
     };
     const jsonText = JSON.stringify(formApi);
     const hex = await encryptHex(jsonText);
-    await getDataNotify(`/api/dnd?data=${hex}`)
-      .then((res) => {
-        Alert.alert('Result', JSON.stringify(res));
-        console.log('res 2', res);
-      })
-      .catch((error) => {
-        Alert.alert('Error', JSON.stringify(error));
-        console.log('error 2', error);
-      });
+    await getDataNotify(`/api/dnd?data=${hex}`).catch((error) => {
+      console.log('error 2', error);
+    });
     await AsyncStorage.setItem('formNotify', JSON.stringify(formLocale));
     Toast.show({
       type: 'success',
@@ -217,7 +213,7 @@ export function NotifyScreen({navigation}) {
                               : THEME.PEW_COLOR,
                           },
                         ]}>
-                        {moment.utc(dateFrom).format('LT')}
+                        {moment(dateFrom).format('LT')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -226,7 +222,8 @@ export function NotifyScreen({navigation}) {
                     Platform.OS === 'ios' ? (
                       <RNDateTimePicker
                         locale="us-US"
-                        timeZoneOffsetInMinutes={0}
+                        // timeZoneOffsetInMinutes={0}
+                        // timeZoneOffsetInSeconds={0}
                         value={dateFrom}
                         mode={'time'}
                         is24Hour={false}
@@ -238,7 +235,8 @@ export function NotifyScreen({navigation}) {
                       <View style={{alignItems: 'center'}}>
                         <DatePicker
                           locale="us-US"
-                          timeZoneOffsetInMinutes={0}
+                          // timeZoneOffsetInMinutes={0}
+                          // timeZoneOffsetInSeconds={0}
                           date={dateFrom}
                           androidVariant={'nativeAndroid'}
                           // is24hourSource="locale"
@@ -267,7 +265,7 @@ export function NotifyScreen({navigation}) {
                               : THEME.PEW_COLOR,
                           },
                         ]}>
-                        {moment.utc(dateTo).format('LT')}
+                        {moment(dateTo).format('LT')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -277,7 +275,8 @@ export function NotifyScreen({navigation}) {
                       <RNDateTimePicker
                         locale="us-US"
                         value={dateTo}
-                        timeZoneOffsetInMinutes={0}
+                        // timeZoneOffsetInMinutes={0}
+                        // timeZoneOffsetInSeconds={0}
                         mode={'time'}
                         // minimumDate={dateMin}
                         // is24Hour={true}
@@ -289,7 +288,8 @@ export function NotifyScreen({navigation}) {
                       <View style={{alignItems: 'center'}}>
                         <DatePicker
                           locale="us-US"
-                          timeZoneOffsetInMinutes={0}
+                          // timeZoneOffsetInMinutes={0}
+                          // timeZoneOffsetInSeconds={0}
                           date={dateTo}
                           androidVariant={'nativeAndroid'}
                           // is24hourSource="locale"
