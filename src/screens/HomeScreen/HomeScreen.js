@@ -14,8 +14,6 @@ import {
   Platform,
   FlatList,
   RefreshControl,
-  TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import {ListItem, CheckBox} from 'react-native-elements';
@@ -41,7 +39,6 @@ import IconBox from '../../components/icons/IconBox';
 import {Btn} from '../../components/Button';
 import {RBSheetHeader} from '../../components/RBSheetHeader';
 import {sleep} from '../../utils/sleep';
-import {checkInternet} from '../../utils/checkInternet';
 import {encryptHex} from '../../utils/encrypt';
 import {getDataNotify} from '../../services/NotifyService';
 
@@ -58,7 +55,6 @@ export function HomeScreen({navigation}) {
   const [nodeData, setNodeData] = useState([]);
   const [favorites, setFavorites] = useState({});
   const [refreshing, setRefreshing] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState(false);
   const refRBSheet = useRef();
   const numColumns = 2;
 
@@ -84,9 +80,6 @@ export function HomeScreen({navigation}) {
     useCallback(() => {
       (async () => {
         try {
-          checkInternet().then((res) => {
-            setConnectionStatus(!res);
-          });
           AsyncStorage.removeItem('@reportFilters');
           await MaterialIcons.loadFont();
           await MaterialCommunityIcons.loadFont();
@@ -133,7 +126,7 @@ export function HomeScreen({navigation}) {
         clearInterval(refreshID);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [connectionStatus, favorites]),
+    }, []),
   );
 
   async function fetchData() {
@@ -225,15 +218,6 @@ export function HomeScreen({navigation}) {
     });
   };
 
-  if (connectionStatus) {
-    return (
-      <>
-        <HeaderStatus ios={'light'} />
-        <SafeAreaView style={styles.container} />
-      </>
-    );
-  }
-
   if (isLoading) {
     return (
       <>
@@ -266,9 +250,6 @@ export function HomeScreen({navigation}) {
     <>
       <HeaderStatus ios={'light'} />
       <SafeAreaView style={styles.container}>
-        {/*<TouchableOpacity onPress={() => refreshTokens()} style={{marginTop: 20}}>*/}
-        {/*  <Text>Click here to update Token </Text>*/}
-        {/*</TouchableOpacity>*/}
         <View style={styles.tabContainer}>
           <SegmentedControlTab
             values={['All lines', 'My lines']}

@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Dimensions,
-  Button,
 } from 'react-native';
 import {CommonActions, useFocusEffect} from '@react-navigation/native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
@@ -35,7 +34,6 @@ import {ReportHeaderFilter} from './components/ReportHeaderFilter';
 import {CardEfficiency} from '../CardDetailsScreen/components/CardEfficiency';
 import {ProgressContent} from '../../components/ProgressContent';
 import IconBox from '../../components/icons/IconBox';
-import {checkInternet} from '../../utils/checkInternet';
 
 export function ReportScreen({navigation, route}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,7 +47,6 @@ export function ReportScreen({navigation, route}) {
   const [reportArray, setReportArray] = useState({});
   const [bottomActions, setBottomActions] = useState(null);
   const [filterDisabled, setFilterDisabled] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState(false);
   const [isError, setIsError] = useState('');
   const {ApiService} = useData();
   const {refreshTokens, logout} = useContext(AuthContext);
@@ -90,9 +87,6 @@ export function ReportScreen({navigation, route}) {
 
   useFocusEffect(
     useCallback(() => {
-      checkInternet().then((res) => {
-        setConnectionStatus(!res);
-      });
       crashlytics().log('Report Screen mounted.');
       (async () => {
         await MaterialIcons.loadFont();
@@ -142,23 +136,10 @@ export function ReportScreen({navigation, route}) {
                   filterData: reportFilters,
                 });
                 setLoading(false);
-                // navigation.reset({
-                //   index: 0,
-                //   routes: [
-                //     {
-                //       name: 'ReportScreen',
-                //       params: {filterData: reportFilters},
-                //     },
-                //   ],
-                // })
-
-                // navigation.dispatch({
-                //   ...CommonActions.setParams({filterData: reportFilters}),
-                //   source: route.key,
-                // });
               } else {
                 setLoading(true);
-                const yesterday = moment.utc()
+                const yesterday = moment
+                  .utc()
                   .subtract(1, 'days')
                   .format('YYYY-MM-DDT12:00:00[.000Z]');
                 const today = moment.utc().format('YYYY-MM-DDT12:00:00[.000Z]');
@@ -371,21 +352,6 @@ export function ReportScreen({navigation, route}) {
       return <Text style={styles.textEmpty}>No data</Text>;
     }
   };
-
-  if (connectionStatus) {
-    return (
-      <>
-        <HeaderStatus ios={'light'} />
-        <SafeAreaView style={styles.container}>
-          <ReportHeaderFilter
-            navigation={navigation}
-            filterResult={undefined}
-            disabled={true}
-          />
-        </SafeAreaView>
-      </>
-    );
-  }
 
   return (
     <>
