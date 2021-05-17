@@ -141,8 +141,8 @@ android {
         applicationId "com.livetracking.lmaapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
         multiDexEnabled true
     }
     splits {
@@ -162,8 +162,6 @@ android {
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
         }
-    }
-    signingConfigs {
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'

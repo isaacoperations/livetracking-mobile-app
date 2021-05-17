@@ -44,7 +44,7 @@
     "react-native-mail": "^6.0.0",
     "react-native-modal-dropdown": "https://github.com/Kishanjvaghela/react-native-modal-dropdown",
     "react-native-onboarding-swiper": "^1.1.4",
-    "react-native-push-notification": "^7.1.1",
+    "react-native-push-notification": "^7.3.0",
     "react-native-raw-bottom-sheet": "^2.2.0",
     "react-native-reanimated": "^1.13.2",
     "react-native-restart": "^0.0.22",
