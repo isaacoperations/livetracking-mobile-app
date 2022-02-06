@@ -110,6 +110,8 @@ export function useData() {
     getLines: () => requests.get('/line'),
     getProducts: () => requests.get('/product'),
     postReport: (data) => requests.post('/mobile/reporting/daily/range', data),
+    bindDevice: (data) => requests.post('/notifications/bind', data),
+    unbindDevice: (data) => requests.put('/notifications/unbind', data),
   };
 
   return {ApiService};

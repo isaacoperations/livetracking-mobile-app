@@ -23,8 +23,8 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
         data = JSON.parse(notify);
       }
       let res = {
-        title: remoteMessage.notification.title || remoteMessage.data.title,
-        body: remoteMessage.notification.body || remoteMessage.data.body,
+        title: remoteMessage.notification?.title || remoteMessage.data?.title,
+        body: remoteMessage.notification?.body || remoteMessage?.data.body,
         date: Math.floor(new Date().getTime() / 1000),
       };
       result.push(...data, res);
@@ -35,12 +35,12 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
       remoteMessage?.data?.twi_title ||
       remoteMessage?.twi_title ||
       remoteMessage?.title ||
-      remoteMessage.notification.title;
+      remoteMessage.notification?.title;
     const message =
       remoteMessage?.data?.twi_body ||
       remoteMessage?.twi_body ||
       remoteMessage?.body ||
-      remoteMessage.notification.body;
+      remoteMessage.notification?.body;
     const options = {
       soundName: 'default',
       playSound: true,
@@ -52,12 +52,12 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
       // imageUrl:
       //   remoteMessage?.image || remoteMessage?.data?.image || 'ic_launcher', // add icon small for Android (Link: app/src/main/mipmap)
     };
-    // localNotificationService.showNotification(
-    //   title,
-    //   message,
-    //   remoteMessage, // data
-    //   options, // options
-    // );
+    localNotificationService.showNotification(
+      title,
+      message,
+      remoteMessage, // data
+      options, // options
+    );
   }
 });
 

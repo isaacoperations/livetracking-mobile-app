@@ -120,7 +120,7 @@ export function HomeScreen({navigation}) {
 
       const refreshID = setInterval(async () => {
         await fetchData();
-      }, 1000);
+      }, 10000);
 
       return () => {
         clearInterval(refreshID);

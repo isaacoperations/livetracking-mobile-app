@@ -53,6 +53,7 @@ export function useAuth() {
           'notifyData',
           'formNotify',
           'notifyData',
+          'bindingId',
         ];
         await AsyncStorage.multiRemove(keys);
         await RNSInfo.deleteItem('user', {});

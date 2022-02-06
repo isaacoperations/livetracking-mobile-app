@@ -95,7 +95,7 @@ class LocalNotificationService {
       smallIcon: options.smallIcon || 'push_icon_72',
       imageUrl: options.imageUrl || 'push_icon_72',
       bigText: message || 'LiveTracking',
-      subText: title || 'LiveTracking message',
+      subText: title || '',
       vibrate: options.vibrate || true,
       vibration: options.vibration || 300,
       priority: options.priority || 'high',
@@ -130,8 +130,8 @@ class LocalNotificationService {
       /* iOS and Android properties */
       ...this.buildIOSNotification(this.lastId, title, message, data, options),
       /* iOS and Android properties */
-      title: title || 'Livetracking title',
-      message: message || 'Livetracking body',
+      title: title || 'LiveTracking',
+      message: message || 'LiveTracking body',
       playSound: options.playSound || true,
       soundName: options.soundName || 'default',
       userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not

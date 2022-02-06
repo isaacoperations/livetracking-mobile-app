@@ -17,6 +17,8 @@ import {ModalHeader} from '../../components/ModalHeader';
 import {SettingBtn} from './components/SettingBtn';
 import {SettingUserInfo} from './components/SettingUserInfo';
 import {Btn} from '../../components/Button';
+import {useData} from '../../services/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function SettingScreen({navigation}) {
   useEffect(() => {
@@ -27,6 +29,22 @@ export function SettingScreen({navigation}) {
   const {
     userData: {name, picture, email},
   } = user;
+
+  const {ApiService} = useData();
+
+  const onLogoutPress = async () => {
+    crashlytics().log('Logout - button');
+    const binding_id = await AsyncStorage.getItem('bindingId');
+    if (binding_id) {
+      await ApiService.unbindDevice({binding_id})
+        .then(() => console.log('[Notification] Bind: unbind successful'))
+        .catch((err) => {
+          console.log('[Notification] Bind: unbind error: ', err);
+        });
+    }
+    logout();
+  };
+
   return (
     <>
       <HeaderStatus ios={'dark'} />
@@ -67,10 +85,7 @@ export function SettingScreen({navigation}) {
           <View style={styles.containerBottom}>
             <Btn
               title={'Log out'}
-              onPress={() => {
-                crashlytics().log('Logout - button');
-                logout();
-              }}
+              onPress={onLogoutPress}
               icon={false}
               navigation={navigation}
               borderColor={THEME.DARK_COLOR}

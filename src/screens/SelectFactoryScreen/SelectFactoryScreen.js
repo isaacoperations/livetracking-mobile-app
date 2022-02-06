@@ -5,7 +5,7 @@ import React, {
   useState,
   Fragment,
 } from 'react';
-import {StyleSheet, SafeAreaView, ScrollView} from 'react-native';
+import {StyleSheet, SafeAreaView, ScrollView, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {THEME} from '../../constants/theme';
@@ -16,10 +16,13 @@ import {UserContext} from '../../context/context';
 import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
+import {useData} from '../../services/ApiService';
 
 export function SelectFactoryScreen({navigation, route}) {
   const user = useContext(UserContext);
   const [{factory}, dispatch] = useReducer(reducer, initialState);
+
+  const {ApiService} = useData();
   const organizations =
     user.userData['https://livetracking.ca/app_metadata'].organizations;
   const factoriesData = user.app_metadata?.factories[0]?.id;
@@ -43,17 +46,46 @@ export function SelectFactoryScreen({navigation, route}) {
 
   const requestFactoryId = async (id, url, name) => {
     setDebounce(true);
-    const data = {
+    const payloadData = {
       factoryId: id,
       factoryName: name,
       factoryUrl: url,
     };
-    await AsyncStorage.setItem('factoryID', JSON.stringify(data));
+    await AsyncStorage.setItem('factoryID', JSON.stringify(payloadData));
     AsyncStorage.removeItem('@reportFilters');
     setSelected(id);
     dispatch(createAction('SET_FACTORY', id));
     sleep(500)
-      .then(() => {
+      .then(async () => {
+        //TODO Extract to a service
+        const tokenFB = await AsyncStorage.getItem('tokenDevice');
+        const tokenDeviceAPN = await AsyncStorage.getItem('tokenDeviceAPNs');
+        const bindingID = await AsyncStorage.getItem('bindingId');
+        if (Platform.OS === 'android' && tokenFB && !bindingID) {
+          await ApiService.bindDevice({
+            binding_type: 'fcm',
+            address: tokenFB,
+            user_auth0_id: user?.userData?.sub,
+          })
+            .then(async ({data}) => {
+              await AsyncStorage.setItem('bindingId', data.bindingId);
+            })
+            .catch((err) => {
+              console.log('[Notification] Bind err: ', err);
+            });
+        } else if (Platform.OS === 'ios' && tokenDeviceAPN && !bindingID) {
+          await ApiService.bindDevice({
+            binding_type: 'apn',
+            address: tokenDeviceAPN,
+            user_auth0_id: user?.userData?.sub,
+          })
+            .then(async ({data}) => {
+              await AsyncStorage.setItem('bindingId', data.bindingId);
+            })
+            .catch((err) => {
+              console.log('[Notification] Bind err: ', err);
+            });
+        }
         setDebounce(false);
       })
       .finally(() => {
