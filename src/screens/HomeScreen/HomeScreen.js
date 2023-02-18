@@ -3,7 +3,7 @@ import React, {
   useState,
   useRef,
   useCallback,
-  useEffect,
+  useEffect, useReducer,
 } from 'react';
 import {
   View,
@@ -30,7 +30,7 @@ import _ from 'lodash';
 import {THEME} from '../../constants/theme';
 import {FONT} from '../../constants/fonts';
 
-import {AuthContext, UserContext} from '../../context/context';
+import {AuthContext, FactoryContext, UserContext} from '../../context/context';
 import {useData} from '../../services/ApiService';
 
 import HeaderStatus from '../../components/HeaderStatus';
@@ -41,6 +41,7 @@ import {RBSheetHeader} from '../../components/RBSheetHeader';
 import {sleep} from '../../utils/sleep';
 import {encryptHex} from '../../utils/encrypt';
 import {getDataNotify} from '../../services/NotifyService';
+import {bindDevice} from '../../utils/bindDevice';
 
 export function HomeScreen({navigation}) {
   const user = useContext(UserContext);
@@ -62,6 +63,7 @@ export function HomeScreen({navigation}) {
     (async () => {
       crashlytics().log('Home mounted.');
       const tokenFB = await AsyncStorage.getItem('tokenDevice');
+      await bindDevice(ApiService, user?.userData?.sub);
       const data = {
         user_data: user,
         firebase_token: tokenFB,
@@ -120,7 +122,7 @@ export function HomeScreen({navigation}) {
 
       const refreshID = setInterval(async () => {
         await fetchData();
-      }, 10000);
+      }, 15000);
 
       return () => {
         clearInterval(refreshID);

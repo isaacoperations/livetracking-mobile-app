@@ -54,9 +54,10 @@ export function LoginScreen({navigation}) {
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
+      .trim()
       .min(3, 'Please enter more than 3 characters!')
       .max(70, 'Too Long!')
-      .email('Invalid email')
+      .email('Invalid email format')
       .required('Required'),
     password: Yup.string()
       .min(6, 'Please enter more than 6 characters!')
@@ -76,7 +77,7 @@ export function LoginScreen({navigation}) {
             setIsLoading(true);
             actions.setSubmitting(false);
             // actions.resetForm();
-            await login(values.email.toLowerCase(), values.password);
+            await login(values.email.trim().toLowerCase(), values.password);
           } catch (e) {
             crashlytics().recordError(e.message);
             setIsError(e.message);
@@ -122,6 +123,8 @@ export function LoginScreen({navigation}) {
                         },
                         styles.input,
                       ]}
+                      textContentType="emailAddress"
+                      keyboardType="email-address"
                       onFocus={() => {
                         setIsErrorEmail(false);
                         setFocusEmail(true);

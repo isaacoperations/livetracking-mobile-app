@@ -32,7 +32,7 @@ import {NoInternetModal} from './src/components/NoInternetModal';
 const App = () => {
   const navigationRef = useRef(null);
   const {auth, state} = useAuth();
-  const [, dispatch] = useReducer(reducer, initialState);
+  const [s, dispatch] = useReducer(reducer, initialState);
   const [isEnable, setIsEnabled] = useState(true);
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [isEnableDisturb, setIsEnabledDisturb] = useState(false);
@@ -268,7 +268,7 @@ const App = () => {
       <NavigationContainer ref={navigationRef}>
         {state.user?.token ? (
           <UserContext.Provider value={state.user}>
-            <FactoryContext.Provider value={state.factory}>
+            <FactoryContext.Provider value={s.factory}>
               <NotificationContext.Provider value={state.badge}>
                 {!isOnboarding ? (
                   <OnboardingStackNavigator />

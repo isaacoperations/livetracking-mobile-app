@@ -17,6 +17,7 @@ import reducer, {initialState} from '../../reducer/reducer';
 import {createAction} from '../../utils/createAction';
 import {sleep} from '../../utils/sleep';
 import {useData} from '../../services/ApiService';
+import {bindDevice} from '../../utils/bindDevice';
 
 export function SelectFactoryScreen({navigation, route}) {
   const user = useContext(UserContext);
@@ -57,35 +58,7 @@ export function SelectFactoryScreen({navigation, route}) {
     dispatch(createAction('SET_FACTORY', id));
     sleep(500)
       .then(async () => {
-        //TODO Extract to a service
-        const tokenFB = await AsyncStorage.getItem('tokenDevice');
-        const tokenDeviceAPN = await AsyncStorage.getItem('tokenDeviceAPNs');
-        const bindingID = await AsyncStorage.getItem('bindingId');
-        if (Platform.OS === 'android' && tokenFB && !bindingID) {
-          await ApiService.bindDevice({
-            binding_type: 'fcm',
-            address: tokenFB,
-            user_auth0_id: user?.userData?.sub,
-          })
-            .then(async ({data}) => {
-              await AsyncStorage.setItem('bindingId', data.bindingId);
-            })
-            .catch((err) => {
-              console.log('[Notification] Bind err: ', err);
-            });
-        } else if (Platform.OS === 'ios' && tokenDeviceAPN && !bindingID) {
-          await ApiService.bindDevice({
-            binding_type: 'apn',
-            address: tokenDeviceAPN,
-            user_auth0_id: user?.userData?.sub,
-          })
-            .then(async ({data}) => {
-              await AsyncStorage.setItem('bindingId', data.bindingId);
-            })
-            .catch((err) => {
-              console.log('[Notification] Bind err: ', err);
-            });
-        }
+        await bindDevice(ApiService, user?.userData?.sub);
         setDebounce(false);
       })
       .finally(() => {
