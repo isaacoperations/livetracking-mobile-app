@@ -141,8 +141,8 @@ android {
         applicationId "com.livetracking.lmaapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 7
+        versionName "1.0.8"
         multiDexEnabled true
     }
     splits {

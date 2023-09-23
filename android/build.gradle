@@ -7,9 +7,9 @@ buildscript {
         firebaseIidVersion = "19.0.1"
 
         buildToolsVersion = "29.0.2"
-        minSdkVersion = 19
-        compileSdkVersion = 30
-        targetSdkVersion = 30
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
         supportLibVersion = '1.0.2'
         mediaCompatVersion = '1.0.1'
         supportV4Version = '1.0.0'
@@ -19,7 +19,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:4.1.1')
+        classpath('com.android.tools.build:gradle:4.2.0')
         classpath 'com.google.gms:google-services:4.3.3'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.2.0'
         // NOTE: Do not place your application dependencies here; they belong
